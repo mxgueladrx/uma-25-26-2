@@ -1,0 +1,194 @@
+{
+  "main": {
+    "id": "0f04236f1cab8bcc",
+    "type": "split",
+    "children": [
+      {
+        "id": "a233c95bb4d198ba",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "342f9a41ff5cc87e",
+            "type": "leaf",
+            "state": {
+              "type": "empty",
+              "state": {},
+              "icon": "lucide-file",
+              "title": "Nueva pestaña"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "cd4813c3be6a93f1",
+    "type": "split",
+    "children": [
+      {
+        "id": "a43fb4554f992551",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "0fce13632906a92c",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Explorador de archivos"
+            }
+          },
+          {
+            "id": "0f2c1372cc6513b7",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Buscar"
+            }
+          },
+          {
+            "id": "42a4bd4823d00fcf",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Marcadores"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 200
+  },
+  "right": {
+    "id": "583ee4ac444531f5",
+    "type": "split",
+    "children": [
+      {
+        "id": "07ae058858883a90",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "4863dbb00c2629a7",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "RC1/Tema0.pdf",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Enlaces entrantes de Tema0"
+            }
+          },
+          {
+            "id": "62f75e5371469883",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "RC1/Tema0.pdf",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Enlaces salientes de Tema0"
+            }
+          },
+          {
+            "id": "2bd428982d0781ef",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Etiquetas"
+            }
+          },
+          {
+            "id": "e57180a167ae6609",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "Todas las propiedades"
+            }
+          },
+          {
+            "id": "5a634b20f4c60626",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "RC1/Tema0.pdf",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Esquema de Tema0"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Abrir selector rápido": false,
+      "graph:Abrir vista gráfica": false,
+      "canvas:Crear nuevo lienzo": false,
+      "daily-notes:Abrir la nota de hoy": false,
+      "templates:Insertar plantilla": false,
+      "command-palette:Abrir paleta de comandos": false,
+      "bases:Crear nueva base": false
+    }
+  },
+  "active": "342f9a41ff5cc87e",
+  "lastOpenFiles": [
+    "RC1/Sin título.md",
+    "MCP/readme.pdf",
+    "MCP/Presentacion Masterclass UMA Mercedes Benz.pdf",
+    "RC1/Tema0.pdf",
+    "Sin título.md",
+    "RC1/UnProblemaHorticola.pdf",
+    "Sin título.canvas",
+    "2026-02-17.md",
+    "RC1/Unconfirmed 748138.crdownload"
+  ]
+}
