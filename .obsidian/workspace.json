@@ -4,17 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "a233c95bb4d198ba",
+        "id": "6b46570ae05fc29f",
         "type": "tabs",
         "children": [
           {
-            "id": "342f9a41ff5cc87e",
+            "id": "3bf1d4fb7aab9222",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "AC1/CLASE 2.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "Nueva pestaña"
+              "title": "CLASE 2"
             }
           }
         ]
@@ -179,15 +183,16 @@
       "bases:Crear nueva base": false
     }
   },
-  "active": "342f9a41ff5cc87e",
+  "active": "3bf1d4fb7aab9222",
   "lastOpenFiles": [
+    "Sin título.canvas",
+    "AC1/CLASE 2.md",
+    "Sin título.md",
     "RC1/Sin título.md",
     "MCP/readme.pdf",
     "MCP/Presentacion Masterclass UMA Mercedes Benz.pdf",
     "RC1/Tema0.pdf",
-    "Sin título.md",
     "RC1/UnProblemaHorticola.pdf",
-    "Sin título.canvas",
     "2026-02-17.md",
     "RC1/Unconfirmed 748138.crdownload"
   ]
