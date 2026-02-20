@@ -4,11 +4,11 @@
     "type": "split",
     "children": [
       {
-        "id": "5022ab5a3ded40e1",
+        "id": "6585293581702f73",
         "type": "tabs",
         "children": [
           {
-            "id": "61c81837829b8333",
+            "id": "8180375debcb24d4",
             "type": "leaf",
             "state": {
               "type": "empty",
@@ -179,21 +179,29 @@
       "bases:Crear nueva base": false
     }
   },
-  "active": "61c81837829b8333",
+  "active": "0fce13632906a92c",
   "lastOpenFiles": [
-    "RC1/Lenguajes Sistemas y Teorias Formales.md",
-    "RC1/Lenguajes Sistemas y Teorias Formales.pdf",
-    "Ink/Drawing/2026.2.19 - 11.21am.drawing",
-    "Ink/Writing/2026.2.19 - 11.20am.writing",
-    "Ink/Writing/2026.2.19 - 11.18am.writing",
-    "Ink/Drawing/2026.2.19 - 11.18am.drawing",
-    "Sin título.base",
-    "Ink/Drawing",
-    "Ink/Writing",
-    "Ink",
-    "RC1/UnProblemaHorticola.pdf",
-    "RC1/Sin título.canvas",
+    "DAW/jpa-demo/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst",
+    "DAW/jpa-demo/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst",
+    "DAW/jpa-demo/target/classes/es/uma/informatica/jpa/demo/Book.class",
+    "DAW/jpa-demo/target/classes/es/uma/informatica/jpa/demo/Customer.class",
+    "DAW/jpa-demo/target/classes/es/uma/informatica/jpa/demo/Address.class",
+    "DAW/jpa-demo/target/classes/es/uma/informatica/jpa/demo/Artist.class",
+    "DAW/jpa-demo/target/classes/es/uma/informatica/jpa/demo/CD.class",
+    "DAW/jpa-demo/target/classes/es/uma/informatica/jpa/demo/Main.class",
+    "DAW/jpa-demo/target/classes/es/uma/informatica/jpa/demo/Item.class",
+    "DAW/jpa-demo/target/classes/es/uma/informatica/jpa/demo",
+    "DAW/jpa-demo/target/classes/es/uma/informatica/jpa",
+    "DAW/jpa-demo/README.md",
+    "DAW/Imagenes/Pasted image 20260220092509.png",
+    "DAW/Imagenes/Pasted image 20260220092546.png",
+    "DAW/Imagenes/Pasted image 20260220092140.png",
+    "DAW/Imagenes/Pasted image 20260220091618.png",
+    "DAW/Imagenes/Pasted image 20260220085724.png",
+    "DAW/TEMA1.md",
     "AC1/CLASE 2.md",
+    "RC1/Lenguajes Sistemas y Teorias Formales.md",
+    "RC1/Sin título.canvas",
     "Sin título.canvas",
     "Sin título.md",
     "2026-02-17.md"
