@@ -123,6 +123,8 @@ AKK
 AB
 Ahh
 AtM
+Almacena
+Aplicaci
 tico
 til
 trivial
@@ -234,6 +236,8 @@ tww
 tVQ
 tGh
 tpBh
+todo
+trav
 ciencia
 citamente
 conocimiento
@@ -370,6 +374,8 @@ cmP
 ctw
 chB
 cnf
+cliente
+contener
 en
 estar
 expl
@@ -504,6 +510,10 @@ eL
 eff
 exx
 efgf
+empleado
+enlazada
+entre
+enlaces
 la
 los
 limpieza
@@ -607,6 +617,7 @@ lf
 lA
 lg
 lC
+las
 que
 qs
 qxi
@@ -824,6 +835,7 @@ ox
 oy
 ogzz
 ono
+oficina
 aprenden
 algoritmos
 aprendan
@@ -947,6 +959,10 @@ aen
 alN
 ahd
 arr
+actualicen
+actualizar
+accede
+acceder
 sin
 ser
 selecci
@@ -1082,6 +1098,9 @@ sPV
 sWm
 sQa
 sO
+servicio
+servidor
+sitios
 programados
 partir
 puedan
@@ -1197,6 +1216,9 @@ pE
 pA
 pzr
 pd
+por
+puede
+protocolo
 Machine
 ML
 Mining
@@ -1589,6 +1611,9 @@ dLI
 dLTN
 dsE
 djj
+diseminada
+distribuido
+donde
 modelos
 menes
 mining
@@ -1695,6 +1720,7 @@ mdR
 muLs
 mg
 mZt
+mundo
 realizar
 real
 respuesta
@@ -1804,6 +1830,9 @@ rTE
 rl
 rzc
 rHX
+repositorio
+recurso
+recupera
 Data
 Debe
 Discovery
@@ -1932,6 +1961,7 @@ Dg
 DVc
 DaO
 DrN
+Desventajas
 grandes
 gOl
 gV
@@ -2036,6 +2066,7 @@ gog
 gm
 gFR
 gGI
+ginas
 vol
 valor
 valores
@@ -2161,6 +2192,9 @@ vSkZ
 vF
 vIzg
 veW
+vez
+ventas
+visualiza
 no
 nominales
 nea
@@ -2266,6 +2300,8 @@ nKY
 ng
 nc
 nq
+navegador
+numerosos
 impl
 interpretaci
 incluye
@@ -2380,6 +2416,8 @@ ivx
 innFMM
 iEf
 iCO
+informaci
+intercambio
 Knowledge
 KDD
 KNN
@@ -2586,6 +2624,7 @@ ukIE
 uJy
 uPB
 utM
+usando
 Objetos
 OET
 Op
@@ -2833,6 +2872,7 @@ EprB
 EoO
 Ezh
 EAGos
+EJERCICIO
 Juan
 JV
 JFIF
@@ -3199,6 +3239,7 @@ Crc
 CJ
 Ccc
 CUt
+Cada
 Si
 Soporte
 SVM
@@ -3556,6 +3597,7 @@ VmjkRT
 VwxN
 VQb
 VEarB
+Ventajas
 Reglas
 Regresi
 Rm
@@ -5189,6 +5231,9 @@ Wn
 WP
 Wlg
 WF
+World
+Wide
+Web
 bJN
 by
 bI
@@ -5285,6 +5330,7 @@ buz
 bSgR
 bn
 blw
+basa
 ww
 wx
 written
@@ -5395,6 +5441,7 @@ wAMb
 wooo
 wwM
 wPB
+web
 xZ
 xi
 xpW
@@ -5731,6 +5778,7 @@ IA
 IaY
 IfE
 ILZ
+IMPORTANTE
 HB
 HD
 HsL
@@ -5846,6 +5894,7 @@ HWo
 HA
 He
 HPR
+HTTP
 jyB
 jd
 jA
