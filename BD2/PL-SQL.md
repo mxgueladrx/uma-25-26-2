@@ -1,0 +1,18 @@
+### EJERCICIO
+Cada vez que se actualicen las ventas de un empleado, actualizar las ventas de su oficina.
+
+```sql
+ACTUALIZAR OBJETIVO_VENTAS_EMPLEADO (NSS, NUU)
+	V_NSS
+	V_OE
+	V_OV_E
+	BEGIN
+		UPDATE EMPLEADO
+		WHERE NSS = V_NSS
+		    SET OBJETIVO_VENTA_EMPLEADO = NUU
+		SELECT OFICINA_TP, OBJETIVO_VENTA_E INTO V_OE, V_OV_E
+			WHERE NSS = P.NSS
+		UPDATE OFICINAS WHERE ID_O = V_OE
+			SET OBJETIVO_VENTA_O = OBJETIVO_VENTA_O - V_OE + NUU
+```
+
