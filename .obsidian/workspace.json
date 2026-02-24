@@ -4,24 +4,39 @@
     "type": "split",
     "children": [
       {
-        "id": "6585293581702f73",
+        "id": "d3adb1ee1fde8c9b",
         "type": "tabs",
         "children": [
           {
-            "id": "8180375debcb24d4",
+            "id": "d225b2609dd9a173",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "DAW/TEMA1.md",
+                "file": "AC1/CLASE 2.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "TEMA1"
+              "title": "CLASE 2"
+            }
+          },
+          {
+            "id": "a030447a1e9c6915",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "AC1/CLASE 3.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "CLASE 3"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -183,8 +198,12 @@
       "bases:Crear nueva base": false
     }
   },
-  "active": "8180375debcb24d4",
+  "active": "0fce13632906a92c",
   "lastOpenFiles": [
+    "Sin título.md",
+    "AC1/CLASE 3.md",
+    "AC1/CLASE 2.md",
+    "DAW/TEMA1.md",
     "DAW/jpa-demo-master/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst",
     "DAW/jpa-demo-master/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst",
     "DAW/jpa-demo-master/target/classes/es/uma/informatica/jpa/demo/Customer.class",
@@ -195,7 +214,6 @@
     "DAW/jpa-demo-master/target/classes/es/uma/informatica/jpa/demo/Item.class",
     "DAW/jpa-demo-master/target/classes/es/uma/informatica/jpa/demo/Book.class",
     "DAW/jpa-demo-master/target/classes/es/uma/informatica/jpa/demo",
-    "DAW/jpa-demo-master/target/classes/es/uma/informatica/jpa",
     "DAW/jpa-demo-master/README.md",
     "BD2/PL-SQL.md",
     "DAW/jpa-demo/README.md",
@@ -204,12 +222,9 @@
     "DAW/Imagenes/Pasted image 20260220092140.png",
     "DAW/Imagenes/Pasted image 20260220091618.png",
     "DAW/Imagenes/Pasted image 20260220085724.png",
-    "DAW/TEMA1.md",
-    "AC1/CLASE 2.md",
     "RC1/Lenguajes Sistemas y Teorias Formales.md",
     "RC1/Sin título.canvas",
     "Sin título.canvas",
-    "Sin título.md",
     "2026-02-17.md"
   ]
 }
