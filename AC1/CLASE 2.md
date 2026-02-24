@@ -1,6 +1,6 @@
 **Aprendizaje Automático**: ciencia en la que los ordenadores aprenden sin estar explícitamente programados.
 
-**Machine Learning (ML)**: algoritmos que a partir de los datos aprendan modelos y puedan realizar predicciones o decisiones.
+**Machine Learning (ML)**: desarrollo de algoritmos y técnicas que permitan a los computadores aprender de los datos.
 
 **Data Mining**: extraer conocimiento útil y comprensible de grandes volúmenes de datos. Debe ser no trivial, implícito a los datos, desconocido y útil.
 
@@ -22,13 +22,13 @@
 **Clasificación supervisado**: datos etiquetados.
 - **Clasificación**: variable clase es discreta.
 	- **Reglas de clasificación**: infieren reglas para clasificar según los valores de los atributos.
-	- **Árboles de Decisión**: crean árboles para clasificar según los valores de los atributos.
+	- **Árboles de decisión**: crean árboles para clasificar según los valores de los atributos.
 	- **K-Nearest Neighbors (KNN)**: clasifica según la "clase" de sus vecinos más cercanos.
-	- **Maquinas de Soporte Vectorial (SVM)**: 
-	- **Regresión Logística**: predice la probabilidad de pertenecer a una clase.
-- Regresión: variable clase es continua.
-	- **Regresión Lineal**: relación lineal (recta o plano) que mejor ajusta los datos.
-	- **Regresión Polinomial**: relaciones más complejas que no siguen una línea recta.
+	- **Maquinas de Soporte Vectorial (SVM)**: busca el hiperplano que mejor separa las clases.
+	- **Regresión logística**: predice la probabilidad de pertenecer a una clase.
+- **Regresión**: variable clase es continua.
+	- **Regresión lineal**: relación lineal (recta o plano) que mejor ajusta los datos.
+	- **Regresión polinomial**: relaciones más complejas que no siguen una línea recta.
 **Clasificación no supervisado**: datos no etiquetados.
 
 **Modelos predictivos**: predecir los valores de la variable de interés (clase o variable respuesta) a partir de valores de otras variables.
