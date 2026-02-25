@@ -21,3 +21,14 @@ SOA debe tener bajo acoplamiento y autonomía para su reutilización.
 **Coreografía**: reglas para que las entidades interesadas deben seguir para poder colaborar. WS CDL (Web Services Choreography Description Language) define el intercambio de información entre las entidades. Documento global que todos saben.![[Pasted image 20260225113329.png]]
 
 ## Servicios Web REST
+![[Pasted image 20260225121317.png]]
+**URI (Uniform Resource Identifier)**: myserver.es/api/v1/usuarios. Identifica un recurso.
+
+**GET**: obtener info de la API.
+**PUT**: mandar info (update).
+**POST**: publicar (insert).
+**DELETE**: borrar.
+
+Un servicio web es un componente software que ofrece un servicio usando HTTP. Se relaciona con arquitecturas orientadas a servicios. 
+
+**REST (Representational State Transfer)**: arquitectura para entornos hipermedia distribuidos. Formado por principios para el desarrollo de arquitecturas distribuidas.

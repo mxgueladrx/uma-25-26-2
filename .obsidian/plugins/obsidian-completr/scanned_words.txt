@@ -701,6 +701,8 @@ cee
 chhH
 cll
 completar
+colaborar
+componente
 en
 estar
 expl
@@ -954,6 +956,9 @@ eER
 eqq
 eyE
 especificar
+empresa
+entidades
+entornos
 la
 los
 limpieza
@@ -1568,6 +1573,8 @@ ooO
 oRVVFMM
 omm
 osquestaciones
+ofrece
+orientadas
 aprenden
 algoritmos
 aprendan
@@ -1793,6 +1800,7 @@ awwW
 ayy
 azz
 adB
+api
 sin
 ser
 selecci
@@ -2053,6 +2061,8 @@ sGh
 sssLMM
 seguir
 sirve
+saben
+software
 programados
 partir
 puedan
@@ -2293,6 +2303,7 @@ pasarela
 pago
 pueden
 publicitan
+principios
 Machine
 ML
 Mining
@@ -3029,6 +3040,8 @@ dnn
 dccC
 dxx
 deben
+define
+distribuidos
 modelos
 menes
 mining
@@ -3237,6 +3250,8 @@ mmmTUUa
 mmM
 myy
 mFGG
+misma
+myserver
 realizar
 real
 respuesta
@@ -3461,6 +3476,7 @@ reutilizaci
 reutilizar
 rZUee
 rQQQ
+relaciona
 Data
 Debe
 Discovery
@@ -3666,6 +3682,7 @@ Description
 DKK
 DvX
 DZc
+Documento
 grandes
 gOl
 gV
@@ -3869,6 +3886,7 @@ gqq
 gffF
 gnn
 gcc
+global
 vol
 valor
 valores
@@ -4501,6 +4519,7 @@ ifgg
 ijj
 ill
 ioo
+interesadas
 Knowledge
 KDD
 KNN
@@ -4880,6 +4899,7 @@ utilizar
 usuario
 usada
 uuul
+usuarios
 Objetos
 OET
 Op
@@ -5921,6 +5941,9 @@ Clll
 COO
 CCCtvvb
 CCClllp
+Coreograf
+CDL
+Choreography
 Si
 Soporte
 SVM
@@ -6122,6 +6145,8 @@ Simple
 SOA
 Service
 SWWG
+Servicios
+State
 No
 Nearest
 Neighbors
@@ -6753,6 +6778,9 @@ RYYIii
 RUUE
 RFGG
 RUUENN
+REST
+Resource
+Representational
 Polinomial
 PDF
 Photoshop
@@ -7190,6 +7218,7 @@ FAA
 FqM
 FCYY
 FWW
+Formado
 UMo
 UZ
 UR
@@ -7380,6 +7409,8 @@ Ufff
 UWW
 UXz
 UUUd
+URI
+Uniform
 hN
 hg
 hof
@@ -7576,6 +7607,7 @@ hll
 hdmmM
 hkkcpp
 hjj
+hipermedia
 yL
 yY
 yO
@@ -8170,6 +8202,7 @@ Tbww
 Tbmm
 TUUQRRBnn
 TRq
+Transfer
 ZW
 ZI
 Zf
@@ -10528,6 +10561,8 @@ IFGG
 IUU
 IDATD
 Imn
+Identifier
+Identifica
 HB
 HD
 HsL
@@ -10937,6 +10972,7 @@ jhh
 jjjhll
 jJKK
 joo
+jefe
 öu
 öm
 ßS
