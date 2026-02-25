@@ -61,7 +61,29 @@ Detecta y corrige errores, inconsistencias y datos faltantes en el conjunto de i
 			- Si el atributo es numérico: $d^{k}_{i,j} = \frac{|x_{i,k}-x_{j,k}|}{R_{k}}$ donde $R_{k}$ es el rango de a variable K.
 			- Si el atributo es categórico: $d^{k}_{i,j} = 0$ si los valores coinciden, 1 si no coinciden.
 		- **Máxima verosimilitud (EM)**: probabilístico. Encuentra valores que mejor encajarían para que la distribución total de los datos sea lo más coherente posible.
-
+			- **Expectation**: valor esperado para el dato perdido. $x_{miss}=\mu_{miss}+\Upsigma_{12}\Upsigma^{-1}_{22}(x_{obs}-\mu_{obs})$
+			- **Maximization**: maximizar la función de verosimilitud, que representa la probabilidad de tener las observaciones que tenemos en el dataset.
+			Hay que encontrar $\theta$ (media $\mu$ y varianza $\sigma$) que mejor expliquen los datos faltantes. 
+- **Datos anómalos**: 
+	- **Detección**:
+		- **Métodos estadísticos**:
+			- **Normalización o reescalado Min-Max**: transformar valores a un rango específico. Normalmente se reescala a \[0,1]. Los valores extremos quedan cerca del 0 o 1. $$x'=\frac{x-min}{max-min}$$
+			- **Z-score**: mide cuantas desviaciones estándar se encuentra un punto de la media. Un valor normalizado superior a 3 es anómalo (regla 68,27; 95; 99,73)$$x'=\frac{x-\mu}{\sigma}$$
+			- **IQR (Rango Intercuartílico)**: dispersión de los datos. Se usan $Q_{1}$ y $Q_{3}$ y el rango intercuartílico $[Q_{1}-1.5*IQR, Q_{3}+1.5*IQR]$. Los puntos fuera del rango son anomalías.
+			![[Pasted image 20260225093427.png]]
+			![[Pasted image 20260225094611.png]]
+		- **Técnicas de visualización**: 
+			- **Boxplots**: visualiza cuartiles y puntos aislados que superan los límites del IQR.
+			- **Scatter plots**: ver la relación entre dos variables e identificar puntos que se escapan del cluster principal.
+			- **Histogramas**: frecuencia de los datos. Barras pequeñas o alejadas en los extremos son posibles anomalías.
+			![[Pasted image 20260225093530.png]]
+	- **Acciones**:
+		- **Eliminación crítica**: se elimina si es error, el impacto es aceptable (menos del 5% de los datos) y no provoca sesgos.
+		- **Imputación**: sustituir valores (apartado anterior).
+		- **Transformar datos**: 
+			- Transformaciones no lineales: funciones logarítmicas o raíz cuadrada para reducir el peso de los extremos.
+			- Segmentación o clustering: identificar si las anomalías forman un grupo con patrón propio para tratarlos de forma aislada en lugar de eliminarlos.
+			- Suavizado de datos: aplicar filtros de variabilidad para minimizar el impacto del ruido aleatorio en el análisis global.
 ## Ejercicio
 Calcula el valor para imputar a la edad del socio 6 usando KNN.
 
@@ -80,3 +102,26 @@ $D(6,2) = \frac{0/8 + 0 + 0}{3} =0$
 $D(6,3) = \frac{7/8 + 1 + 1}{3} =0.9583$
 $D(6,4) = \frac{1/8 + 0 + 0}{3} =0.0416$
 $D(6,5) = \frac{7/8 + 1}{2}=0.9375$
+## Integración de datos
+Combinar información de múltiples fuentes para crear una vista única, coherente y valiosa.
+- **Detección de instancias duplicadas**: cómo identificar registros repetidos.
+	- **Métricas de caracteres**: Ejemplo: "Helena" y "Elena", "Calle Mayor 5" y "5, Mayor St.", "2345678X" y "2345678-X". Se cuenta el número de transformaciones necesarias para hacerlos coincidir.
+	- **Métricas fonéticas**: Ejemplo: "Helena" y "Elena". Generan el mismo código fonético, por lo que podemos ignorar la diferencia ortográfica.
+	- **Métrica de tokens**: Ejemplo: "Calle Mayor 5" y "5, Mayor St.". Se descompone la dirección en palabras sueltas y se ignora el orden.
+	- **Modelo probabilístico (Fellegi-Sunter)**: definimos 
+		- $m$: probabilidad de que el campo coincida si los registros son el mismo.
+		- $u$: probabilidad de que el campo coincida en dos registros distintos.
+		Calculamos el peso de cada valor:
+		- **Peso de concordancia (hay coincidencia)**: $w^{+}=\log_{2}(\frac{m}{u})$
+		- **Peso de desacuerdo (no hay coincidencia)**: $w^{-}=\log_{2}(\frac{1-m}{1-u})$
+		Se define un score como la suma de los pesos de todas las variables y se establece un umbral $T_{superior}$ y $T_{inferior}$:
+		- score $\ge T_{superior}$: mismo registro.
+		- score $\lt T_{inferior}$: registros diferentes.
+		- Otro caso: revisión manual.
+- **Localización de datos redundantes**: qué información sobra. Atributo derivado de otro.
+	- **Atributos nominales**:
+		- **Test Chi-cuadrado de independencia**: 
+	- **Atributos numéricos**:
+		- **Covarianza**:
+		- **Coeficiente de correlación de Pearson**:
+## ==Hacer EM==

@@ -4,21 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "26558d5b3bce0f7f",
+        "id": "c84face5617976a1",
         "type": "tabs",
         "children": [
           {
-            "id": "4c319dad56fdb5dd",
+            "id": "fc6f7a560815874b",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "BD2/Tema2.md",
+                "file": "AC1/CLASE 3, 4.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Tema2"
+              "title": "CLASE 3, 4"
             }
           }
         ]
@@ -183,31 +183,34 @@
       "bases:Crear nueva base": false
     }
   },
-  "active": "4c319dad56fdb5dd",
+  "active": "0fce13632906a92c",
   "lastOpenFiles": [
-    "BD2/Tema1.pdf",
-    "BD2/Tema2.md",
-    "BD2/Tema2.pdf",
-    "AC1/CLASE 3.md",
+    "Imagenes/Pasted image 20260225094611.png",
+    "Imagenes/Pasted image 20260225093530.png",
+    "Imagenes/Pasted image 20260225093427.png",
+    "DAW/TEMA1.md",
+    "AC1/CLASE 3, 4.md",
     "AC1/CLASE 2.md",
-    "RC1/UnProblemaHorticola.pdf",
     "RC1/Introduccion.pdf",
+    "BD2/Tema2.md",
+    "BD2/Tema1.pdf",
+    "BD2/Tema2.pdf",
+    "RC1/UnProblemaHorticola.pdf",
     "BD2/Unconfirmed 85420.crdownload",
     "BD2/Unconfirmed 612105.crdownload",
     "RC1/LSTF.xopp~",
     "RC1/LSTF.xopp",
     "RC1/Lenguajes Sistemas y Teorias Formales.md",
     "Sin título.md",
-    "DAW/TEMA1.md",
     "DAW/jpa-demo-master/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst",
     "DAW/jpa-demo-master/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst",
     "DAW/jpa-demo-master/README.md",
     "DAW/jpa-demo/README.md",
-    "DAW/Imagenes/Pasted image 20260220092509.png",
-    "DAW/Imagenes/Pasted image 20260220092546.png",
-    "DAW/Imagenes/Pasted image 20260220092140.png",
-    "DAW/Imagenes/Pasted image 20260220091618.png",
-    "DAW/Imagenes/Pasted image 20260220085724.png",
+    "Imagenes/Pasted image 20260220092509.png",
+    "Imagenes/Pasted image 20260220092546.png",
+    "Imagenes/Pasted image 20260220092140.png",
+    "Imagenes/Pasted image 20260220091618.png",
+    "Imagenes/Pasted image 20260220085724.png",
     "RC1/Sin título.canvas",
     "Sin título.canvas",
     "2026-02-17.md"

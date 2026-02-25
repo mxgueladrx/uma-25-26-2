@@ -210,6 +210,7 @@ AuT
 AEI
 AXj
 AbE
+Acciones
 tico
 til
 trivial
@@ -414,6 +415,10 @@ tss
 tSIg
 tcu
 tKc
+tener
+tenemos
+todos
+transformar
 ciencia
 citamente
 conocimiento
@@ -639,6 +644,12 @@ crhr
 cYI
 cT
 cUH
+computadores
+clases
+cerca
+cuantas
+cuartiles
+cluster
 en
 estar
 expl
@@ -871,6 +882,12 @@ eye
 eSJ
 eWc
 eQiYT
+ejercicios
+esperado
+encontrar
+expliquen
+extremos
+escapan
 la
 los
 limpieza
@@ -1062,6 +1079,8 @@ lnU
 lqB
 lsf
 lag
+log
+lico
 que
 qs
 qxi
@@ -1265,6 +1284,7 @@ qMJ
 qtH
 qAdO
 qUw
+quedan
 ordenadores
 objeto
 orden
@@ -1454,6 +1474,7 @@ omX
 obB
 odd
 otI
+observaciones
 aprenden
 algoritmos
 aprendan
@@ -1661,6 +1682,10 @@ amCm
 aqBb
 aXZ
 aSw
+aprender
+anomal
+aislados
+alejadas
 sin
 ser
 selecci
@@ -1901,6 +1926,11 @@ swa
 sSk
 swX
 sCl
+separa
+sticos
+score
+superior
+superan
 programados
 partir
 puedan
@@ -2123,6 +2153,14 @@ pEm
 psU
 pBq
 pAI
+permitan
+polinomial
+punto
+puntos
+plots
+principal
+peque
+posibles
 Machine
 ML
 Mining
@@ -2349,6 +2387,9 @@ MLY
 MuK
 MTZ
 MdW
+Maximization
+Min
+Max
 Learning
 Log
 Lineal
@@ -2574,6 +2615,7 @@ Lea
 Lyp
 LKs
 LXKf
+Los
 de
 datos
 decisiones
@@ -2807,6 +2849,11 @@ dJq
 daV
 dfn
 dji
+desarrollo
+decisi
+dato
+desviaciones
+dispersi
 modelos
 menes
 mining
@@ -3001,6 +3048,11 @@ mfv
 mYl
 mnY
 myQ
+maximizar
+malos
+mide
+malo
+mites
 realizar
 real
 respuesta
@@ -3210,6 +3262,10 @@ rSU
 rUn
 rVW
 rpd
+representa
+reescalado
+reescala
+regla
 Data
 Debe
 Discovery
@@ -3408,6 +3464,7 @@ DFE
 DBH
 DUh
 DBy
+Detecci
 grandes
 gOl
 gV
@@ -3812,6 +3869,9 @@ vDCl
 vKEk
 vOZa
 vFYX
+varianza
+visualizaci
+ver
 no
 nominales
 nea
@@ -3993,6 +4053,8 @@ nTV
 nBj
 ndI
 nkD
+ndar
+normalizado
 impl
 interpretaci
 incluye
@@ -4193,6 +4255,8 @@ irtf
 iJzz
 iGxT
 ipB
+intercuart
+identificar
 Knowledge
 KDD
 KNN
@@ -4556,6 +4620,7 @@ ufw
 upJ
 ugUm
 unX
+usan
 Objetos
 OET
 Op
@@ -4957,6 +5022,9 @@ ExR
 EEm
 EBM
 Extends
+Ejercicio
+Encuentra
+Expectation
 Juan
 JV
 JFIF
@@ -5352,6 +5420,8 @@ BcSrJj
 Baf
 Bwz
 BNMp
+Boxplots
+Barras
 Continuos
 Clasificaci
 Cb
@@ -5759,6 +5829,7 @@ SUF
 SA
 SZJ
 SiR
+Scatter
 No
 Nearest
 Neighbors
@@ -5975,6 +6046,8 @@ NOT
 NHP
 NiF
 NWG
+Normalizaci
+Normalmente
 Valores
 Vectorial
 Vfv
@@ -7150,6 +7223,7 @@ hNd
 hfL
 hpD
 hUn
+hiperplano
 yL
 yY
 yO
@@ -8851,6 +8925,8 @@ fip
 fmT
 ful
 fSG
+fuera
+frecuencia
 Wpz
 WR
 WJ
@@ -9228,6 +9304,7 @@ bFo
 biZ
 bzL
 be
+busca
 ww
 wx
 written
@@ -10003,6 +10080,8 @@ IpS
 IsV
 IrV
 IIV
+IQR
+Intercuart
 HB
 HD
 HsL
@@ -10206,6 +10285,8 @@ Hed
 HRk
 HhO
 HsC
+Hay
+Histogramas
 jyB
 jd
 jA
