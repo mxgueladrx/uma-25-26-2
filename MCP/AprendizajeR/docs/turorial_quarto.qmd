@@ -1,0 +1,46 @@
+---
+title: "Tutorial Quarto"
+author: "Miguel"
+format: html
+---
+
+# Encabezado
+
+## Encabezado de segundo nivel
+
+### Encabezado de tercer nivel
+
+Texto plano
+
+Doble enter ¿por qué? Para empezar un párrafo nuevo. Si no se deja doble espacio, sale en la misma línea.
+
+**Texto en negrita con dos asteriscos**
+
+*Cursiva con un único asterisco*
+
+- Primer elemento
+- Segundo elemento
+    - Este es un subelemento
+    - Otro subelemento
+- Tercer elemento
+
+1. Primer elemento
+1. Segundo elemento
+1. Tercer elemento, no es necesario llevar la cuenta de la lista
+
+Un bloque de código empieza y termina por 3 comillas invertidas.
+
+```{r primer-bloque}
+#| echo: true # Muestra codigo
+#| eval: true # Muestra salida
+# Aplicamos la función sin a todos los elementos del vector de 1 a 10
+sin(1:10)
+```
+
+Latex entre 1 \$ en la misma línea:
+$e^{i\pi} + 1 = 0$
+
+Latex entre 2 \$ en una nueva línea:
+$$\frac{numerador}{denominador}$$
+
+NOTA: Todas las variables, datos, funciones y librerías deben cargarse o crearse dentro del archivo Quarto.

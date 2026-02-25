@@ -117,3 +117,13 @@ lista3 <- list("nombre con espacios"=1) # Mala práctica
 lista3$`nombre con espacios`
 lista2[c("primero", "segundo")]
 lista2[["tercero"]] # lista2$tercero
+
+## Operaciones con vectores
+# Operaciones componente a componente
+1:10 + 7
+1:10 / 2
+1:10 / 0
+1:5 + 2:6 # Tienen que tener la misma dimensión
+1:10 / 1:2 # Recicla el vector mas pequeño hasta tener el tamaño del mayor. 
+           # Solo si las dimensiones son divisibles
+1:10 / 1:3 # No tienen dimensiones divisibles, da un warning

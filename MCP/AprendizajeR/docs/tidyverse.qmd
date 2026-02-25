@@ -1,0 +1,51 @@
+---
+title: "tidyverse"
+author: "Miguel"
+format: html
+---
+
+Pipe:
+
+```{r}
+log(exp(sin(mean(cos(abs(1:10)), na.rm = FALSE))))
+
+1:10 |> 
+  abs() |>
+  cos() |>
+  mean(na.rm = FALSE) |>
+  sin() |>
+  exp() |>
+  log()
+```
+
+Cargamos la librería `tidyverse`:
+
+```{r}
+#| message: false # Quitar mensajes
+#| warning: false # Y errores
+library(tidyverse)
+```
+
+Trabajaremos con el dataset `starwars`
+
+```{r}
+# Solo seleccionamos estas columnas
+starwars |>
+  select(name, height, mass, hair_color) |>
+  
+# Todas las columnas entre name y hair_color, incluidas
+starwars |>
+  select(name:hair_color)
+  
+# El - delante del nombre hace que se elimine esa columna
+starwars |>
+  select(-mass)
+
+starwars |>
+  select(starts_with("h"))
+
+starwars |>
+  select(where(is.numeric))
+  
+```
+
