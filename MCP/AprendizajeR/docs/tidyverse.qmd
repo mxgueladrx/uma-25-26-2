@@ -9,7 +9,7 @@ Pipe:
 ```{r}
 log(exp(sin(mean(cos(abs(1:10)), na.rm = FALSE))))
 
-1:10 |> 
+1:10 |>
   abs() |>
   cos() |>
   mean(na.rm = FALSE) |>
@@ -23,6 +23,7 @@ Cargamos la librería `tidyverse`:
 ```{r}
 #| message: false # Quitar mensajes
 #| warning: false # Y errores
+install.packages("tidyverse")
 library(tidyverse)
 ```
 
