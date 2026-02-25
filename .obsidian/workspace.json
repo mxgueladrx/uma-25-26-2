@@ -4,21 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "c84face5617976a1",
+        "id": "7590a7ebeed38dc1",
         "type": "tabs",
         "children": [
           {
-            "id": "fc6f7a560815874b",
+            "id": "2185153a3b3daee3",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "AC1/CLASE 3, 4.md",
+                "file": "DAW/TEMA 2.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "CLASE 3, 4"
+              "title": "TEMA 2"
             }
           }
         ]
@@ -183,16 +183,23 @@
       "bases:Crear nueva base": false
     }
   },
-  "active": "0fce13632906a92c",
+  "active": "2185153a3b3daee3",
   "lastOpenFiles": [
+    "Imagenes/Pasted image 20260225113329.png",
+    "BD2/Tema2.md",
+    "AC1/CLASE 2.md",
+    "DAW/TEMA 2.md",
+    "Imagenes/Pasted image 20260225113055.png",
+    "Imagenes/Pasted image 20260225112533.png",
+    "Imagenes/Pasted image 20260220085724.png",
+    "Imagenes/Pasted image 20260225112644.png",
+    "Imagenes/Pasted image 20260225112446.png",
+    "DAW/TEMA 1.md",
+    "AC1/CLASE 3, 4.md",
     "Imagenes/Pasted image 20260225094611.png",
     "Imagenes/Pasted image 20260225093530.png",
     "Imagenes/Pasted image 20260225093427.png",
-    "DAW/TEMA1.md",
-    "AC1/CLASE 3, 4.md",
-    "AC1/CLASE 2.md",
     "RC1/Introduccion.pdf",
-    "BD2/Tema2.md",
     "BD2/Tema1.pdf",
     "BD2/Tema2.pdf",
     "RC1/UnProblemaHorticola.pdf",
@@ -208,9 +215,6 @@
     "DAW/jpa-demo/README.md",
     "Imagenes/Pasted image 20260220092509.png",
     "Imagenes/Pasted image 20260220092546.png",
-    "Imagenes/Pasted image 20260220092140.png",
-    "Imagenes/Pasted image 20260220091618.png",
-    "Imagenes/Pasted image 20260220085724.png",
     "RC1/Sin título.canvas",
     "Sin título.canvas",
     "2026-02-17.md"
