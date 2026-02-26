@@ -121,7 +121,49 @@ Combinar información de múltiples fuentes para crear una vista única, coheren
 - **Localización de datos redundantes**: qué información sobra. Atributo derivado de otro.
 	- **Atributos nominales**:
 		- **Test Chi-cuadrado de independencia**: 
+			- p-valor $\gt a$: no hay evidencia suficiente para afirmar dependencia, hay redundancia.
+			- p-valor $\le a$: hay dependencia. Solapamiento informativo. Evaluar eliminación.
 	- **Atributos numéricos**:
-		- **Covarianza**:
-		- **Coeficiente de correlación de Pearson**:
+		- **Coeficiente de correlación de Pearson**: si se sospecha relación lineal.
+			- $|r| \approx 0$: no relación lineal. Mantener ambas variables.
+			- $|r|$ alto (Ejemplo: $\gt$ 0.8): fuerte dependencia lineal. Redundancia.
+		- **Correlación de Spearman**: explorar relaciones no lineales.
+			- $|\rho| \approx 0$: no relación monotónica. Mantener ambas variables.
+			- $|\rho|$ alto (Ejemplo: $\gt$ 0.8): fuerte dependencia monotónica. Redundancia.
 ## ==Hacer EM==
+
+## Transformación de datos
+Transformar y refinar información bruta para que sirva de entrada adecuada a un algoritmo de aprendizaje.
+
+- **Normalización/Escalado**: se transforman los valores de las variables para que sus magnitudes sean comparables.
+	- **Escalado Min-Max**: valores a un rango entre \[a, b]. $$x'=a+\frac{(x-x_{min})(b-a)}{x_{max}-x_{min}}$$
+	- **Normalización Z-score**: datos con media $\mu=0$ y desviación estándar $\sigma = 1$. $$z=\frac{x-\mu}{\sigma}$$
+	- **Escalado decimal**: se divide por una potencia de 10 para que los valores queden entre (-1, 1). $j$ es el menor entero tal que $max(|x'|)\lt 1$. $$x'=\frac{x}{10^{j}}$$
+- **Transformaciones funcionales**: aplicamos funciones matemáticas para moldear los datos según la necesidad.
+	- **Transformaciones univariantes**: aplicadas a cada variable por separado. Definen nuevas variables $Y_{i}=f(X_{i})$
+		- **Logarítmica**: $Y_{i}=\ln(X_{i})$. Reduce asimetría positiva fuerte y estabiliza la varianza. Requiere $X_{i} \gt 0$.
+		- **Potencia**: $Y_{i}=X^{\lambda}_{i}$. Modifica la asimetría según $\lambda$.
+			- Si $0\lt \lambda \lt 1$: comprime valores grandes (reduce cola derecha). Requiere $X_{i}\ge 0$.
+			- Si $\lambda \gt 1$: expande los valores grandes.
+	- **Transformaciones multivariantes**: se crea un nuevo atributo $Y =f(X_{1},..., X_{m})$ mediante transformaciones funcionales:
+		- **Lineales**: suma ponderada de variables. $$Y=w_{1}X_{1}+...+w_{m}X_{m}$$
+		- **Cuadráticas**: genera una nueva variable con los términos al cuadrado y productos entre variables, modelando relaciones no lineales que una lineal no podría capturar. $$Y=\sum^{m}_{i=1}w_{i}X^{2}_{i}+\sum^{}_{1\le i \lt j \le m}w_{ij}X_{i}X_{j}$$
+		- **Box-Cox**: aproximar la normalidad y estabilizar la varianza en variables continuas. Requiere $X \gt 0$: $$z = g_{\lambda}(x) = \begin{cases} \frac{x^{\lambda} - 1}{\lambda}, & \text{si } \lambda \neq 0 \\ \ln(x), & \text{si } \lambda = 0 \end{cases}$$ Si el atributo tiene valore negativos, antes desplazamos $x'=x+c$, con $c \gt -\min(x)$ En la versión **Box-Draper**, hace que sea invariante a cambios de escala dividiendo por la media geométrica $g=(x_{1}x_{2}...x_{n})^{1/n}$, quedando: $$z = g_{\lambda}(x) = \begin{cases} \frac{(x+c)^{\lambda} - 1}{\lambda g}, & \text{si } \lambda \neq 0 \\ \frac{\ln(x+c)}{g}, & \text{si } \lambda = 0 \end{cases}$$ Para $\lambda = 1$ es lineal, $\lambda=2$ cuadrática, $\lambda = 1/2$ raíz y $\lambda = -1$ inversa (aprox $1/x$). Hay que estimar $\lambda$ que mejor normaliza el atributo (distribución gaussiana). ![[Pasted image 20260226100455.png]]
+- **Codificación**: variables cualitativas se codifican de forma que puedan ser procesadas por los algoritmos.
+	- **One hot encoding**: categorías en k columnas binarias (0 o 1).
+	- **Label encoding**: cada categoría a un número entero único.
+	- **Ordinal encoding**: cada categoría a un número entero único reflejando el orden natural. 
+
+## Ejercicio
+![[Pasted image 20260226091339.png]]
+a) \[0, 1]: $0+\frac{(30-20)(1-0)}{50-20} = 1/3$
+a) \[-1, 1]: $-1 + \frac{(30-20)(1+1)}{50-20} = -1/3$
+a) \[5, 10]:  $5 + \frac{(30-20)(10-5)}{50-20} = 10/3$
+b) $\frac{30-35}{10}= -1/2$
+c) $\frac{30}{10^{2}}=0.3$ con $j=2$
+
+## Ejercicio
+![[Pasted image 20260226100947.png]]
+a) Label encoding
+b) Label encoding
+c) Ordinal encoding

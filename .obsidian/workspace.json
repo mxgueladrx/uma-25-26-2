@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "DAW/TEMA 2.md",
+                "file": "AC1/CLASE 3, 4, 5.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "TEMA 2"
+              "title": "CLASE 3, 4, 5"
             }
           }
         ]
@@ -94,7 +94,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "RC1/Tema0.pdf",
+                "file": "AC1/CLASE 3, 4, 5.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,7 +104,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Enlaces entrantes de Tema0"
+              "title": "Enlaces entrantes de CLASE 3, 4, 5"
             }
           },
           {
@@ -169,7 +169,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300,
+    "width": 200,
     "collapsed": true
   },
   "left-ribbon": {
@@ -185,21 +185,22 @@
   },
   "active": "2185153a3b3daee3",
   "lastOpenFiles": [
+    "Imagenes/Pasted image 20260226100947.png",
+    "Imagenes/Pasted image 20260226100455.png",
+    "Imagenes/Pasted image 20260226100453.png",
+    "Imagenes/Pasted image 20260226091339.png",
+    "DAW/TEMA 2.md",
     "Imagenes/Pasted image 20260225121317.png",
     "Imagenes/Pasted image 20260225113329.png",
     "BD2/Tema2.md",
     "AC1/CLASE 2.md",
-    "DAW/TEMA 2.md",
     "Imagenes/Pasted image 20260225113055.png",
     "Imagenes/Pasted image 20260225112533.png",
     "Imagenes/Pasted image 20260220085724.png",
     "Imagenes/Pasted image 20260225112644.png",
     "Imagenes/Pasted image 20260225112446.png",
     "DAW/TEMA 1.md",
-    "AC1/CLASE 3, 4.md",
-    "Imagenes/Pasted image 20260225094611.png",
-    "Imagenes/Pasted image 20260225093530.png",
-    "Imagenes/Pasted image 20260225093427.png",
+    "AC1/CLASE 3, 4, 5.md",
     "RC1/Introduccion.pdf",
     "BD2/Tema1.pdf",
     "BD2/Tema2.pdf",
@@ -214,7 +215,6 @@
     "DAW/jpa-demo-master/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst",
     "DAW/jpa-demo-master/README.md",
     "DAW/jpa-demo/README.md",
-    "Imagenes/Pasted image 20260220092509.png",
     "RC1/Sin título.canvas",
     "Sin título.canvas",
     "2026-02-17.md"
