@@ -9,7 +9,9 @@
 **Objetos**: casos a estudiar.
 
 **Atributos**: propiedades de un objeto.
-- **Discretos**: nominales (sin orden. Ejemplo: Ana, Juan, María) y ordinales (con orden. Ejemplo: Alto, Medio, Bajo). 
+- **Discretos**: 
+	- **Nominales**: sin orden. Ejemplo: Ana, Juan, María.
+	- **Ordinales**: con orden. Ejemplo: Alto, Medio, Bajo. 
 - **Continuos**: valor real.
 - **Binario**: dos estados. Ejemplo: Si, No.
 
@@ -19,18 +21,17 @@
 
 **Datos etiquetados**: el conjunto de datos incluye la clase a la que pertenece.
 
-**Clasificación supervisado**: datos etiquetados.
-- **Clasificación**: variable clase es discreta.
-	- **Reglas de clasificación**: infieren reglas para clasificar según los valores de los atributos.
-	- **Árboles de decisión**: crean árboles para clasificar según los valores de los atributos.
-	- **K-Nearest Neighbors (KNN)**: clasifica según la "clase" de sus vecinos más cercanos.
-	- **Maquinas de Soporte Vectorial (SVM)**: busca el hiperplano que mejor separa las clases.
-	- **Regresión logística**: predice la probabilidad de pertenecer a una clase.
-- **Regresión**: variable clase es continua.
-	- **Regresión lineal**: relación lineal (recta o plano) que mejor ajusta los datos.
-	- **Regresión polinomial**: relaciones más complejas que no siguen una línea recta.
-**Clasificación no supervisado**: datos no etiquetados.
+- **Clasificación supervisado**: datos etiquetados.
+	- **Clasificación**: variable clase es discreta.
+		- **Reglas de clasificación**: infieren reglas para clasificar según los valores de los atributos.
+		- **Árboles de decisión**: crean árboles para clasificar según los valores de los atributos.
+		- **K-Nearest Neighbors (KNN)**: clasifica según la "clase" de sus vecinos más cercanos.
+		- **Maquinas de Soporte Vectorial (SVM)**: busca el hiperplano que mejor separa las clases.
+		- **Regresión logística**: predice la probabilidad de pertenecer a una clase.
+	- **Regresión**: variable clase es continua.
+		- **Regresión lineal**: relación lineal (recta o plano) que mejor ajusta los datos.
+		- **Regresión polinomial**: relaciones más complejas que no siguen una línea recta.
+- **Clasificación no supervisado**: datos no etiquetados.
 
-**Modelos predictivos**: predecir los valores de la variable de interés (clase o variable respuesta) a partir de valores de otras variables.
-
-**Modelos descriptivos**: describir el comportamiento de los datos, encontrando patrones, asociaciones, características comunes, etc.
+- **Modelos predictivos**: predecir los valores de la variable de interés (clase o variable respuesta) a partir de valores de otras variables.
+- **Modelos descriptivos**: describir el comportamiento de los datos, encontrando patrones, asociaciones, características comunes, etc.

@@ -7,8 +7,8 @@
 
 ## Etapas
 - **Limpieza de datos**:
-	- **Manejo de valores nulos**: eliminar filas/columnas o imputación (rellenar con la moda, media o mediana).
-	- **Tratamiento de valores atípicos (outliers)**: datos que se alejan del promedio y decidir si son errores o casos especiales.
+	- Manejo de valores nulos.
+	- Tratamiento de valores atípicos (outliers).
 	- Eliminar duplicados.
 - **Integración de datos**: combinar datos de diferentes fuentes.
 - **Transformación de datos**:
@@ -21,18 +21,7 @@
 ## ==Preguntas del examen como los ejercicios de los apuntes==
 
 ## Ejercicio
-Una clínica de nutrición ha unido información de tres fuentes y obtenido la siguiente tabla. Detecta los problemas de este dataset y propón una solución.
-
-| **ID** | **Nombre**   | **Edad** | **Altura (cm)** | **Peso (kg)** | **Ciudad** | **Género** |
-| ------ | ------------ | -------- | --------------- | ------------- | ---------- | ---------- |
-| 201    | Carlos Ruiz  | 34       | 172             | 82            | Madrid     | Masculino  |
-| 202    | Elena Torres | 29       | 165             | NULL          | BCN        | Femenino   |
-| 203    | Marta López  | 41       | 168             | 75            | Barcelona  | Mujer      |
-| 204    | David Martín | NULL     | 180             | 95            | Madrid     | Masculino  |
-| 205    | Ana Pérez    | 250      | 158             | 52            | Valencia   | Femenino   |
-| 206    | Luis García  | 37       | 1.75            | 78            | madrid     | Hombre     |
-| 207    | Laura Díaz   | 22       | 169             | 0             | Bcn        | Femenino   |
-| 208    | Pablo Gómez  | 45       | 182             | 110           | Valencia   | M          |
+![[Pasted image 20260302125317.png]]
 - **Limpieza**:
 	- **Resolver NULL**: 204/edad, 202/peso.
 	- **Valor atípico**: edad 250 en 205/edad, altura 1.75 en 206/altura, peso 0 en 207/peso.
@@ -64,6 +53,7 @@ Detecta y corrige errores, inconsistencias y datos faltantes en el conjunto de i
 			- **Expectation**: valor esperado para el dato perdido. $x_{miss}=\mu_{miss}+\Upsigma_{12}\Upsigma^{-1}_{22}(x_{obs}-\mu_{obs})$
 			- **Maximization**: maximizar la función de verosimilitud, que representa la probabilidad de tener las observaciones que tenemos en el dataset.
 			Hay que encontrar $\theta$ (media $\mu$ y varianza $\sigma$) que mejor expliquen los datos faltantes. 
+			![[Pasted image 20260302125736.png]]![[Pasted image 20260302125822.png]]![[Pasted image 20260302125831.png]]![[Pasted image 20260302125840.png]]
 - **Datos anómalos**: 
 	- **Detección**:
 		- **Métodos estadísticos**:
@@ -85,25 +75,16 @@ Detecta y corrige errores, inconsistencias y datos faltantes en el conjunto de i
 			- Segmentación o clustering: identificar si las anomalías forman un grupo con patrón propio para tratarlos de forma aislada en lugar de eliminarlos.
 			- Suavizado de datos: aplicar filtros de variabilidad para minimizar el impacto del ruido aleatorio en el análisis global.
 ## Ejercicio
-Calcula el valor para imputar a la edad del socio 6 usando KNN.
-
-| Nº socio | Edad (N) | Horas Gym (N) | Nivel (C)    | Deporte (C) |
-| -------- | -------- | ------------- | ------------ | ----------- |
-| 1        | 20       | 10            | Experto      | Natación    |
-| 2        | 45       | 2             | Principiante | Golf        |
-| 3        | 22       | 9             | Experto      | Natación    |
-| 4        | 40       | 3             | Principiante | Golf        |
-| 5        | 21       | 9             | Experto      | -           |
-| 6        | -        | 2             | Principiante | Golf        |
-| Rango    | 25       | 8             |              |             |
-
+![[Pasted image 20260302125439.png]]
 $D(6,1) = \frac{8/8 + 1 + 1}{3} =1$
 $D(6,2) = \frac{0/8 + 0 + 0}{3} =0$
 $D(6,3) = \frac{7/8 + 1 + 1}{3} =0.9583$
 $D(6,4) = \frac{1/8 + 0 + 0}{3} =0.0416$
 $D(6,5) = \frac{7/8 + 1}{2}=0.9375$
+
 ## Integración de datos
 Combinar información de múltiples fuentes para crear una vista única, coherente y valiosa.
+
 - **Detección de instancias duplicadas**: cómo identificar registros repetidos.
 	- **Métricas de caracteres**: Ejemplo: "Helena" y "Elena", "Calle Mayor 5" y "5, Mayor St.", "2345678X" y "2345678-X". Se cuenta el número de transformaciones necesarias para hacerlos coincidir.
 	- **Métricas fonéticas**: Ejemplo: "Helena" y "Elena". Generan el mismo código fonético, por lo que podemos ignorar la diferencia ortográfica.

@@ -4,21 +4,17 @@
     "type": "split",
     "children": [
       {
-        "id": "7590a7ebeed38dc1",
+        "id": "62a9b05929749fc6",
         "type": "tabs",
         "children": [
           {
-            "id": "2185153a3b3daee3",
+            "id": "a6efabd2364bb507",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "AC1/CLASE 3, 4, 5.md",
-                "mode": "source",
-                "source": false
-              },
+              "type": "empty",
+              "state": {},
               "icon": "lucide-file",
-              "title": "CLASE 3, 4, 5"
+              "title": "Nueva pestaña"
             }
           }
         ]
@@ -183,36 +179,35 @@
       "bases:Crear nueva base": false
     }
   },
-  "active": "2185153a3b3daee3",
+  "active": "0fce13632906a92c",
   "lastOpenFiles": [
+    "RC1/LSTF.xopp~",
+    "RC1/Lenguajes Sistemas y Teorias Formales.md",
+    "Ink/Drawing/2026.2.19 - 11.21am.drawing",
+    "RC1/UnProblemaHorticolaSolucion.xopp",
+    "DAW/TEMA 2.md",
+    "DAW/TEMA 1.md",
+    "AC1/CLASE 3, 4, 5.md",
+    "AC1/CLASE 2.md",
+    "Imagenes/Pasted image 20260302125840.png",
+    "Imagenes/Pasted image 20260302125831.png",
+    "Imagenes/Pasted image 20260302125822.png",
+    "Imagenes/Pasted image 20260302125736.png",
+    "Imagenes/Pasted image 20260302125439.png",
+    "Imagenes/Pasted image 20260302125317.png",
+    "RC1/Lenguajes Sistemas y Teorias Formales.pdf",
+    "RC1/Introduccion.pdf",
+    "MCP/MCP.pdf",
+    "BD2/Tema2.md",
     "Imagenes/Pasted image 20260226100947.png",
     "Imagenes/Pasted image 20260226100455.png",
     "Imagenes/Pasted image 20260226100453.png",
     "Imagenes/Pasted image 20260226091339.png",
-    "DAW/TEMA 2.md",
-    "Imagenes/Pasted image 20260225121317.png",
-    "Imagenes/Pasted image 20260225113329.png",
-    "BD2/Tema2.md",
-    "AC1/CLASE 2.md",
-    "Imagenes/Pasted image 20260225113055.png",
-    "Imagenes/Pasted image 20260225112533.png",
-    "Imagenes/Pasted image 20260220085724.png",
-    "Imagenes/Pasted image 20260225112644.png",
-    "Imagenes/Pasted image 20260225112446.png",
-    "DAW/TEMA 1.md",
-    "AC1/CLASE 3, 4, 5.md",
-    "RC1/Introduccion.pdf",
     "BD2/Tema1.pdf",
     "BD2/Tema2.pdf",
     "RC1/UnProblemaHorticola.pdf",
     "BD2/Unconfirmed 85420.crdownload",
-    "BD2/Unconfirmed 612105.crdownload",
-    "RC1/LSTF.xopp~",
-    "RC1/LSTF.xopp",
-    "RC1/Lenguajes Sistemas y Teorias Formales.md",
     "Sin título.md",
-    "DAW/jpa-demo-master/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst",
-    "DAW/jpa-demo-master/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst",
     "DAW/jpa-demo-master/README.md",
     "DAW/jpa-demo/README.md",
     "RC1/Sin título.canvas",
