@@ -148,3 +148,32 @@ c) $\frac{30}{10^{2}}=0.3$ con $j=2$
 a) Label encoding
 b) Label encoding
 c) Ordinal encoding
+
+## Reducción de datos
+Problemas:
+- **Alta dimensionalidad**: muchas columnas y pocas filas. 
+- **Gran volumen de datos**: muchas filas y pocas columnas.
+
+- **Selección de rasgos**: seleccionar subconjunto de rasgos originales relevantes según un criterio estadístico o predictivo.
+	- **Métodos de filtro**: filtro sobre las columnas (reducir). Se usa correlación de Pearson, Spearman, X², ganancia de información. Se calcula una medida para cada rasgo, ordenar los rasgos según la medida, seleccionar los k mejores o que superen un umbral.
+	- **Métodos de envoltura**: se evalúan subconjuntos de rasgos entrenando un modelo y seleccionamos los que maximizan el rendimiento. Selección hacia delante (comienza sin rasgos y se añade los que más mejoran el rendimiento) y eliminación hacia atrás (comienza con todos los rasgos y se eliminan los que más afectan al modelo). Selecciono S rasgos, entreno un modelo con S, evalúo rendimiento, repetir el proceso y comparar modelos.
+	- **Métodos integrados**: los rasgos se seleccionan durante el entrenamiento del modelo. Regresión Lasso (regularización L1), árboles de decisión. ![[Pasted image 20260303091532.png]]![[Pasted image 20260303092059.png]]
+- **Selección de registros**: subconjunto de los datos para preservar la información relevante para el aprendizaje.
+	- **Muestreo estadístico**: el subconjunto parezca una muestra del mismo.
+		- **Aleatorio**: probabilidad uniforme.
+		- **Estratificado**: divide en conjunto en estratos. Proporción original en cada grupo.
+	- **Selección geométrica**: mantener la estructura relevante para el problema. Sea $d(x_{i}, x_{j})$ una métrica, la selección se basa en analizar los vecinos.
+		- **Eliminación de redundancia**: se usa CNN (Condensed Nearest Neighbor), que construye un subconjunto S de D eliminando ejemplos redundantes. Sea D el dataset y  $d(x_{i}, x_{j})$ una métrica: inicializamos S con un ejemplo de cada clase, para cada $x \in D$ se clasifica $x$ usando KNN sobre S, si se clasifica mal, añadimos $x$ a S. Repetir hasta quedarnos sin registros. ![[Pasted image 20260303094850.png]] ==cambiar imagen==
+		- **Eliminación de ruido**: borra registros que estan mal en el espacio. Se usa ENN (Edited Nearest Neighbor), que elimina los mal clasificados de KNN. Para cada registro $x \in D$, consideramos $S = D$, clasificar $x$ usando KNN sobre $D - \{x\}$, si falla eliminamos $x$. Repetir hasta quedarnos sin registros. ![[Pasted image 20260303100310.png]]
+- **Feature extraction**: se transforman columnas en otras mas potentes. Datos originales en un espacio de menor dimensión. Se usa PCA. 
+- **Generación de registros**: problemas de que una clase tiene pocos ejemplos de una clase.
+	- **Duplicación aleatoria**: duplica registros de la clase minoritaria hasta alcanzar la proporción deseada.
+	- **Generación sintética (SMOTE)**: genera ejemplos interpolando entre vecinos. Sea $x_{i} \in D_{min}$ y $x_{j}$ uno de sus k-vecinos más cercanos, se genera un nuevo ejemplo $x_{new}=x_{i}+\lambda(x_{j}-x_{i}), \lambda \in (0, 1)$. ![[Pasted image 20260303101123.png]]
+
+## Discretización
+Transforma una variable continua en categórica definida por intervalos. Se define una partición del dominio observado $\mathbb{X} = I_{1} \cup I_{2} \cup ... \cup I_{k}; I_{i} \cap I_{j} = \emptyset$ si $i \ne j$. 
+
+- Igual ancho:
+- Igual frecuencia:
+- Basada en conocimiento experto:
+![[Pasted image 20260303101720.png]]
