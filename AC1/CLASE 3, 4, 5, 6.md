@@ -111,7 +111,6 @@ Combinar información de múltiples fuentes para crear una vista única, coheren
 		- **Correlación de Spearman**: explorar relaciones no lineales.
 			- $|\rho| \approx 0$: no relación monotónica. Mantener ambas variables.
 			- $|\rho|$ alto (Ejemplo: $\gt$ 0.8): fuerte dependencia monotónica. Redundancia.
-## ==Hacer EM==
 
 ## Transformación de datos
 Transformar y refinar información bruta para que sirva de entrada adecuada a un algoritmo de aprendizaje.

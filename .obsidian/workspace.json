@@ -4,24 +4,39 @@
     "type": "split",
     "children": [
       {
-        "id": "b5fa3166e7f5bc3a",
+        "id": "82310bcde3757816",
         "type": "tabs",
         "children": [
           {
-            "id": "9a83c53e8db6b6ff",
+            "id": "703206c6006b9f0b",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "DAW/TEMA 2.md",
+                "file": "AC1/CLASE 3, 4, 5, 6.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "TEMA 2"
+              "title": "CLASE 3, 4, 5, 6"
+            }
+          },
+          {
+            "id": "f0fbc0b1ebbcc9b4",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "AC1/EJERCICIOS TEMA 1.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "EJERCICIOS TEMA 1"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -183,33 +198,34 @@
       "bases:Crear nueva base": false
     }
   },
-  "active": "9a83c53e8db6b6ff",
+  "active": "f0fbc0b1ebbcc9b4",
   "lastOpenFiles": [
     "AC1/CLASE 3, 4, 5, 6.md",
-    "Imagenes/Pasted image 20260303101720.png",
+    "AC1/EJERCICIOS TEMA 1.md",
+    "Imagenes/Pasted image 20260304203200.png",
+    "Imagenes/Pasted image 20260304202743.png",
+    "Imagenes/Pasted image 20260304201607.png",
+    "Imagenes/Pasted image 20260304195707.png",
+    "Imagenes/Pasted image 20260304193439.png",
+    "Imagenes/Pasted image 20260304193431.png",
+    "Imagenes/Pasted image 20260304192451.png",
+    "Imagenes/Pasted image 20260304191654.png",
+    "Imagenes/Pasted image 20260304190224.png",
+    "Imagenes/Pasted image 20260304190213.png",
+    "BD2/Tema2.md",
+    "DAW/TEMA 2.md",
     "Sin título.md",
-    "Imagenes/Pasted image 20260303101123.png",
-    "Imagenes/Pasted image 20260303100310.png",
-    "Imagenes/Pasted image 20260303094850.png",
-    "Imagenes/Pasted image 20260303092059.png",
-    "Imagenes/Pasted image 20260303091532.png",
     "RC1/UnProblemaHorticolaSolucion.pdf",
     "RC1/UnProblemaHorticola.pdf",
     "RC1/LSTF.xopp~",
     "RC1/Lenguajes Sistemas y Teorias Formales.md",
     "Ink/Drawing/2026.2.19 - 11.21am.drawing",
     "RC1/UnProblemaHorticolaSolucion.xopp",
-    "DAW/TEMA 2.md",
     "DAW/TEMA 1.md",
     "AC1/CLASE 2.md",
-    "Imagenes/Pasted image 20260302125840.png",
-    "Imagenes/Pasted image 20260302125831.png",
-    "Imagenes/Pasted image 20260302125822.png",
-    "Imagenes/Pasted image 20260302125736.png",
     "RC1/Lenguajes Sistemas y Teorias Formales.pdf",
     "RC1/Introduccion.pdf",
     "MCP/MCP.pdf",
-    "BD2/Tema2.md",
     "BD2/Tema1.pdf",
     "BD2/Tema2.pdf",
     "DAW/jpa-demo-master/README.md",
