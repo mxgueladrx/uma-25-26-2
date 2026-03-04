@@ -1,0 +1,22 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Mi primer libro en Quarto",
+    "section": "",
+    "text": "Preface\nEste es el prólogo de mi libro.",
+    "crumbs": [
+      "Preface"
+    ]
+  },
+  {
+    "objectID": "capitulo1.html",
+    "href": "capitulo1.html",
+    "title": "1  El título del capítulo",
+    "section": "",
+    "text": "1.1 Primera sección\nbla bla bla\n…\n\\(2^x-1\\)",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>El título del capítulo</span>"
+    ]
+  }
+]

@@ -1238,6 +1238,7 @@ estan
 espacio
 eliminamos
 extraction
+experto
 la
 los
 limpieza
@@ -2307,6 +2308,7 @@ analizar
 adimos
 aleatoria
 alcanzar
+ancho
 sin
 ser
 selecci
@@ -7185,6 +7187,7 @@ BbA
 Bggaq
 Bys
 BSA
+Basada
 Continuos
 Clasificaci
 Cb
@@ -13213,6 +13216,7 @@ InB
 IYT
 IeP
 IOw
+Igual
 HB
 HD
 HsL

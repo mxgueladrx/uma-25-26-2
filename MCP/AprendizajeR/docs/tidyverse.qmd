@@ -23,16 +23,19 @@ Cargamos la librería `tidyverse`:
 ```{r}
 #| message: false # Quitar mensajes
 #| warning: false # Y errores
-install.packages("tidyverse")
+# install.packages("tidyverse")
 library(tidyverse)
 ```
 
 Trabajaremos con el dataset `starwars`
 
+# Primera función: `select()`
+Selecciona por nombre.
+
 ```{r}
 # Solo seleccionamos estas columnas
 starwars |>
-  select(name, height, mass, hair_color) |>
+  select(name, height, mass, hair_color)
   
 # Todas las columnas entre name y hair_color, incluidas
 starwars |>
@@ -47,6 +50,141 @@ starwars |>
 
 starwars |>
   select(where(is.numeric))
-  
 ```
 
+# Segunda función: `filter()`
+Selecciona filas de la tabla que verifiquen una o más condiciones lógicas.
+
+Ejemplo: seleccionamos filas de humanos (y usamos select para que se vea la columna `species` al principio):
+
+```{r}
+starwars |>
+  filter(species == "Human") |>
+  select(name, species, everything()) # Todas las demás columnas
+```
+
+Ejemplo: seleccionamos las filas correspondientes a humanos o a droides:
+
+```{r}
+starwars |>
+  filter(species == "Human" | species == "Droid") |>
+  select(name, species, everything())
+
+# Otra forma de hacerlo
+especies_admitidas <- c("Human", "Droid")
+starwars |>
+  filter(species %in% especies_admitidas) |>
+  select(name, species, everything())
+```
+
+Ejemplo: humanos con ojos azules:
+
+```{r}
+starwars |>
+  filter(species == "Human" & eye_color == "blue") |>
+  select(name, species, eye_color, everything())
+```
+
+Lo usual es, después de filtrar, eliminar aquellas columnas que no aportan información:
+
+```{r}
+humanos_ojos_azules <- starwars |>
+  filter(species == "Human" & eye_color == "blue") |>
+  select(-species, -eye_color)
+humanos_ojos_azules
+
+# Equivalente
+humanos_ojos_azules <- starwars |>
+  filter(
+    species == "Human",
+    eye_color == "blue"
+    ) |>
+  select(-species, -eye_color)
+humanos_ojos_azules
+```
+
+# Tercera función: `mutate()`
+Construye nuevas columnas a partir de las existentes.
+
+Ejemplo: calcular IMC
+
+```{r}
+starwars |>
+  mutate(
+    altura_en_metros = height / 100, 
+    IMC = mass / (altura_en_metros)^2
+    ) |>
+  select(name, IMC, mass, height, altura_en_metros)
+```
+
+Ejemplo: Crear una nueva columna "estado" que contenga normal, sobrepeso u obeso según los valores de IMC: < 30 normal, 30-34 sobrepeso, > 34 obesidad. Mirar ayuda de las funciones `ifelse` y `case_when`.
+
+```{r}
+datos_limpios <- starwars |>
+  mutate(
+    IMC = mass / (height / 100)^2,
+    estado = case_when(
+      IMC <= 30 ~ "normal", 
+      IMC <= 34 ~ "soprepeso",
+      IMC > 34 ~ "obeso",
+      .default = "desconocido"
+    )) |>
+  select(name, IMC, estado)
+
+datos_limpios
+```
+
+# Cuarta función: `arrange()`
+Sirve para reordenar (según los valores de una o varias columnas) las filas del dataset.
+
+Ejemplo: ordenar los datos recién calculador por la variable IMC, de menor a mayor.
+
+```{r}
+datos_limpios |>
+  arrange(IMC)
+```
+
+```{r}
+datos_limpios |>
+  arrange(desc(IMC)) # De mayor a menor
+```
+
+Ejemplo: en el dataset original, ordenar los humanos por color de ojos y, para deshacer empates, por la altura de mayor a menor.
+
+```{r}
+humanos_ordenados <- starwars |>
+  filter(species == "Human") |>
+  arrange(eye_color, desc(height))
+
+print(humanos_ordenados, n=nrow(humanos_ordenados))
+```
+
+# Quinta función: `summarise()`
+Para resumenes estadísticos descriptivos
+
+Ejemplo: peso y estatura medias en el dataset
+
+```{r}
+# Con R base
+mean(starwars$mass, na.rm = TRUE)
+mean(starwars$height, na.rm = TRUE)
+
+# Con el tidyverse
+starwars |>
+  summarise(
+    peso_medio = mean(mass, na.rm = TRUE),
+    altura_media = mean(height, na.rm = TRUE)
+  )
+```
+
+Ejemplo: peso y estatura medias en el dataset, por cada especie
+
+```{r}
+starwars |>
+  group_by(species) |>
+  summarise(
+    peso_medio = mean(mass, na.rm = TRUE),
+    altura_media = mean(height, na.rm = TRUE),
+    numero_individuos =  n() # Para el número de filas en cada grupo
+  )
+```

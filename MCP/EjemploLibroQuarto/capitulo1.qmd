@@ -1,0 +1,9 @@
+# El título del capítulo
+
+bla bla bla
+
+## Primera sección
+
+...
+
+$2^x-1$
