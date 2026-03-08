@@ -8,6 +8,7 @@ book:
   chapters:
     - index.qmd
     - capitulo1.qmd
+    - capitulo2.qmd
 
 bibliography: references.bib
 

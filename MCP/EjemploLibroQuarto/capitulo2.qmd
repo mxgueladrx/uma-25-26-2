@@ -1,0 +1,59 @@
+# Resolución de sistemas de ecuaciones problemáticos
+
+## Crear una matriz y resolver sistemas
+Hay que dar mínimo el número de filas o columnas.
+
+```{r}
+A <- matrix(
+  c(1, 2, 3, 
+    4, 5, 6, 
+    1, 2, 4), 
+  ncol = 3, 
+  byrow = TRUE)
+
+b <- matrix(
+  c(0, 0, 1),
+  ncol = 1)
+
+# Determinante de una matriz
+det(A)
+
+# Método básico de R: solve()
+solve(A, b)
+
+# Qué pasa si A no es regular o si el sistema es incompatible
+A_singular <- matrix(
+  c(1, 2, 3, 
+    4, 5, 6, 
+    1, 2, 3), 
+  ncol = 3, 
+  byrow = TRUE)
+
+det(A_singular)
+
+solve(A_singular, b)
+```
+
+El error U[3,3] = 0 significa que la matriz triangular superior, el índice [3,3] es 0, por lo que no se puede resolver. Ha usado factorización LU.
+
+```{r}
+# Descomposición LU
+library(Matrix)
+lu_A = lu(A)
+matrices_A <- expand(lu_A)
+matrices_A$L %*% matrices_A$U
+matrices_A$P %*% A # matriz de permutación
+
+# He descubierto que PA = LU
+# 1. Contruyo el sistema PAx = Pb
+nueva_A <- matrices_A$P %*% A
+nueva_b <- matrices_A$P %*% b
+
+# 2. Resuelvo L(Ux) = Pb
+# 2.1. Ly = Pb (siendo y = Ux)
+y <- forwardsolve(matrices_A$L, nueva_b)
+
+# 2.2. Ux = y
+x <- backsolve(matrices_A$U, y)
+```
+
