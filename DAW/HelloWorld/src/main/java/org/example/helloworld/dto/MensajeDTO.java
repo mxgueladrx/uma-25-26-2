@@ -1,22 +1,28 @@
 package org.example.helloworld.dto;
 
 public class MensajeDTO {
-    private String nombre;
-    private int edad;
+    private String contenido;
+    private String emisor;
 
-    public int getEdad() {
-        return edad;
+    // Spring usará este constructor o los setters para generar el JSON
+    public MensajeDTO(String contenido, String emisor) {
+        this.setContenido(contenido);
+        this.setEmisor(emisor);
     }
 
-    public void setEdad(int edad) {
-        this.edad = edad;
+    public String getContenido() {
+        return contenido;
     }
 
-    public String getNombre() {
-        return nombre;
+    public void setContenido(String contenido) {
+        this.contenido = contenido;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public String getEmisor() {
+        return emisor;
+    }
+
+    public void setEmisor(String emisor) {
+        this.emisor = emisor;
     }
 }

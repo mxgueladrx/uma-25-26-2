@@ -1,5 +1,6 @@
 package org.example.helloworld.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.example.helloworld.dto.MensajeDTO;
 import org.example.helloworld.service.MensajeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,5 +17,9 @@ public class MensajeController {
     private MensajeService mensajeService;
 
     @GetMapping("/saludo")
-    public MensajeDTO saludar(@RequestParam())
+    public MensajeDTO saludar(@RequestParam(defaultValue = "Invitado") String nombre, HttpServletRequest request) {
+        // Obtenemos la IP de la petición HTTP para el log interno
+        String ip = request.getRemoteAddr();
+        return mensajeService.generarSaludo(nombre, ip);
+    }
 }

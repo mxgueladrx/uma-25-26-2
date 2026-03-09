@@ -1,31 +1,37 @@
 package org.example.helloworld.model;
 
 public class Mensaje {
-    private String nombre;
-    private int edad;
-    private String ip;
+    private String contenido;
+    private String emisor;
+    private String ipOrigen; // Campo sensible/técnico interno
 
-    public String getIp() {
-        return ip;
+    public Mensaje(String contenido, String emisor, String ip) {
+        this.setContenido(contenido);
+        this.setEmisor(emisor);
+        this.setIpOrigen(ip);
     }
 
-    public int getEdad() {
-        return edad;
+    public String getContenido() {
+        return contenido;
     }
 
-    public String getNombre() {
-        return nombre;
+    public void setContenido(String contenido) {
+        this.contenido = contenido;
     }
 
-    public void setEdad(int edad) {
-        this.edad = edad;
+    public String getEmisor() {
+        return emisor;
     }
 
-    public void setIp(String ip) {
-        this.ip = ip;
+    public void setEmisor(String emisor) {
+        this.emisor = emisor;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public String getIpOrigen() {
+        return ipOrigen;
+    }
+
+    public void setIpOrigen(String ipOrigen) {
+        this.ipOrigen = ipOrigen;
     }
 }
