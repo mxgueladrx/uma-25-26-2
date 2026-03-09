@@ -36,6 +36,8 @@ solve(A_singular, b)
 
 El error U[3,3] = 0 significa que la matriz triangular superior, el índice [3,3] es 0, por lo que no se puede resolver. Ha usado factorización LU.
 
+## LU
+
 ```{r}
 # Descomposición LU
 library(Matrix)
@@ -55,5 +57,100 @@ y <- forwardsolve(matrices_A$L, nueva_b)
 
 # 2.2. Ux = y
 x <- backsolve(matrices_A$U, y)
+```
+
+```{r}
+# Descomponemos A_singular:
+lu_A_singular <- lu(A_singular)
+matrices_A_singular <- expand(lu_A_singular)
+matrices_A_singular
+
+
+```
+
+## Cholesky
+
+```{r}
+A <- matrix(
+  c(4, 2, -2, 
+    2, 10, 2, 
+    -2, 2, 5), 
+  nrow = 3, 
+  byrow = TRUE)
+b <- c(6, 15, 12)
+
+# 1. Calcular la descomposición
+R <- chol(A) # R es triangular SUPERIOR
+R
+
+t(R) %*% R # Obtenemos A de nuevo (traspuesta(R) * R)
+
+# Primero hay que resolver R^T * y = b
+y <- forwardsolve(t(R), b)
+
+# Después resolvemos R*x = y
+x <- backsolve(R, y)
+x
+```
+
+## QR
+Para resolver un sistema
+
+```{r}
+A <- matrix(
+  c(1, 2, 3, 
+    4, 5, 6, 
+    1, 2, 4), 
+  ncol = 3, 
+  byrow = TRUE)
+
+b <- matrix(
+  c(0, 0, 1),
+  ncol = 1)
+
+qr.solve(A, b)
+
+qr.solve(A_singular, b)
+```
+
+## Estructura de matrices
+
+```{r}
+library(Matrix)
+
+n <- 5000
+
+# 1. Matriz densa (R base)
+A_densa <- matrix(0, nrow = n, ncol = n)
+A_densa[1, 1] <- 5
+A_densa[n / 2, n / 2] <- 5
+A_densa[n, n] <- 5
+
+# 2. Matriz dispersa (Paquete Matrix)
+# Creamos una matriz especificando solo las posiciones (i, j) y los valores (x)
+A_dispersa <- sparseMatrix(
+  i = c(1, n / 2, n),
+  j = c(1, n / 2, n),
+  x = 5,
+  dims = c(n, n)
+)
+
+print(object.size(A_densa), units = "MB")
+print(object.size(A_dispersa), units = "KB")
+```
+
+## Matrices banda y tridiagonales (-1, 3, -1)
+
+```{r}
+n <- 10000
+
+b <- matrix(0, nrow = n, ncol = 1)
+b[n] <- pi
+
+tridiagonal <- sparseMatrix(
+  i <- c(1:n, 2:),
+  j <- c(1:n, ),
+  k <- c(3, ),
+)
 ```
 
