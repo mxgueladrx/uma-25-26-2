@@ -18,8 +18,28 @@ public class TareaController {
         return tareaService.listarTodo();
     }
 
+    @GetMapping("/{id}")
+    public TareaDTO obtenerPorId(@PathVariable(name = "id") Long id) {
+        return tareaService.obtenerPorId(id);
+    }
+
+    @GetMapping("/buscar")
+    public List<TareaDTO> filtrar(@RequestParam(name = "titulo") String titulo) {
+        return tareaService.filtrar(titulo);
+    }
+
     @PostMapping
     public TareaDTO crear(@RequestBody TareaDTO tarea) {
         return tareaService.crear(tarea.getTitulo());
+    }
+
+    @PutMapping("/{id}")
+    public TareaDTO completar(@PathVariable(name = "id") Long id) {
+        return tareaService.completar(id);
+    }
+
+    @DeleteMapping("/{id}")
+    public TareaDTO eliminar(@PathVariable(name = "id") Long id) {
+        return tareaService.eliminar(id);
     }
 }

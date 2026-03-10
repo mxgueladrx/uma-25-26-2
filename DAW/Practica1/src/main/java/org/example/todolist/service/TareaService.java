@@ -21,15 +21,14 @@ public class TareaService {
     public TareaDTO obtenerPorId(Long id) {
         Tarea tarea = listaTareas.stream()
                 .filter(t -> t.getId().equals(id))
-                .toList()
-                .get(0);
-
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Id no encontrado"));
         return new TareaDTO(tarea.getId(), tarea.getTitulo(), tarea.isCompletada());
     }
 
     public List<TareaDTO> filtrar(String titulo) {
         return listaTareas.stream()
-                .filter(t -> t.getTitulo().equalsIgnoreCase(titulo))
+                .filter(t -> t.getTitulo().contains(titulo))
                 .map(t -> new TareaDTO(t.getId(), t.getTitulo(), t.isCompletada()))
                 .toList();
     }
@@ -37,6 +36,24 @@ public class TareaService {
     public TareaDTO crear(String titulo) { // Cualquier POST devuelve siempre el objeto creado
         Tarea tarea = new Tarea(idCounter++, titulo, false, "ALTA");
         listaTareas.add(tarea);
+        return new TareaDTO(tarea.getId(), tarea.getTitulo(), tarea.isCompletada());
+    }
+
+    public TareaDTO completar(Long id) {
+        Tarea tarea = listaTareas.stream()
+                .filter(t -> t.getId().equals(id))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Id no encontrado"));
+        tarea.setCompletada(true);
+        return new TareaDTO(tarea.getId(), tarea.getTitulo(), tarea.isCompletada());
+    }
+
+    public TareaDTO eliminar(Long id) {
+        Tarea tarea = listaTareas.stream()
+                .filter(t -> t.getId().equals(id))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Id no encontrado"));
+        listaTareas.remove(tarea);
         return new TareaDTO(tarea.getId(), tarea.getTitulo(), tarea.isCompletada());
     }
 }
