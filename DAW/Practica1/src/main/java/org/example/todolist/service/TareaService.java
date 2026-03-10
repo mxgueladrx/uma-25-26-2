@@ -12,15 +12,31 @@ public class TareaService {
     private List<Tarea> listaTareas = new ArrayList<>();
     private Long idCounter = 1L;
 
-    public TareaDTO crear(String titulo) { // Cualquier POST devuelve siempre el objeto creado
-        Tarea tarea = new Tarea(idCounter++, titulo, false, "ALTA");
-        listaTareas.add(tarea);
-        return new TareaDTO(tarea.getId(), tarea.getTitulo(), tarea.isCompletada());
-    }
-
     public List<TareaDTO> listarTodo() {
         return listaTareas.stream()
                 .map(t -> new TareaDTO(t.getId(), t.getTitulo(), t.isCompletada()))
                 .toList();
+    }
+
+    public TareaDTO obtenerPorId(Long id) {
+        Tarea tarea = listaTareas.stream()
+                .filter(t -> t.getId().equals(id))
+                .toList()
+                .get(0);
+
+        return new TareaDTO(tarea.getId(), tarea.getTitulo(), tarea.isCompletada());
+    }
+
+    public List<TareaDTO> filtrar(String titulo) {
+        return listaTareas.stream()
+                .filter(t -> t.getTitulo().equalsIgnoreCase(titulo))
+                .map(t -> new TareaDTO(t.getId(), t.getTitulo(), t.isCompletada()))
+                .toList();
+    }
+
+    public TareaDTO crear(String titulo) { // Cualquier POST devuelve siempre el objeto creado
+        Tarea tarea = new Tarea(idCounter++, titulo, false, "ALTA");
+        listaTareas.add(tarea);
+        return new TareaDTO(tarea.getId(), tarea.getTitulo(), tarea.isCompletada());
     }
 }
