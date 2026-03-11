@@ -111,6 +111,12 @@ b <- matrix(
 qr.solve(A, b)
 
 qr.solve(A_singular, b)
+
+decomp_qr <- qr(A)
+
+Q <- qr.Q(decomp_qr)
+
+t(Q) %*% Q # Tiene que dar la identidad
 ```
 
 ## Estructura de matrices
@@ -154,3 +160,31 @@ tridiagonal <- sparseMatrix(
 )
 ```
 
+## Métodos iterativos para sistemas grandes
+Jacobi
+
+```{r}
+library(Rlinsolve)
+# Sistema de un ejemplo anterior
+A <- matrix(c(4, 1, -1, 1, 6, 2, -1, 2, 5), nrow = 3, byrow = TRUE)
+b <- c(6, 15, 12)
+x0 <- c(0, 0, 0) # Empezamos desde cero
+
+lsolve.jacobi(A, b, xinit = x0)
+```
+
+Gauss-Seidel
+
+```{r}
+lsolve.gs(A, b)
+```
+
+Grdiente conjugado
+
+```{r}
+lsolve.cg(A, b)
+```
+
+Matriz diagonal dominante: la diagonal es mayor que la suma de los valores absolutas de los demas elementos de cada fila
+Si es diagonal dominante -> jacobi
+Si es diagonal estrictamente dominante -> gauss-seidel y gradiente conjugado
