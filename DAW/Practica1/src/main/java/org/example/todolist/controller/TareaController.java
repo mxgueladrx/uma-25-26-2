@@ -24,7 +24,7 @@ public class TareaController {
     }
 
     @GetMapping("/buscar")
-    public List<TareaDTO> filtrar(@RequestParam(name = "titulo") String titulo) {
+    public List<TareaDTO> filtrar(@RequestParam(name = "titulo", required = false, defaultValue = "") String titulo) {
         return tareaService.filtrar(titulo);
     }
 
@@ -39,7 +39,7 @@ public class TareaController {
     }
 
     @DeleteMapping("/{id}")
-    public TareaDTO eliminar(@PathVariable(name = "id") Long id) {
-        return tareaService.eliminar(id);
+    public void eliminar(@PathVariable(name = "id") Long id) {
+        tareaService.eliminar(id);
     }
 }

@@ -587,6 +587,7 @@ tilde
 ticamente
 toma
 tel
+tenga
 ciencia
 citamente
 conocimiento
@@ -966,6 +967,7 @@ concentran
 comprobar
 comprarse
 coche
+cticos
 en
 estar
 expl
@@ -1327,6 +1329,7 @@ evaluar
 existen
 encuentran
 existe
+eficiente
 la
 los
 limpieza
@@ -2432,6 +2435,7 @@ aunque
 aportar
 afirma
 altos
+acerca
 sin
 ser
 selecci
@@ -2765,6 +2769,7 @@ siempre
 sucede
 similares
 seguro
+simetr
 programados
 partir
 puedan
@@ -3099,6 +3104,7 @@ porque
 peor
 peligroso
 pinta
+pasen
 Machine
 ML
 Mining
@@ -4341,6 +4347,7 @@ modificar
 mes
 max
 min
+manejar
 realizar
 real
 respuesta
@@ -7037,6 +7044,7 @@ EPX
 EUJ
 Etapa
 Eliminarlo
+Evita
 Juan
 JV
 JFIF
@@ -7798,6 +7806,7 @@ Comprobar
 Con
 Caso
 Casi
+Comprime
 Si
 Soporte
 SVM
@@ -13966,6 +13975,7 @@ Hfj
 Hep
 Htm
 Hprv
+Hace
 jyB
 jd
 jA
