@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TareaService {
@@ -18,12 +19,11 @@ public class TareaService {
                 .toList();
     }
 
-    public TareaDTO obtenerPorId(Long id) {
+    public Optional<TareaDTO> obtenerPorId(Long id) {
         return listaTareas.stream()
                 .filter(t -> t.getId().equals(id))
                 .findFirst()
-                .map(t -> new TareaDTO(t.getId(), t.getTitulo(), t.isCompletada()))
-                .orElseThrow(() -> new RuntimeException("Id no encontrado")); // O devolver null
+                .map(t -> new TareaDTO(t.getId(), t.getTitulo(), t.isCompletada()));
     }
 
     public List<TareaDTO> filtrar(String titulo) {
@@ -33,21 +33,24 @@ public class TareaService {
                 .toList();
     }
 
-    public TareaDTO crear(String titulo) { // Cualquier POST devuelve siempre el objeto creado
+    public Optional<TareaDTO> crear(String titulo) { // Cualquier POST devuelve siempre el objeto creado
+        if (titulo == null || titulo.isEmpty()) {
+            return Optional.empty();
+        }
+
         Tarea tarea = new Tarea(idCounter++, titulo, false, "ALTA");
         listaTareas.add(tarea);
-        return new TareaDTO(tarea.getId(), tarea.getTitulo(), tarea.isCompletada());
+        return Optional.of(new TareaDTO(tarea.getId(), tarea.getTitulo(), tarea.isCompletada())); // Devolvemos el DTO envuelto en un Optional
     }
 
-    public TareaDTO completar(Long id) {
+    public Optional<TareaDTO> completar(Long id) {
         return listaTareas.stream()
                 .filter(t -> t.getId().equals(id))
-                .findFirst()
-                .map(t -> {
+                .findFirst() // Devuelve Optional<Tarea>
+                .map(t -> { // Si existe la tarea, entra aquí
                     t.setCompletada(true);
                     return new TareaDTO(t.getId(), t.getTitulo(), t.isCompletada());
-                })
-                .orElseThrow(() -> new RuntimeException("Id no encontrado")); // O devolver null
+                }); // Si no existe, el Optional se mantiene vacío automáticamente
     }
 
     public void eliminar(Long id) { // Cuando se elimina algo se manda un código de estado 2xx, 3xx, 4xx
