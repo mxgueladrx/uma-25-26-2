@@ -141,3 +141,49 @@ qr_simple_algo <- function(A, epsilon = 1.e-6, iter = 20) {
 }
 ```
 
+## Dinamica de poblaciones, Matrices de Leslie
+
+```{r}
+library(matlib)
+# Matriz de Leslie L:
+# Juveniles -> Pre-adultos -> Adultos
+L <- matrix(c(0,   0.5, 2.0,  # Fecundidad (solo adultos producen mucho)
+              0.1, 0,   0,    # 10% de juveniles sobrevive a pre-adultos
+              0,   0.5, 0),   # 50% de pre-adultos sobrevive a adultos
+            nrow = 3, byrow = TRUE)
+
+# Autovalores
+eigen_L <- eigen(L)
+lambda_dominante <- Re(eigen_L$values[1])
+
+cat("Tasa de crecimiento a largo plazo (lambda):", round(lambda_dominante, 3), "\n")
+
+# Distribución estable (normalizada)
+v_estable <- Re(eigen_L$vectors[,1])
+v_estable <- v_estable / sum(v_estable)
+names(v_estable) <- c("Jóvenes", "Pre-adultos", "Adultos")
+print(v_estable)
+
+res <- powerMethod(L)
+print(res$vector / sum(res$vector)) # Normalizado
+```
+
+## Descomposición de valores singulares (SVD)
+
+```{r}
+# Creamos una matriz sencilla (no necesariamente cuadrada)
+A <- matrix(c(1, 2, 3, 
+              4, 5, 6), nrow = 2, byrow = TRUE)
+
+# Aplicamos SVD
+res_svd <- svd(A)
+
+# Mostramos los componentes
+# Valores singulares (diagonal de Sigma)
+print(res_svd$d)
+
+# Matrices U y V
+print(res_svd$u)
+print(res_svd$v)
+```
+
