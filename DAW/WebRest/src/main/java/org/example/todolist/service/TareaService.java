@@ -2,6 +2,8 @@ package org.example.todolist.service;
 
 import org.example.todolist.dto.TareaDTO;
 import org.example.todolist.model.Tarea;
+import org.example.todolist.repository.TareaRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -10,25 +12,24 @@ import java.util.Optional;
 
 @Service
 public class TareaService {
-    private List<Tarea> listaTareas = new ArrayList<>();
-    private Long idCounter = 1L;
+    @Autowired
+    private TareaRepository tareaRepository;
 
     public List<TareaDTO> listarTodo() {
-        return listaTareas.stream()
+        return tareaRepository.findAll()
+                .stream()
                 .map(t -> new TareaDTO(t.getId(), t.getTitulo(), t.isCompletada()))
                 .toList();
     }
 
     public Optional<TareaDTO> obtenerPorId(Long id) {
-        return listaTareas.stream()
-                .filter(t -> t.getId().equals(id))
-                .findFirst()
+        return tareaRepository.findById(id)
                 .map(t -> new TareaDTO(t.getId(), t.getTitulo(), t.isCompletada()));
     }
 
     public List<TareaDTO> filtrar(String titulo) {
-        return listaTareas.stream()
-                .filter(t -> t.getTitulo().toLowerCase().contains(titulo.toLowerCase()))
+        return tareaRepository.findByTituloContainingIgnoreCase(titulo)
+                .stream()
                 .map(t -> new TareaDTO(t.getId(), t.getTitulo(), t.isCompletada()))
                 .toList();
     }
@@ -38,12 +39,16 @@ public class TareaService {
             return Optional.empty();
         }
 
-        Tarea tarea = new Tarea(idCounter++, titulo, false, "ALTA");
-        listaTareas.add(tarea);
-        return Optional.of(new TareaDTO(tarea.getId(), tarea.getTitulo(), tarea.isCompletada())); // Devolvemos el DTO envuelto en un Optional
+        Tarea tarea = new Tarea();
+        tarea.setTitulo(titulo);
+        tarea.setCompletada(false);
+        tarea.setPrioridad("ALTA");
+
+        return Optional.of(DtoAndEntityMapper.toDto(tareaRepository.save(tarea))); // Devolvemos el DTO envuelto en un Optional
     }
 
     public Optional<TareaDTO> completar(Long id) {
+
         return listaTareas.stream()
                 .filter(t -> t.getId().equals(id))
                 .findFirst() // Devuelve Optional<Tarea>
@@ -54,6 +59,6 @@ public class TareaService {
     }
 
     public void eliminar(Long id) { // Cuando se elimina algo se manda un código de estado 2xx, 3xx, 4xx
-        listaTareas.removeIf(t -> t.getId().equals(id));
+        tareaRepository.deleteById(id);
     }
 }

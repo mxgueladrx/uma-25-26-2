@@ -1,10 +1,21 @@
 package org.example.todolist.model;
 
-public class Tarea {
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "tareas")
+public class Tarea { // Tarea n -- 1 Categoría
+    @Id @GeneratedValue()
     private Long id;
     private String titulo;
     private boolean completada;
     private String prioridad;
+    @ManyToOne @JoinColumn(name = "categoria_id") // Join column en la tabla del "n"
+    private Categoria categoria;
+
+    public Tarea() {
+
+    }
 
     public Tarea(Long id, String titulo, boolean completada, String prioridad) {
         this.id = id;
