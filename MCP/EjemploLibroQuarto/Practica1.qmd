@@ -1,15 +1,16 @@
 ---
-title: "Practica1"
+title: "Práctica1"
 format: html
 ---
 
-Objetivo: Modelar un problema físico simple que genera un sistema de ecuaciones grande y disperso, y comparar la eficiencia de los métodos de resolución.
+**Objetivo**: Modelar un problema físico simple que genera un sistema de ecuaciones grande y disperso, y comparar la eficiencia de los métodos de resolución.
 
-Problema: Imaginemos una barra de metal de 1 metro. Mantenemos el extremo izquierdo a 0ºC y el extremo derecho a 100ºC. Queremos encontrar la temperatura en equilibrio en puntos interiores de la barra.
+**Problema**: Imaginemos una barra de metal de 1 metro. Mantenemos el extremo izquierdo a 0ºC y el extremo derecho a 100ºC. Queremos encontrar la temperatura en equilibrio en puntos interiores de la barra.
 
-1. Creamos nuestra matriz y vector con n = 1000:
+## Creamos nuestra matriz y vector con n = 1000
 
 ```{r}
+#| message: false
 library(Matrix)
 
 n <- 1000
@@ -36,9 +37,22 @@ b <- rep(0, n)
 b[n] <- 100
 ```
 
-2. Resolver y comparar tiempos: ya teniendo nuestras matrices, vamos a comparar los tiempos de ejecución resolviendo el sistema de distintas formas.
+Nuestra matriz A y b quedaría de la siguiente forma:
+
+$$ A = \begin{pmatrix}
+2 & -1 &  0 & \dots \\
+-1 &  2 & -1 & \dots \\
+0 & -1 &  2 & \dots \\
+\vdots & \vdots & \ddots & -1 \\
+\dots &  0 & -1 & 2
+\end{pmatrix}, \quad {b} = \begin{pmatrix} 0 \\ 0 \\ 0 \\ \vdots \\ 100 \end{pmatrix} $$
+
+## Resolver y comparar tiempos
+
+Ya teniendo nuestras matrices, vamos a comparar los tiempos de ejecución resolviendo el sistema de distintas formas.
 
 ```{r}
+#| message: false
 library(microbenchmark)
 library(Rlinsolve)
 
@@ -59,8 +73,14 @@ mbm <- microbenchmark(
 print(mbm, unit = "ms")
 ```
 
-A primera vista podemos ver que usando R base tarda 0.44 ms, que a diferencia de los demás, es bastante poco. Podemos ver que la que más tarda es con el método de Gauss-Seidel, que tarda 1316 ms. Cholesky también tarda poco en reolver el sistema, 2 ms.
+A primera vista podemos ver que usando R base es el que, a diferencia de los demás, el que tarda menos. Los métodos que más tardan son el método de Gauss-Seidel y el Gradiente Conjugado. Cholesky también tarda poco en resolver el sistema, pero no tanto como R base.
 
-3. Analicemos los resultados
+## Análisis de los resultados
 
-Teniendo en cuenta que A es diagonal dominante y no estrictamente dominante, ...
+- La matriz A es diagonal dominante ya que cada fila esta formado por (2, -1), (-1, 2, -1) o (-1, 2), siendo 2 la diagonal principal y -1 los bordes. Como la suma $2 + |-1| + |-1| \ge 2$, la matriz es dominante pero no estrictamente dominante puesto que es igual. 
+
+- Como la matriz es dominante y además definida positiva, los métodos iterativos como Jacobi, Gauss-Seidel y el Gradiente conjugado convergen.
+
+- El método más rápido es R base ya que usa librerías internas más optimizadas.
+
+- Nos quedaríamos sin memoria si intentamos almacenar esa matriz. Métodos como Cholesky y QR no serían capaz de manejar matrices tan grandes, mientras que los métodos iterativos podrían calcular la solución.

@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Practica1</title>
+<title>Práctica1</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -71,6 +71,35 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="Practica1_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="Practica1_files/libs/bootstrap/bootstrap-b812df4b0fe95f3257c82f11506d1bab.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -82,7 +111,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Practica1</h1>
+<h1 class="title">Práctica1</h1>
 </div>
 
 
@@ -99,11 +128,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>Objetivo: Modelar un problema físico simple que genera un sistema de ecuaciones grande y disperso, y comparar la eficiencia de los métodos de resolución.</p>
-<p>Problema: Imaginemos una barra de metal de 1 metro. Mantenemos el extremo izquierdo a 0ºC y el extremo derecho a 100ºC. Queremos encontrar la temperatura en equilibrio en puntos interiores de la barra.</p>
-<ol type="1">
-<li>Creamos nuestra matriz y vector con n = 1000:</li>
-</ol>
+<p><strong>Objetivo</strong>: Modelar un problema físico simple que genera un sistema de ecuaciones grande y disperso, y comparar la eficiencia de los métodos de resolución.</p>
+<p><strong>Problema</strong>: Imaginemos una barra de metal de 1 metro. Mantenemos el extremo izquierdo a 0ºC y el extremo derecho a 100ºC. Queremos encontrar la temperatura en equilibrio en puntos interiores de la barra.</p>
+<section id="creamos-nuestra-matriz-y-vector-con-n-1000" class="level2">
+<h2 class="anchored" data-anchor-id="creamos-nuestra-matriz-y-vector-con-n-1000">Creamos nuestra matriz y vector con n = 1000</h2>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(Matrix)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -130,77 +158,66 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>b <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>, n)</span>
 <span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>b[n] <span class="ot">&lt;-</span> <span class="dv">100</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<ol start="2" type="1">
-<li>Resolver y comparar tiempos: ya teniendo nuestras matrices, vamos a comparar los tiempos de ejecución resolviendo el sistema de distintas formas.</li>
-</ol>
+<p>Nuestra matriz A y b quedaría de la siguiente forma:</p>
+<p><span class="math display">\[ A = \begin{pmatrix}
+2 &amp; -1 &amp;  0 &amp; \dots \\
+-1 &amp;  2 &amp; -1 &amp; \dots \\
+0 &amp; -1 &amp;  2 &amp; \dots \\
+\vdots &amp; \vdots &amp; \ddots &amp; -1 \\
+\dots &amp;  0 &amp; -1 &amp; 2
+\end{pmatrix}, \quad {b} = \begin{pmatrix} 0 \\ 0 \\ 0 \\ \vdots \\ 100 \end{pmatrix} \]</span></p>
+</section>
+<section id="resolver-y-comparar-tiempos" class="level2">
+<h2 class="anchored" data-anchor-id="resolver-y-comparar-tiempos">Resolver y comparar tiempos</h2>
+<p>Ya teniendo nuestras matrices, vamos a comparar los tiempos de ejecución resolviendo el sistema de distintas formas.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(microbenchmark)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(Rlinsolve)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>** ------------------------------------------------------- **</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>** Rlinsolve</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>**  - Solving (Sparse) System of Linear Equations</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>**</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>** Version    : 0.3.3      (2026)</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>** Maintainer : Kisung You (kisung.you@outlook.com)</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>**</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>** Please share any bugs or suggestions to the maintainer.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>** ------------------------------------------------------- **</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>mbm <span class="ot">&lt;-</span> <span class="fu">microbenchmark</span>(</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"R base"</span> <span class="ot">=</span> <span class="fu">solve</span>(A, b),</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Cholesky"</span> <span class="ot">=</span> {</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    R <span class="ot">&lt;-</span> <span class="fu">chol</span>(A)</span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    y <span class="ot">&lt;-</span> <span class="fu">forwardsolve</span>(<span class="fu">t</span>(R), b)</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    x <span class="ot">&lt;-</span> <span class="fu">backsolve</span>(R, y)</span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  },</span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">"QR"</span> <span class="ot">=</span> <span class="fu">qr.solve</span>(A, b),</span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Jacobi"</span> <span class="ot">=</span> <span class="fu">lsolve.jacobi</span>(A, b, <span class="at">verbose =</span> <span class="cn">FALSE</span>),</span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Gauss-Seidel"</span> <span class="ot">=</span> <span class="fu">lsolve.gs</span>(A, b, <span class="at">verbose =</span> <span class="cn">FALSE</span>),</span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Gradiente Conjugado"</span> <span class="ot">=</span> <span class="fu">lsolve.cg</span>(A, b, <span class="at">verbose =</span> <span class="cn">FALSE</span>),</span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">times =</span> <span class="dv">1</span></span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(mbm, <span class="at">unit =</span> <span class="st">"ms"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(Rlinsolve)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>mbm <span class="ot">&lt;-</span> <span class="fu">microbenchmark</span>(</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">"R base"</span> <span class="ot">=</span> <span class="fu">solve</span>(A, b),</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Cholesky"</span> <span class="ot">=</span> {</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    R <span class="ot">&lt;-</span> <span class="fu">chol</span>(A)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    y <span class="ot">&lt;-</span> <span class="fu">forwardsolve</span>(<span class="fu">t</span>(R), b)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    x <span class="ot">&lt;-</span> <span class="fu">backsolve</span>(R, y)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  },</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="st">"QR"</span> <span class="ot">=</span> <span class="fu">qr.solve</span>(A, b),</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Jacobi"</span> <span class="ot">=</span> <span class="fu">lsolve.jacobi</span>(A, b, <span class="at">verbose =</span> <span class="cn">FALSE</span>),</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Gauss-Seidel"</span> <span class="ot">=</span> <span class="fu">lsolve.gs</span>(A, b, <span class="at">verbose =</span> <span class="cn">FALSE</span>),</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Gradiente Conjugado"</span> <span class="ot">=</span> <span class="fu">lsolve.cg</span>(A, b, <span class="at">verbose =</span> <span class="cn">FALSE</span>),</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">times =</span> <span class="dv">1</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(mbm, <span class="at">unit =</span> <span class="st">"ms"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Unit: milliseconds
-                expr        min         lq       mean     median         uq
-              R base    1.57361    1.57361    1.57361    1.57361    1.57361
-            Cholesky   17.65168   17.65168   17.65168   17.65168   17.65168
-                  QR  241.60716  241.60716  241.60716  241.60716  241.60716
-              Jacobi   17.64548   17.64548   17.64548   17.64548   17.64548
-        Gauss-Seidel 7314.43217 7314.43217 7314.43217 7314.43217 7314.43217
- Gradiente Conjugado 7386.19877 7386.19877 7386.19877 7386.19877 7386.19877
-        max neval
-    1.57361     1
-   17.65168     1
-  241.60716     1
-   17.64548     1
- 7314.43217     1
- 7386.19877     1</code></pre>
+                expr         min          lq        mean      median
+              R base     4.39355     4.39355     4.39355     4.39355
+            Cholesky    12.14327    12.14327    12.14327    12.14327
+                  QR   249.53464   249.53464   249.53464   249.53464
+              Jacobi    63.09934    63.09934    63.09934    63.09934
+        Gauss-Seidel  7910.75616  7910.75616  7910.75616  7910.75616
+ Gradiente Conjugado 11656.76891 11656.76891 11656.76891 11656.76891
+          uq         max neval
+     4.39355     4.39355     1
+    12.14327    12.14327     1
+   249.53464   249.53464     1
+    63.09934    63.09934     1
+  7910.75616  7910.75616     1
+ 11656.76891 11656.76891     1</code></pre>
 </div>
 </div>
-<p>A primera vista podemos ver que usando R base tarda 0.44 ms, que a diferencia de los demás, es bastante poco. Podemos ver que la que más tarda es con el método de Gauss-Seidel, que tarda 1316 ms. Cholesky también tarda poco en reolver el sistema, 2 ms.</p>
-<ol start="3" type="1">
-<li>Analicemos los resultados</li>
-</ol>
-<p>Teniendo en cuenta que A es diagonal dominante y no estrictamente dominante, …</p>
+<p>A primera vista podemos ver que usando R base es el que, a diferencia de los demás, el que tarda menos. Los métodos que más tardan son el método de Gauss-Seidel y el Gradiente Conjugado. Cholesky también tarda poco en resolver el sistema, pero no tanto como R base.</p>
+</section>
+<section id="análisis-de-los-resultados" class="level2">
+<h2 class="anchored" data-anchor-id="análisis-de-los-resultados">Análisis de los resultados</h2>
+<ul>
+<li><p>La matriz A es diagonal dominante ya que cada fila esta formado por (2, -1), (-1, 2, -1) o (-1, 2), siendo 2 la diagonal principal y -1 los bordes. Como la suma <span class="math inline">\(2 + |-1| + |-1| \ge 2\)</span>, la matriz es dominante pero no estrictamente dominante puesto que es igual.</p></li>
+<li><p>Como la matriz es dominante y además definida positiva, los métodos iterativos como Jacobi, Gauss-Seidel y el Gradiente conjugado convergen.</p></li>
+<li><p>El método más rápido es R base ya que usa librerías internas más optimizadas.</p></li>
+<li><p>Nos quedaríamos sin memoria si intentamos almacenar esa matriz. Métodos como Cholesky y QR no serían capaz de manejar matrices tan grandes, mientras que los métodos iterativos podrían calcular la solución.</p></li>
+</ul>
+</section>
 
 </main>
 <!-- /main column -->

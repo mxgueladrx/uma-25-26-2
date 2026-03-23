@@ -1,0 +1,31 @@
+---
+title: "Práctica2"
+format: html
+---
+
+# Ejercicio 3.4 (Dinámica de Población)
+
+Se estudia una colonia de aves con tres grupos: 0-1 año (juveniles), 1-2 años (sub-adultos) y >2 años (adultos).
+
+- Los juveniles no promedian descendientes. Los sub-adultos promedian 1 y los adultos promedian 2.
+- La probabilidad de que un juvenil pase a sub-adulto es 0.3.
+- La probabilidad de que un sub-adulto pase a adulto es 0.5.
+
+1. Define la matriz de Leslie para este sistema.
+2. Si empezamos con una población de 100 individuos en cada categoría, ¿cuántos habrá después de 10 años? (Usa el producto matricial repetido o potencias de la matriz).
+3. Calcula el autovalor dominante. ¿Crece o decrece la población?
+4. Encuentra la distribución estable por edades.
+
+## Matriz de Leslie
+
+```{r}
+# juveniles -> sub-adultos -> adultos
+L <- matrix(c(0, 1, 2,
+              0.3, 0, 0,
+              0, 0.5, 0),
+            nrow = 3, byrow = TRUE)
+L
+```
+
+
+# Ejercicio 3.5 (SVD y Ruido en Datos)
