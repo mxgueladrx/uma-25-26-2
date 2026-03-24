@@ -1,0 +1,83 @@
+---
+title: "Práctica3"
+format: html
+---
+
+# Ejercicio 4.1 (El Mercado de Smartphones (Cadenas de Markov))
+
+Tres marcas (A, B y C) se reparten el mercado. Cada año, los clientes cambian de marca según esta lógica:
+
+- **De los que tienen A**: 70% se queda, 20% pasa a B, 10% pasa a C.
+- **De los que tienen B**: 10% pasa a A, 80% se queda, 10% pasa a C.
+- **De los que tienen C**: 10% pasa a A, 10% pasa a B, 80% se queda.
+
+1. Construye la matriz de transición $P$ (asegúrate de que sea estocástica por columnas).
+2. Esta matriz tiene un autovalor $\lambda = 1$. Encuentra el autovector asociado y normalízalo para que sume 1.
+3. ¿Cuál será la cuota de mercado de cada marca a largo plazo (el estado estacionario)?
+4. Verifica el resultado elevando la matriz $P$ a una potencia alta (ej. $P^{50}$) y multiplicando por cualquier cuota de mercado inicial.
+
+## Matriz de transición P
+
+Definimos la matriz de la siguiente forma: para cada marca $j$, se almacena un peso $P_{ij}$ que hay de pasar del nodo $j$ al nodo $i$.
+
+```{r}
+#              A    B     C
+P <- matrix(c(0.7, 0.1, 0.1, # A
+              0.2, 0.8, 0.1, # B
+              0.1, 0.1, 0.8), # C
+            nrow = 3, byrow = TRUE)
+P
+```
+
+## Autovalor
+
+```{r}
+autovalor <- eigen(P)
+cat("Autovalores: ")
+autovalor$values
+cat("Mayor autovalor: ", autovalor$values[1])
+cat("\nAutovector normalizado asociado al autovalor anterior:\n")
+autovalor$vectors[, 1] / sum(autovalor$vectors[, 1])
+```
+
+Podemos ver que el mayor autovalor asociado es 1 y su vector asociado normalizado es el que se muestra en la salida.
+
+## Cuota futura
+
+A largo plazo podemos ver que para la marca A tiene un 25% de los clientes, la B un 42% de los clientes y C un 33%. Esto significa que en el futuro la marca B liderará siempre el mercado, da igual que estado inicial tengamos.
+
+## Verificación
+
+```{r}
+#| message: false
+library(expm)
+poblacion_inicial <- c(100, 100, 100) # 100 usuarios para cada marca
+poblacion_final <- (P %^% 50) %*% poblacion_inicial
+poblacion_final
+```
+
+Podemos ver que al final B siempre lidera el mercado. 125 clientes acaban en B, 75 en A y 100 en C. ¿Y su normalizamos ese vector?
+
+```{r}
+poblacion_final / sum(poblacion_final)
+```
+
+Es el mismo vector que el autovector asociado anterior! Esto confirma que el sistema es estable y se cumple la cuota futura de cada marca a lo largo del tiempo.
+
+# Ejercicio 4.2 (Influencia en Citas Académicas)
+
+Un consejo científico quiere medir la influencia de 4 investigadores (A, B, C y D) basándose en cómo se citan entre ellos:
+
+- A cita a B y C.
+- B cita a C.
+- C cita a A.
+- D cita a C.
+
+1. Dibuja el grafo dirigido correspondiente a estas citas.
+2. Construye la matriz de adyacencia $M$ (donde $M_{ij}=1$ si $j$ cita a $i$).
+3. Identifica si existe algún “callejón sin salida” (dead end) y corrígelo si es necesario (asumiendo que desde un nodo sin citas se puede saltar a cualquier otro con probabilidad $1/n$).
+4. Calcula la Matriz de Google $G$ usando un factor de amortiguación $d=0.85$.
+5. Calcula el vector de PageRank. ¿Quién es el investigador más influyente según este modelo? ¿Coincide con quien tiene más citas totales (grado de entrada
+
+## Grafo
+

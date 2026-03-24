@@ -11,12 +11,18 @@ Se estudia una colonia de aves con tres grupos: 0-1 año (juveniles), 1-2 años 
 - La probabilidad de que un juvenil pase a sub-adulto es 0.3.
 - La probabilidad de que un sub-adulto pase a adulto es 0.5.
 
-1. Define la matriz de Leslie para este sistema.
+1. Define la matriz de Leslie $L$ para este sistema.
 2. Si empezamos con una población de 100 individuos en cada categoría, ¿cuántos habrá después de 10 años? (Usa el producto matricial repetido o potencias de la matriz).
 3. Calcula el autovalor dominante. ¿Crece o decrece la población?
 4. Encuentra la distribución estable por edades.
 
 ## Matriz de Leslie
+
+Definimos la matriz de Leslie por filas de tal forma:
+
+- **Fila 1 (fecundidad)**: juveniles (0), sub-adultos (1) y adultos (2).
+- **Fila 2 (paso a sub-adulto)**: 30% de los juveniles sobrevive.
+- **Fila 3 (paso a adulto)**: 50% de los sub-adultos sobrevive.
 
 ```{r}
 # juveniles -> sub-adultos -> adultos
@@ -27,5 +33,105 @@ L <- matrix(c(0, 1, 2,
 L
 ```
 
+## Población en 10 años
+
+Para calcular la población en 10 años, multiplicamos la matriz por si misma 10 veces, básicamente $L^{10}$ y finalmente multiplicar por la población: $L^{10}*poblacion_{inicial}$.
+
+```{r}
+#| warning: false
+library(expm)
+poblacion_inicial <- c(100, 100, 100) # 100 individuos por cada categoría
+
+poblacion_final <- (L %^% 10) %*% poblacion_inicial
+poblacion_final
+```
+
+Podemos ver que la población ha disminuido. Quedan solo 31 jovenes, 12 sub-adultos y 6 adultos. Teniendo el cuenta que la población ha disminuido, el mayor autovalor asociado es < 1 y por ello la población tiende a la extinción.
+
+## Autovalor dominante
+
+```{r}
+autovalores <- eigen(L)
+Re(autovalores$values[1])
+```
+
+Obtenemos que el mayor autovalor es $0.817 < 1$. Esto significa que cada año la población total es el 81.7% de lo que era el año anterior (decrece).
+
+## Distribución estable por edades
+
+```{r}
+estable <- Re(autovalores$vectors[,1])
+estable <- estable / sum(estable)
+names(estable) <- c("jóvenes", "sub-adultos", "adultos")
+estable
+```
+
+Aproximadamente, la población se estabilizará en un 63% jóvenes, 23% sub-adultos y 14% adultos.
 
 # Ejercicio 3.5 (SVD y Ruido en Datos)
+
+La SVD se usa para “limpiar” datos. Vamos a simular una señal con mucho ruido.
+
+1. Crea una matriz $A$ de 50x50 donde cada elemento $a_{ij}=i+j$. Esta es nuestra “señal pura” (tiene rango 2).
+2. Súmale ruido: `A_ruido <- A + matrix(rnorm(2500, sd = 5), 50, 50)`.
+3. Calcula la SVD de `A_ruido` y grafica los valores singulares `plot(res$d)`. ¿Cuántos valores singulares destacan sobre el “suelo” de ruido?
+4. Reconstruye la matriz usando solo los 2 primeros valores singulares. Calcula la diferencia (error) respecto a la señal pura $A$ y compáralo con el error de la matriz ruidosa original.
+
+## Nuestra matriz A
+
+Construimos nuestra matriz A de esta forma:
+
+```{r}
+library(Matrix)
+filas <- rep(1:50, each = 50) # Repite cada elemento 50 veces, de la forma 1,1,1,1...,2,2,2,2...50,50,50
+cols <- rep(1:50, times = 50) # Repite cada bloque 50 veces, de la forma 1,2,3,4...50,1,2,3,4...50...50
+
+A <- sparseMatrix(
+  i = filas,
+  j = cols,
+  x = filas + cols,
+  dims = c(50, 50)
+)
+
+A[1:5, 1:5] # Esquina de la matriz para comprobar que es correcta
+```
+
+Vemos que para cada índice $ij$ es la suma de $i+j$.
+
+## Ruido
+
+Le sumamos ruido a la matriz A con media 0 y desviación típica 5:
+
+```{r}
+A_ruido <- A + matrix(rnorm(2500, sd = 5), 50, 50)
+A_ruido[1.:5, 1:5]
+```
+
+## SVD y gráfico
+
+```{r}
+res = svd(A_ruido) # Aplicamos SVD
+print(res$d) # Valores de la diagonal
+plot(res$d)
+```
+
+Podemos ver que los primeros valores (sobre todo el primero), son muy grandes. Realmente solo destacan los dos primeros valores singulares, con valor de 2745 y 187.
+
+## Reconstrucción de A
+
+En este caso vamos a reconstruir la matriz original usando los $k=2$ valores singulares más grandes. Seguimos la fórmula $A_{k}=U_{k}*D_{k}*V^{T}_{k}$:
+
+```{r}
+A_rec <- res$u[, 1:2, drop = FALSE] %*% diag(res$d[1:2]) %*% t(res$v[, 1:2, drop = FALSE])
+print(A_rec[1:5, 1:5])
+
+error_original <- sqrt(sum((A - A_rec)^2 / 2500)) 
+error_ruido <- sqrt(sum((A_ruido - A_rec)^2 / 2500))
+
+cat("\nError respecto a la matriz original (usando RMSE): ", error_original, "\n")
+cat("Error respecto a la matriz con ruido (usando RMSE): ", error_ruido)
+```
+
+Hemos usado la fórmula de la raíz del error cuadrático medio (RMSE). Podemos ver que el error respecto a la matriz original con ruido es de casi 5, que es la desviación típica del ruido que añadimos a la misma. Esto significa que SVD ha detectado el ruido de los datos, que si comparamos la matriz original con la ruidosa, la diferencia es el ruido.
+
+Respecto a la matriz original pura, obtenemos un error de 1.35, por lo que SVD a bajado el ruido de un error 5 a uno de 1.35. Esto significa que SVD ha descartado un 73% del ruido: $\%ruido_{eliminado}=1-\frac{1.35*100}{5}$.
