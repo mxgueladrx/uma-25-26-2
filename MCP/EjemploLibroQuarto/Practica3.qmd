@@ -77,7 +77,52 @@ Un consejo científico quiere medir la influencia de 4 investigadores (A, B, C y
 2. Construye la matriz de adyacencia $M$ (donde $M_{ij}=1$ si $j$ cita a $i$).
 3. Identifica si existe algún “callejón sin salida” (dead end) y corrígelo si es necesario (asumiendo que desde un nodo sin citas se puede saltar a cualquier otro con probabilidad $1/n$).
 4. Calcula la Matriz de Google $G$ usando un factor de amortiguación $d=0.85$.
-5. Calcula el vector de PageRank. ¿Quién es el investigador más influyente según este modelo? ¿Coincide con quien tiene más citas totales (grado de entrada
+5. Calcula el vector de PageRank. ¿Quién es el investigador más influyente según este modelo? ¿Coincide con quien tiene más citas totales (grado de entrada)
 
-## Grafo
+## Grafo y matriz de adyacencia
 
+Para mostrar el grafo necesitamos la matriz de adyacencia, donde $M_{ij} = 1$ si $j$ cita a $i$. La matriz resultante y además normalizada es la siguiente que se muestra.
+
+```{r}
+#| message: false
+library(igraph)
+M <- matrix(
+                c(0, 0, 1, 0, # A
+                  1, 0, 0, 0, # B
+                  1, 1, 0, 1, # C
+                  0, 0, 0, 0), # D
+                nrow = 4, byrow = TRUE)
+grafo <- graph_from_adjacency_matrix(t(M))
+V(grafo)$name <- c("A", "B", "C", "D")
+plot(grafo, vertex.color = "lightblue", vertex.size = 30)
+
+M <- scale(M, center = FALSE, scale = colSums(M)) # Normalizamos las columnas
+M
+```
+
+## Callejones sin salida
+
+Analizando más fácilmente el grafo de forma visual, podemos ver que da igual el camino que cojamos siempre podemos ir a otro nodo. Otra forma de comprobarlo es viendo en la matriz de adyacencia que no exista ninguna columna con todo 0.
+
+## Matriz de Google G
+
+Necesitamos crear una matriz J llena de 1. Tras eso usamos la fórmula de la matriz G.
+
+```{r}
+J <- matrix(rep(1, 4*4), nrow = 4, byrow = TRUE)
+G <- 0.85 * M + (1 - 0.85) * (1 / 4) * J
+G
+```
+
+## Vector de PageRank
+
+```{r}
+res <- eigen(G)
+scores <- res$vector[, 1] / sum(res$vector[, 1])
+scores <- Re(scores)
+scores
+```
+
+Ya calculado los autovalores y, con el máximo, obtener los autovectores asociados a mismo, obtenemos lo siguiente. Vemos que el más influyente es C, con un 39%, ya que recibe citas de tanto A, B y D. Le sigue A de cerca con un 37%. Eso es debido a que como solo C cita a A, su influencia le da peso a A. Y por último los menos influyentes con un 20% y 4% a B y D, respectivamente.
+
+No coincide con el grado de entrada, ya que por ejemplo B y A tienen en mismo grado (ambos solo citan a 1) y A es mas influyente que B.

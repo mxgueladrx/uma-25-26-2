@@ -79,4 +79,83 @@ CREATE OR REPLACE TRIGGER TR_EMPLOYEES
 AFTER INSERT ON EMPLOYEES
 FOR EACH ROW
 BEGIN
-    
+    :NEW.HIRE_DATE := SYSDATE;
+END;
+/
+
+/* 2. Se quiere mantener los valores relacionados en sincronía que pasan a ser
+almacenada en tablas separadas. Por ejemplo, digamos que se está actualizando el
+nivel de salario por un número de puestos de trabajo dentro de la tabla JOBS. Sin
+embargo, al hacer esto, tendrá que actualizar los salarios dentro de la tabla
+EMPLEADOS para los empleados que tienen esos trabajos. En resumen, si se
+actualiza el rango de salario para un trabajo, entonces usted desea actualizar
+automáticamente los salarios para garantizar que caen dentro de la nueva gama.
+Realizar el Disparador que realice esta tarea de forma automática y probarlo con
+las siguientes sentencias: */
+
+CREATE OR REPLACE TRIGGER TR_JOBS
+AFTER UPDATE ON JOBS
+FOR EACH ROW
+DECLARE
+    CURSOR C_EMPLOYEES IS SELECT * FROM EMPLOYEES 
+    WHERE JOB_ID = :NEW.JOB_ID AND (SALARY < :NEW.MIN_SALARY OR SALARY > :NEW.MAX_SALARY)
+    FOR UPDATE;
+BEGIN
+    FOR C IN C_EMPLOYEES LOOP
+        IF C.SALARY < :NEW.MIN_SALARY THEN
+            UPDATE EMPLOYEES
+            SET SALARY = :NEW.MIN_SALARY
+            WHERE CURRENT OF C_EMPLOYEES;
+        ELSE
+            UPDATE EMPLOYEES
+            SET SALARY = :NEW.MAX_SALARY
+            WHERE CURRENT OF C_EMPLOYEES;
+        END IF;
+    END LOOP;
+END;
+/
+
+/* 3. Se desea actualizar automáticamente algunos valores particulares de una tabla
+basada en otra actualización que se ha hecho en una columna específica de la otra
+tabla. Por ejemplo, supongamos que la dirección ha decidido cambiar algunas
+posiciones en torno de la organización. Un nuevo gerente accede a uno de los
+puestos de gerente, por lo que varios empleados recibirán un nuevo gerente.
+Encontrar una manera de actualizar varios registros de los empleados al cambiar
+de gestor. */
+
+CREATE OR REPLACE TRIGGER TR_DEPARTMENTS
+AFTER UPDATE OF MANAGER_ID ON DEPARTMENTS
+FOR EACH ROW
+DECLARE
+    CURSOR C_EMPLOYEES IS SELECT * FROM EMPLOYEES
+    WHERE MANAGER_ID = :OLD.MANAGER_ID
+    FOR UPDATE;
+BEGIN
+    FOR C IN C_EMPLOYEES LOOP
+        UPDATE EMPLOYEES
+        SET MANAGER_ID = :NEW.MANAGER_ID
+        WHERE CURRENT OF C_EMPLOYEES;
+    END LOOP;
+END;
+/
+
+/* 4. Queremos evitar que los emails de los empleados contengan el nombre del
+dominio que se supone el mismo para todos los empleados, siendo este el de la
+empresa. Por tanto, queremos desarrollar un Trigger que evite que se inserten
+empleados cuyo email contenga la “@”. La función INSTR devuelve la posición
+en la que el segundo parámetro aparece en el primero. */
+
+CREATE OR REPLACE TRIGGER TR_EMAIL
+BEFORE INSERT ON EMPLOYEES
+FOR EACH ROW
+BEGIN
+    IF :NEW.EMAIL LIKE '%@%' THEN
+        RAISE_APPLICATION_ERROR(-20001, 'EMAIL INVALIDO');
+    END IF;
+END;
+/
+
+/* 5. Se quiere asegurar que el email sigue el formato: primera letra del nombre +
+apellido. Si ese email existe se le añade un número (1 a la primera repetición, 2 a
+la segunda, etc.). */
+

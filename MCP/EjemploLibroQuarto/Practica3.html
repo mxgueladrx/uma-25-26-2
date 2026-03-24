@@ -219,6 +219,93 @@ Autovector normalizado asociado al autovalor anterior:</code></pre>
 <p>Es el mismo vector que el autovector asociado anterior! Esto confirma que el sistema es estable y se cumple la cuota futura de cada marca a lo largo del tiempo.</p>
 </section>
 </section>
+<section id="ejercicio-4.2-influencia-en-citas-académicas" class="level1">
+<h1>Ejercicio 4.2 (Influencia en Citas Académicas)</h1>
+<p>Un consejo científico quiere medir la influencia de 4 investigadores (A, B, C y D) basándose en cómo se citan entre ellos:</p>
+<ul>
+<li>A cita a B y C.</li>
+<li>B cita a C.</li>
+<li>C cita a A.</li>
+<li>D cita a C.</li>
+</ul>
+<ol type="1">
+<li>Dibuja el grafo dirigido correspondiente a estas citas.</li>
+<li>Construye la matriz de adyacencia <span class="math inline">\(M\)</span> (donde <span class="math inline">\(M_{ij}=1\)</span> si <span class="math inline">\(j\)</span> cita a <span class="math inline">\(i\)</span>).</li>
+<li>Identifica si existe algún “callejón sin salida” (dead end) y corrígelo si es necesario (asumiendo que desde un nodo sin citas se puede saltar a cualquier otro con probabilidad <span class="math inline">\(1/n\)</span>).</li>
+<li>Calcula la Matriz de Google <span class="math inline">\(G\)</span> usando un factor de amortiguación <span class="math inline">\(d=0.85\)</span>.</li>
+<li>Calcula el vector de PageRank. ¿Quién es el investigador más influyente según este modelo? ¿Coincide con quien tiene más citas totales (grado de entrada)</li>
+</ol>
+<section id="grafo-y-matriz-de-adyacencia" class="level2">
+<h2 class="anchored" data-anchor-id="grafo-y-matriz-de-adyacencia">Grafo y matriz de adyacencia</h2>
+<p>Para mostrar el grafo necesitamos la matriz de adyacencia, donde <span class="math inline">\(M_{ij} = 1\)</span> si <span class="math inline">\(j\)</span> cita a <span class="math inline">\(i\)</span>. La matriz resultante y además normalizada es la siguiente que se muestra.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(igraph)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>M <span class="ot">&lt;-</span> <span class="fu">matrix</span>(</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>                <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="co"># A</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>                  <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="co"># B</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>                  <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="co"># C</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>                  <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>), <span class="co"># D</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>                <span class="at">nrow =</span> <span class="dv">4</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>grafo <span class="ot">&lt;-</span> <span class="fu">graph_from_adjacency_matrix</span>(<span class="fu">t</span>(M))</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a><span class="fu">V</span>(grafo)<span class="sc">$</span>name <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>, <span class="st">"D"</span>)</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(grafo, <span class="at">vertex.color =</span> <span class="st">"lightblue"</span>, <span class="at">vertex.size =</span> <span class="dv">30</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Practica3_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>M <span class="ot">&lt;-</span> <span class="fu">scale</span>(M, <span class="at">center =</span> <span class="cn">FALSE</span>, <span class="at">scale =</span> <span class="fu">colSums</span>(M)) <span class="co"># Normalizamos las columnas</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>M</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     [,1] [,2] [,3] [,4]
+[1,]  0.0    0    1    0
+[2,]  0.5    0    0    0
+[3,]  0.5    1    0    1
+[4,]  0.0    0    0    0
+attr(,"scaled:scale")
+[1] 2 1 1 1</code></pre>
+</div>
+</div>
+</section>
+<section id="callejones-sin-salida" class="level2">
+<h2 class="anchored" data-anchor-id="callejones-sin-salida">Callejones sin salida</h2>
+<p>Analizando más fácilmente el grafo de forma visual, podemos ver que da igual el camino que cojamos siempre podemos ir a otro nodo. Otra forma de comprobarlo es viendo en la matriz de adyacencia que no exista ninguna columna con todo 0.</p>
+</section>
+<section id="matriz-de-google-g" class="level2">
+<h2 class="anchored" data-anchor-id="matriz-de-google-g">Matriz de Google G</h2>
+<p>Necesitamos crear una matriz J llena de 1. Tras eso usamos la fórmula de la matriz G.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>J <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">rep</span>(<span class="dv">1</span>, <span class="dv">4</span><span class="sc">*</span><span class="dv">4</span>), <span class="at">nrow =</span> <span class="dv">4</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>G <span class="ot">&lt;-</span> <span class="fl">0.85</span> <span class="sc">*</span> M <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="fl">0.85</span>) <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">/</span> <span class="dv">4</span>) <span class="sc">*</span> J</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>G</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       [,1]   [,2]   [,3]   [,4]
+[1,] 0.0375 0.0375 0.8875 0.0375
+[2,] 0.4625 0.0375 0.0375 0.0375
+[3,] 0.4625 0.8875 0.0375 0.8875
+[4,] 0.0375 0.0375 0.0375 0.0375
+attr(,"scaled:scale")
+[1] 2 1 1 1</code></pre>
+</div>
+</div>
+</section>
+<section id="vector-de-pagerank" class="level2">
+<h2 class="anchored" data-anchor-id="vector-de-pagerank">Vector de PageRank</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">eigen</span>(G)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>scores <span class="ot">&lt;-</span> res<span class="sc">$</span>vector[, <span class="dv">1</span>] <span class="sc">/</span> <span class="fu">sum</span>(res<span class="sc">$</span>vector[, <span class="dv">1</span>])</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>scores <span class="ot">&lt;-</span> <span class="fu">Re</span>(scores)</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>scores</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.3725269 0.1958239 0.3941492 0.0375000</code></pre>
+</div>
+</div>
+<p>Ya calculado los autovalores y, con el máximo, obtener los autovectores asociados a mismo, obtenemos lo siguiente. Vemos que el más influyente es C, con un 39%, ya que recibe citas de tanto A, B y D. Le sigue A de cerca con un 37%. Eso es debido a que como solo C cita a A, su influencia le da peso a A. Y por último los menos influyentes con un 20% y 4% a B y D, respectivamente.</p>
+<p>No coincide con el grado de entrada, ya que por ejemplo B y A tienen en mismo grado (ambos solo citan a 1) y A es mas influyente que B.</p>
+</section>
+</section>
 
 </main>
 <!-- /main column -->
