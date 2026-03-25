@@ -1,5 +1,6 @@
 ---
 title: "Práctica2"
+author: "Miguel Adrian Gheorghe"
 format: html
 ---
 
