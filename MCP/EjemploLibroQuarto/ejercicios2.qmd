@@ -1,0 +1,139 @@
+## Ejercicio 2.1  
+
+1. Adapta el código del Ejemplo 2.5 para crear una matriz $A$ de $100 \times 100$ que sea pentadiagonal.
+1. La diagonal principal debe tener el valor ‘10’.
+1. Las primeras sub/super-diagonales deben tener el valor ‘-2’.
+1. Las segundas sub/super-diagonales (es decir, $a_{i, i+2}$ y $a_{i, i-2}$) deben tener el valor ‘1’.
+1. Visualiza la estructura de la matriz resultante con image(A).
+
+```{r}
+library(Matrix)
+
+n <- 5
+# 1. Definir las diagonales
+diag_principal <- rep(10, n)
+sub_diag_1 <- rep(-2, n - 1)
+super_diag_1 <- rep(-2, n - 1)
+sub_diag_2 <- rep(1, n - 2)
+super_diag_2 <- rep(1, n - 2)
+
+# 2. Definir las posiciones (i, j)
+i_idx <- c(1:n, 2:n, 1:(n - 1), 3:n, 1:(n - 2))
+j_idx <- c(1:n, 1:(n - 1), 2:n, 1:(n - 2), 3:n)
+x_val <- c(diag_principal, sub_diag_1, super_diag_1, sub_diag_2, super_diag_2)
+
+# 3. Crear la matriz dispersa
+A <- sparseMatrix(
+  i = i_idx, 
+  j = j_idx, 
+  x = x_val,
+  dims = c(n, n)
+)
+
+A
+image(A)
+```
+
+## Ejercicio 2.2  
+
+1. Crea una matriz triangular superior $R$ de $1000 \times 1000$ con números aleatorios en y sobre la diagonal. (Pista: para generar números aleatorios, puedes usar la función rnorm o runif, y a continuación puedes usar la función matrix para convertirlos en una matriz. A continuación, puedes usar las funciones upper.tri y lower.tri sabiamente para hacer 0 por debajo de la diagonal principal).
+1. Crea un vector $b$ de 1000 números aleatorios.
+1. Resuelve el sistema $Rx=b$ de dos maneras:
+  a. Usando el solver genérico (solve()).
+  a. Usando el solver específico para sistemas triangulares (backsolve()).
+1. Usa el paquete microbenchmark para comparar el tiempo de ambas operaciones: microbenchmark(solve(R, b), backsolve(R, b), times = 10).
+1. ¿Qué conclusiones extraes sobre usar la función adecuada a la estructura de la matriz?
+
+```{r}
+n <- 1000
+R <- matrix(rnorm(n*n), 
+            byrow = TRUE, 
+            nrow = n)
+R[lower.tri(R)] <- 0
+
+b <- rnorm(n)
+
+solve(R, b)
+
+backsolve(R, b)
+
+library(microbenchmark)
+microbenchmark(solve(R, b), backsolve(R, b), times = 10)
+```
+
+Vemos que siempre falla usando solve ya que no es capaz de encontrar una solución. Con backsolve lo resuelve en ms.
+
+## Ejercicio 2.3 
+(Método de Jacobi) Resolver el siguiente sistema utilizando el método de Jacobi, dando 300 iteraciones como máximo y partiendo del vector nulo:
+
+$$\left\{
+    \begin{array}{cccccc}
+    10x & -y & +2z &   &  =  & 6 \\
+    -x & +11y & -z & +3t & = & 25 \\
+    2x & -y &+10z & -t & = & -11 \\
+    &   3y & -z & +8t & = & 15  
+    \end{array}
+    \right.$$
+  
+```{r}
+library(Rlinsolve)
+A <- matrix(c(10, -1, 2, 0,
+              -1, 11, -1, 3,
+              2, -1, 10, -1,
+              0, 3, -1, 8),
+            byrow = TRUE,
+            nrow = 4)
+b <- c(6, 25, -11, 15)
+
+lsolve.jacobi(A, b, maxiter = 300)
+```
+
+## Ejercicio 2.4  
+
+Usando sparseMatrix(), construye una matriz $A$ de $100 \times 100$ que tenga la diagonal principal llena de ‘5’, las segundas subdiagonales (k=-2) y superdiagonales (k=2) llenas de ‘1’, y el resto ceros. Visualízala con image(A).
+
+```{r}
+n <- 100
+# 1. Definir las diagonales
+diag_principal <- rep(5, n)
+sub_diag_2 <- rep(1, n - 2)
+super_diag_2 <- rep(1, n - 2)
+
+# 2. Definir las posiciones (i, j)
+i_idx <- c(1:n, 3:n, 1:(n - 2))
+j_idx <- c(1:n, 1:(n - 2), 3:n)
+x_val <- c(diag_principal, sub_diag_2, super_diag_2)
+
+# 3. Crear la matriz dispersa
+A <- sparseMatrix(
+  i = i_idx, 
+  j = j_idx, 
+  x = x_val,
+  dims = c(n, n)
+)
+
+image(A)
+```
+
+## Ejercicio 2.5  
+
+La matriz $A$ del Ejemplo 2.2 es simétrica y definida positiva. Resuelve el sistema $A^2 x = b$ (es decir, $A(Ax) = b$).
+
+Pista: No calcules $A^2$. Usa la factorización $A=R^T R$ y resuelve $R^T(R(R^T(R x))) = b$ en cuatro pasos de sustitución progresiva/regresiva.
+
+```{r}
+A <- matrix(c(4, 2, -2, 2, 10, 2, -2, 2, 5), nrow = 3, byrow = TRUE)
+b <- c(6, 15, 12)
+
+R <- chol(A)
+
+y1 <- forwardsolve(t(R), b)
+y2 <- backsolve(R, y1)
+y3 <- forwardsolve(t(R), y2)
+x <- backsolve(R, y3)
+
+print(x)
+solve(A %*% A, b)
+```
+
+ 

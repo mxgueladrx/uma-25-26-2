@@ -1,0 +1,31 @@
+## Ejercicio 1.2 
+Usando el dataset starwars:
+
+1. Filtre los personajes que no tienen color de piel (skin_color) definido (es decir, NA).
+1. Agrupe por homeworld (planeta de origen).
+1. Calcule la masa media de los habitantes de cada planeta.
+1. Ordene el resultado de mayor a menor masa media.
+
+```{r}
+library(tidyverse)
+
+starwars |>
+  filter(is.na(skin_color)) |>
+  group_by(homeworld) |>
+  summarise(masa_media = mean(mass, na.rm = TRUE)) |>
+  arrange(desc(masa_media))
+```
+
+## Ejercicio 1.3
+Dado el vector de crecimiento: x <- c(2.5, -1.0, 0.5, -0.2, 3.0).
+
+1. Cree un vector lógico que sea TRUE cuando el crecimiento sea negativo.
+1. Use ese vector lógico para extraer los valores numéricos de los periodos de recesión.
+
+```{r}
+x <- c(2.5, -1.0, 0.5, -0.2, 3.0)
+v <- x < 0
+v
+x[v]
+```
+

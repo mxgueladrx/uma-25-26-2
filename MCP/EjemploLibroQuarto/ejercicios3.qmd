@@ -1,0 +1,38 @@
+## Ejercicio 3.1 
+
+(Autovalores de una matriz) 
+1. Crea una matriz de 3x3 con valores aleatorios.
+1. Calcula los autovalores de la matriz usando la función eigen() de R base.
+1. Calcula los autovalores de la matriz usando la función powerMethod() de la librería matlib.
+1. Compara los resultados y discute las diferencias.
+
+```{r}
+A <- matrix(rnorm(9), byrow = TRUE, nrow = 3)
+
+eigen(A)$values
+
+library(matlib)
+powerMethod(A)$value
+```
+
+## Ejercicio 3.3 
+
+(Compresión por SVD)  
+1. Crea una matriz de 10x10 usando outer(1:10, 1:10, "+") y súmale un poco de ruido aleatorio con rnorm(100, sd = 0.1).
+1. Calcula su SVD.
+1. Aproxima la matriz usando solo los 2 primeros valores singulares.
+1. Calcula el “error de reconstrucción” (la norma de la diferencia entre la matriz original y la aproximada).
+
+```{r}
+A <- outer(1:10, 1:10, "+") + rnorm(100, sd = 0.1)
+A
+
+A_svd <- svd(A)
+
+aprox <- A_svd$u[,1:2] %*% diag(A_svd$d[1:2]) %*% t(A_svd$v[,1:2])
+aprox
+
+error <- sqrt(mean((A - aprox)^2))
+error
+```
+

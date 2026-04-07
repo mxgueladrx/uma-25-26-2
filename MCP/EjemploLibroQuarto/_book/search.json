@@ -18,5 +18,25 @@
     "crumbs": [
       "<span class='chapter-number'>1</span>  <span class='chapter-title'>El título del capítulo</span>"
     ]
+  },
+  {
+    "objectID": "ejercicios2.html",
+    "href": "ejercicios2.html",
+    "title": "5  Ejercicio 2.1",
+    "section": "",
+    "text": "5.1 Ejercicio 2.2",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Ejercicio 2.1</span>"
+    ]
+  },
+  {
+    "objectID": "ejercicios2.html#ejercicio-2.2",
+    "href": "ejercicios2.html#ejercicio-2.2",
+    "title": "5  Ejercicio 2.1",
+    "section": "",
+    "text": "Crea una matriz triangular superior \\(R\\) de \\(1000 \\times 1000\\) con números aleatorios en y sobre la diagonal. (Pista: para generar números aleatorios, puedes usar la función rnorm o runif, y a continuación puedes usar la función matrix para convertirlos en una matriz. A continuación, puedes usar las funciones upper.tri y lower.tri sabiamente para hacer 0 por debajo de la diagonal principal).\nCrea un vector \\(b\\) de 1000 números aleatorios.\nResuelve el sistema \\(Rx=b\\) de dos maneras:\n\n\nUsando el solver genérico (solve()).\nUsando el solver específico para sistemas triangulares (backsolve()).\n\n\nUsa el paquete microbenchmark para comparar el tiempo de ambas operaciones: microbenchmark(solve(R, b), backsolve(R, b), times = 10).\n¿Qué conclusiones extraes sobre usar la función adecuada a la estructura de la matriz?",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Ejercicio 2.1</span>"
+    ]
   }
 ]

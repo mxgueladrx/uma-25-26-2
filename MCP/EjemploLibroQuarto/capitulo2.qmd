@@ -154,7 +154,7 @@ b <- matrix(0, nrow = n, ncol = 1)
 b[n] <- pi
 
 tridiagonal <- sparseMatrix(
-  i <- c(1:n, 2:),
+  i <- c(1:n, 2:n),
   j <- c(1:n, ),
   k <- c(3, ),
 )
