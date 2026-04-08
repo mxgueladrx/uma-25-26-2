@@ -16,6 +16,7 @@ book:
     - capitulo3.qmd
     - ejercicios3.qmd
     - Practica3.qmd
+    - capitulo5.qmd
 
 bibliography: references.bib
 

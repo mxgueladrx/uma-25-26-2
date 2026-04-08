@@ -1,0 +1,31 @@
+```{r}
+library(tidyverse)
+library(factoextra)
+library(patchwork)
+library(corrplot)
+
+USArrests
+
+plot(USArrests$UrbanPop, USArrests$Murder)
+
+cor(USArrests) |> 
+  corrplot(method = "number", type = "upper", 
+           col = colorRampPalette(c("#BB4444", "#EE9988", "#FFFFFF", "#77AADD", "#4477AA"))(200))
+
+datos <- scale(USArrests, center = TRUE, scale = TRUE)
+colnames(datos) <- colnames(USArrests)
+plot(datos[,3], datos[,1])
+
+acp <- prcomp(USArrests, center = TRUE, scale = TRUE)
+
+# Varianza explicada
+fviz_eig(acp, addlabels = TRUE, ylim = c(0, 70), title = "Scree Plot")
+# Contribuciones a las dos primeras componentes
+fviz_pca_var(acp, col.var = "contrib", 
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+             repel = TRUE, title = "Variables y sus contribuciones")
+
+acp$sdev
+acp$rotation
+```
+
