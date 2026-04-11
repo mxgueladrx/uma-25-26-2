@@ -968,6 +968,8 @@ comprobar
 comprarse
 coche
 cticos
+calculando
+cambian
 en
 estar
 expl
@@ -1330,6 +1332,7 @@ existen
 encuentran
 existe
 eficiente
+estamos
 la
 los
 limpieza
@@ -2110,6 +2113,7 @@ outlier
 ocurrir
 otra
 objetivo
+origen
 aprenden
 algoritmos
 aprendan
@@ -2436,6 +2440,8 @@ aportar
 afirma
 altos
 acerca
+aproxima
+act
 sin
 ser
 selecci
@@ -2770,6 +2776,7 @@ sucede
 similares
 seguro
 simetr
+sino
 programados
 partir
 puedan
@@ -4348,6 +4355,7 @@ mes
 max
 min
 manejar
+mucha
 realizar
 real
 respuesta
@@ -6510,6 +6518,8 @@ uaD
 ukt
 uhZ
 usar
+usamos
+ubicaci
 Objetos
 OET
 Op
@@ -7045,6 +7055,7 @@ EUJ
 Etapa
 Eliminarlo
 Evita
+Estas
 Juan
 JV
 JFIF
@@ -12171,6 +12182,7 @@ fijarnos
 falle
 fecha
 fono
+fuerza
 Wpz
 WR
 WJ

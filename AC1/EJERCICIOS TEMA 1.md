@@ -220,3 +220,27 @@ a) $[0.69,1.39,1.61,1.95,2.08,2.3,2.48,4.38]$
 b) Hace que los valores que sean muy grandes pasen a un rango con valores más prácticos de manejar. Comprime la escala de los datos. 
 
 c) Evita que el modelo tenga que hacer operaciones con valores muy grandes y hacer que sea más eficiente. Además al reducir la simetría de los nuevos datos, se acerca mejor a una distribución normal.
+
+## Ejercicio 23
+![[Pasted image 20260411135624.png]]
+a) $[1, 1.41, 1.41, 1.73, 2, 2.44, 3, 4]$
+
+b) Comprime valores grandes (reduce cola derecha) hacia el centro de la distribución con mucha más fuerza que a los valores cercanos al origen.
+
+c) Cuando los valores están mucho más sesgados es mejor usar log ya que es mas fuerte.
+
+## Ejercicio 24
+![[Pasted image 20260411140355.png]]
+a) Si $\lambda = 0$ usamos $\log(x)$ sino usamos $\frac{x^\lambda - 1}{\lambda}$. $[1.61, 1.94, 2.2, 2.48, 2.7, 2.99, 3.69]$
+
+b) Es una transformación logarítmica
+
+## Ejercicio 25
+![[Pasted image 20260411141136.png]]
+a y b) Si $\lambda = 0$ usamos $\log(x)$ sino usamos $\frac{x^\lambda - 1}{\lambda}$. $[2, 4, 6, 8]$
+
+c) Se aproxima a la $\sqrt{x}$ ya que estamos calculando $2(\sqrt{x} - 1)$. Estas son transformaciones lineales  no cambian la forma de la distribución, solo su ubicación y escala. La parte "funcional" que actúa sobre la asimetría potencia $x^{0.5}$, la raíz cuadrada.
+
+## Ejercicio 26
+![[Pasted image 20260411141654.png]]![[Pasted image 20260411141703.png]]
+a) 
