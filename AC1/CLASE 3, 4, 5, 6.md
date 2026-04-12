@@ -18,7 +18,6 @@
 	- Selección de características o ejemplos.
 	- **Reducción de dimensionalidad**: algoritmos como PCA para comprimir información sin perder la esencia.
 - **Discretización**: convertir variables continuas en discretas.
-## ==Preguntas del examen como los ejercicios de los apuntes==
 
 ## Ejercicio
 ![[Pasted image 20260302125317.png]]
@@ -53,7 +52,16 @@ Detecta y corrige errores, inconsistencias y datos faltantes en el conjunto de i
 			- **Expectation**: valor esperado para el dato perdido. $x_{miss}=\mu_{miss}+\Upsigma_{12}\Upsigma^{-1}_{22}(x_{obs}-\mu_{obs})$
 			- **Maximization**: maximizar la función de verosimilitud, que representa la probabilidad de tener las observaciones que tenemos en el dataset.
 			Hay que encontrar $\theta$ (media $\mu$ y varianza $\sigma$) que mejor expliquen los datos faltantes. 
-			![[Pasted image 20260302125736.png]]![[Pasted image 20260302125822.png]]![[Pasted image 20260302125831.png]]![[Pasted image 20260302125840.png]]
+			![[Pasted image 20260302125736.png]]![[Pasted image 20260302125822.png]]![[Pasted image 20260302125831.png]]![[Pasted image 20260302125840.png|589]]
+
+## Ejercicio
+![[Pasted image 20260302125439.png]]
+$D(6,1) = \frac{8/8 + 1 + 1}{3} =1$
+$D(6,2) = \frac{0/8 + 0 + 0}{3} =0$
+$D(6,3) = \frac{7/8 + 1 + 1}{3} =0.9583$
+$D(6,4) = \frac{1/8 + 0 + 0}{3} =0.0416$
+$D(6,5) = \frac{7/8 + 1}{2}=0.9375$
+
 - **Datos anómalos**: 
 	- **Detección**:
 		- **Métodos estadísticos**:
@@ -71,16 +79,9 @@ Detecta y corrige errores, inconsistencias y datos faltantes en el conjunto de i
 		- **Eliminación crítica**: se elimina si es error, el impacto es aceptable (menos del 5% de los datos) y no provoca sesgos.
 		- **Imputación**: sustituir valores (apartado anterior).
 		- **Transformar datos**: 
-			- Transformaciones no lineales: funciones logarítmicas o raíz cuadrada para reducir el peso de los extremos.
-			- Segmentación o clustering: identificar si las anomalías forman un grupo con patrón propio para tratarlos de forma aislada en lugar de eliminarlos.
-			- Suavizado de datos: aplicar filtros de variabilidad para minimizar el impacto del ruido aleatorio en el análisis global.
-## Ejercicio
-![[Pasted image 20260302125439.png]]
-$D(6,1) = \frac{8/8 + 1 + 1}{3} =1$
-$D(6,2) = \frac{0/8 + 0 + 0}{3} =0$
-$D(6,3) = \frac{7/8 + 1 + 1}{3} =0.9583$
-$D(6,4) = \frac{1/8 + 0 + 0}{3} =0.0416$
-$D(6,5) = \frac{7/8 + 1}{2}=0.9375$
+			- **Transformaciones no lineales**: funciones logarítmicas o raíz cuadrada para reducir el peso de los extremos.
+			- **Segmentación o clustering**: identificar si las anomalías forman un grupo con patrón propio para tratarlos de forma aislada en lugar de eliminarlos.
+			- **Suavizado de datos**: aplicar filtros de variabilidad para minimizar el impacto del ruido aleatorio en el análisis global.
 
 ## Integración de datos
 Combinar información de múltiples fuentes para crear una vista única, coherente y valiosa.
@@ -107,10 +108,10 @@ Combinar información de múltiples fuentes para crear una vista única, coheren
 	- **Atributos numéricos**:
 		- **Coeficiente de correlación de Pearson**: si se sospecha relación lineal.
 			- $|r| \approx 0$: no relación lineal. Mantener ambas variables.
-			- $|r|$ alto (Ejemplo: $\gt$ 0.8): fuerte dependencia lineal. Redundancia.
+			- $|r|$ alto ($\gt$ 0.8): fuerte dependencia lineal. Redundancia.
 		- **Correlación de Spearman**: explorar relaciones no lineales.
 			- $|\rho| \approx 0$: no relación monotónica. Mantener ambas variables.
-			- $|\rho|$ alto (Ejemplo: $\gt$ 0.8): fuerte dependencia monotónica. Redundancia. 
+			- $|\rho|$ alto ( $\gt$ 0.8): fuerte dependencia monotónica. Redundancia. 
 		![[Pasted image 20260312182653.png]]
 
 ## Transformación de datos
@@ -126,14 +127,18 @@ Transformar y refinar información bruta para que sirva de entrada adecuada a un
 		- **Potencia**: $Y_{i}=X^{\lambda}_{i}$. Modifica la asimetría según $\lambda$.
 			- Si $0\lt \lambda \lt 1$: comprime valores grandes (reduce cola derecha). Requiere $X_{i}\ge 0$.
 			- Si $\lambda \gt 1$: expande los valores grandes.
+		![[Pasted image 20260412210502.png]]
 	- **Transformaciones multivariantes**: se crea un nuevo atributo $Y =f(X_{1},..., X_{m})$ mediante transformaciones funcionales:
 		- **Lineales**: suma ponderada de variables. $$Y=w_{1}X_{1}+...+w_{m}X_{m}$$
 		- **Cuadráticas**: genera una nueva variable con los términos al cuadrado y productos entre variables, modelando relaciones no lineales que una lineal no podría capturar. $$Y=\sum^{m}_{i=1}w_{i}X^{2}_{i}+\sum^{}_{1\le i \lt j \le m}w_{ij}X_{i}X_{j}$$
-		- **Box-Cox**: aproximar la normalidad y estabilizar la varianza en variables continuas. Requiere $X \gt 0$: $$z = g_{\lambda}(x) = \begin{cases} \frac{x^{\lambda} - 1}{\lambda}, & \text{si } \lambda \neq 0 \\ \ln(x), & \text{si } \lambda = 0 \end{cases}$$ Si el atributo tiene valores negativos, antes desplazamos $x'=x+c$, con $c \gt -\min(x)$ En la versión **Box-Draper**, hace que sea invariante a cambios de escala dividiendo por la media geométrica $g=(x_{1}x_{2}...x_{n})^{1/n}$, quedando: $$z = g_{\lambda}(x) = \begin{cases} \frac{(x+c)^{\lambda} - 1}{\lambda g}, & \text{si } \lambda \neq 0 \\ \frac{\ln(x+c)}{g}, & \text{si } \lambda = 0 \end{cases}$$ Para $\lambda = 1$ es lineal, $\lambda=2$ cuadrática, $\lambda = 1/2$ raíz y $\lambda = -1$ inversa (aprox $1/x$). Hay que estimar $\lambda$ que mejor normaliza el atributo (distribución gaussiana). ![[Pasted image 20260226100455.png]]
+		- **Box-Cox**: aproximar la normalidad y estabilizar la varianza en variables continuas. Requiere $X \gt 0$: $$z = g_{\lambda}(x) = \begin{cases} \frac{x^{\lambda} - 1}{\lambda}, & \text{si } \lambda \neq 0 \\ \ln(x), & \text{si } \lambda = 0 \end{cases}$$ Si el atributo tiene valores negativos, antes desplazamos $x'=x+c$, con $c \gt -\min(x)$ En la versión **Box-Draper**, hace que sea invariante a cambios de escala dividiendo por la media geométrica $g=(x_{1}x_{2}...x_{n})^{1/n}$, quedando: $$z = g_{\lambda}(x) = \begin{cases} \frac{(x+c)^{\lambda} - 1}{\lambda g}, & \text{si } \lambda \neq 0 \\ \frac{\ln(x+c)}{g}, & \text{si } \lambda = 0 \end{cases}$$ Para $\lambda = 1$ es lineal, $\lambda=2$ cuadrática, $\lambda = 1/2$ raíz y $\lambda = -1$ inversa (aprox $1/x$). Hay que estimar $\lambda$ que mejor normaliza el atributo (distribución gaussiana) con una normal con varianza constante.  Se usa maxima verosimilitud. ![[Pasted image 20260226100455.png]]
 - **Codificación**: variables cualitativas se codifican de forma que puedan ser procesadas por los algoritmos.
 	- **One hot encoding**: categorías en k columnas binarias (0 o 1).
+		![[Pasted image 20260412210755.png]]
 	- **Label encoding**: cada categoría a un número entero único.
+		![[Pasted image 20260412210806.png]]
 	- **Ordinal encoding**: cada categoría a un número entero único reflejando el orden natural. 
+		![[Pasted image 20260412210818.png]]
 
 ## Ejercicio
 ![[Pasted image 20260226091339.png]]
@@ -163,7 +168,7 @@ Problemas:
 		- **Aleatorio**: probabilidad uniforme.
 		- **Estratificado**: divide en conjunto en estratos. Proporción original en cada grupo.
 	- **Selección geométrica**: mantener la estructura relevante para el problema. Sea $d(x_{i}, x_{j})$ una métrica, la selección se basa en analizar los vecinos.
-		- **Eliminación de redundancia**: se usa CNN (Condensed Nearest Neighbor), que construye un subconjunto S de D eliminando ejemplos redundantes. Sea D el dataset y  $d(x_{i}, x_{j})$ una métrica: inicializamos S con un ejemplo de cada clase, para cada $x \in D$ se clasifica $x$ usando KNN sobre S, si se clasifica mal, añadimos $x$ a S. Repetir hasta quedarnos sin registros. ![[Pasted image 20260303094850.png]] ==cambiar imagen==
+		- **Eliminación de redundancia**: se usa CNN (Condensed Nearest Neighbor), que construye un subconjunto S de D eliminando ejemplos redundantes. Sea D el dataset y  $d(x_{i}, x_{j})$ una métrica: inicializamos S con un ejemplo de cada clase, para cada $x \in D$ se clasifica $x$ usando KNN sobre S, si se clasifica mal, añadimos $x$ a S. Repetir hasta quedarnos sin registros. ![[Pasted image 20260412170236.png]]
 		- **Eliminación de ruido**: borra registros que estan mal en el espacio. Se usa ENN (Edited Nearest Neighbor), que elimina los mal clasificados de KNN. Para cada registro $x \in D$, consideramos $S = D$, clasificar $x$ usando KNN sobre $D - \{x\}$, si falla eliminamos $x$. Repetir hasta quedarnos sin registros. ![[Pasted image 20260303100310.png]]
 - **Feature extraction**: se transforman columnas en otras mas potentes. Datos originales en un espacio de menor dimensión. Se usa PCA. 
 - **Generación de registros**: problemas de que una clase tiene pocos ejemplos de una clase.
@@ -172,8 +177,4 @@ Problemas:
 
 ## Discretización
 Transforma una variable continua en categórica definida por intervalos. Se define una partición del dominio observado $\mathbb{X} = I_{1} \cup I_{2} \cup ... \cup I_{k}; I_{i} \cap I_{j} = \emptyset$ si $i \ne j$. 
-
-- Igual ancho:
-- Igual frecuencia:
-- Basada en conocimiento experto:
 ![[Pasted image 20260303101720.png]]

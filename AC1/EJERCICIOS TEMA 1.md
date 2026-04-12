@@ -243,4 +243,142 @@ c) Se aproxima a la $\sqrt{x}$ ya que estamos calculando $2(\sqrt{x} - 1)$. Esta
 
 ## Ejercicio 26
 ![[Pasted image 20260411141654.png]]![[Pasted image 20260411141703.png]]
-a) 
+a) Buscar un $\lambda$ que mejor normaliza el atributo (una distribución gaussiana).
+
+b) La gran mayoría de los clientes realizan pocas compras (entre 1 y 6). Sin embargo, existen unos pocos valores muy altos que "estiran" la distribución hacia la derecha. Además la media es mayor que la mediana.
+
+c) Si $\lambda = 0$ usamos $\log(x)$ sino usamos $\frac{x^\lambda - 1}{\lambda}$
+Para $\lambda = 0$: $[0, 0.69, 0.69, 1.09, 1.09, 1.39, 1.61, 1.79, 2.08, 2.3, 2.71, 3]$
+Para $\lambda = 0.5$: $[0, 0.83, 0.83, 1.46, 1.46, 2, 2.47, 2.9, 4.32, 5.75, 6.94]$
+Para $\lambda = 1$: $[0, 1, 1, 2, 2, 3, 4, 5, 7, 9, 14, 19]$
+
+d)
+
+| Variable        | Intervalo y Frecuencia                                                        |
+| --------------- | ----------------------------------------------------------------------------- |
+| Original        | $[1, 4.8)=6, [4.8, 8.6)=3, [8.6, 12.4)=1, [12.4, 16.2)=1, [16.2, 20)=1$       |
+| $\lambda = 0$   | $[0, 0.6)=1, [0.6, 1.2)=4, [1.2, 1.8)=3, [1.8, 2.4)=2, [2.4, 3)=2$            |
+| $\lambda = 0.5$ | $[0, 1.38)=3, [1.38, 2.77)=4, [2.77, 4.16)=2, [4.16, 5.55)=1, [5.55, 6.94)=2$ |
+| $\lambda = 1$   | $[0, 3.8)=6, [3.8, 7.6)=3, [7.6, 11.4)=1, [11.4, 15.2)=1, [15.2, 19)=1$       |
+e)
+
+| ![[Pasted image 20260412135229.png]] | ![[Pasted image 20260412135237.png]] |
+| ------------------------------------ | ------------------------------------ |
+| ![[Pasted image 20260412135247.png]] | ![[Pasted image 20260412135253.png]] |
+f) Vemos que se presenta una asimetría derecha. Analizando mejor de forma visual los histogramas, el uso de $\lambda = 0$ es el que más reduce esa asimetría, ya que se usa el $\log(x)$ que es la que más reduce la asimetría derecha (cola derecha). Además se ve mejor a una distribución gaussiana.
+
+## Ejercicio 27
+![[Pasted image 20260412135521.png]]
+a) rojo = 0, verde = 1, azul = 2
+
+b)  color = \[0, 1, 2, 1, 0]
+
+c) Modelos interpretan que los números tienen un valor comparativo (rojo (0) es menor que verde (1)). También puede interpretar la distancia entre los colores (rojo esta lejos de azul). Esto lleva al modelo a aprender patrones inexistentes introduciendo sesgo.
+
+## Ejercicio 28
+![[Pasted image 20260412140115.png]]
+a y b) gasolina = \[1, 0, 0, 1], diésel = \[0, 1, 0, 0], eléctrico = \[0, 0, 1, 0]
+
+c) Porque se crea una columna nueva para cada combustible distinto, eliminando así cualquier relación entre los posibles valores de combustible y eliminando el problema de aprender patrones inexistentes que hacía el label encoding.
+
+## Ejercicio 29
+![[Pasted image 20260412140450.png]]
+a) Uso de Box-Cox con $\lambda = 0$, que es equivalente al $\log(x)$, función que reduce la asimetría derecha. También se puede usar $\lambda = 0.5$, que es equivalente al $\sqrt{x}$, que hace la misma función. La diferencia es que el logaritmo elimina esa cola derecha de forma más agresiva.
+
+b) Para valores pequeños, la raíz mantiene una separación más realistas entre esos valores y afecta más a los más grandes. Además incluye el 0.
+
+c) El objetivo es buscar un $\lambda$ que mejor normalice el atributo y que se parezca lo más posible a una distribución gaussiana, manteniendo todos los datos con una proporción parecida y eliminando la asimetría.
+
+d) Para $\lambda<1$ , no se puede aplicar Box-Cox ya que el problema se encuentra en los valores negativos. El logaritmo y la raíz no están definidos para valores negativos. La solución es: $x'=x+c$, con $c \gt -\min(x)$.
+
+e) Modelos interpretan que los números tienen un valor comparativo (rojo (0) es menor que verde (1)). También puede interpretar la distancia entre los colores (rojo esta lejos de azul). Esto lleva al modelo a aprender patrones inexistentes introduciendo sesgo.
+
+f) Ordinal encoding ya que podemos ver un orden entre los valores: primero hacemos primaria, después secundaria, luego bachillerato y por último universidad. Se ve claramente una jerarquía (primaria está mas lejos de universidad que bachillerato).
+
+## Ejercicio 30
+![[Pasted image 20260412143321.png]]
+a y b) Obtenemos las variables que tienen mayor correlación con la objetivo, en este casi ingresos, número de créditos previos y antigüedad laboral (tienen una alta correlación). Edad y código postal tienen una correlación cercano a 0 por lo que no serviría mucho.
+
+c) Son eficientes pero se evalúan las variables por separado. Es posible que la unión de algunas sean más potentes al combinarse y tengan más correlación.
+
+## Ejercicio 31
+![[Pasted image 20260412164840.png]]![[Pasted image 20260412164852.png]]
+a y b) Elegiría el subconjunto de X1 y X3 porque este método prueba varios subconjuntos y al final se queda con el que mejor resultado da, en este caso con un 78% de precisión.
+
+c) Es computacionalmente más costoso puesto que entrenan varios modelos y se queda con el mejor, no hace solo un modelo.
+
+## Ejercicio 32
+![[Pasted image 20260412165343.png]]
+a) Reduce el tamaño del dataset eliminando ejemplos redundantes. Se queda solo con los prototipos que definen la frontera de decisión, asumiendo que los puntos internos son innecesarios porque ya se clasifican correctamente con los ejemplos de la frontera.
+
+b) $S=\{ R1, R4 \}, rango_{X1}=7, rango_{X2}=6, rango_{X3}=6, rango_{X4}=3$
+	R2: 
+		$d(R2, R1)=\frac{1}{4}*(\frac{0}{7}+\frac{1}{6}+\frac{0}{6}+\frac{1}{3})=0.125$ 
+		$d(R2, R4)=\frac{1}{4}*(\frac{6}{7}+\frac{3}{6}+\frac{5}{6}+\frac{0}{3})=0.5476$$
+		Como el más cercano es R1 que es A y R2 también, no se añade a la lista.
+	R3:
+		$d(R3, R1)=\frac{1}{4}*(\frac{1}{7}+\frac{0}{6}+\frac{1}{6}+\frac{0}{3})=0.077$ 
+		$d(R3, R4)=\frac{1}{4}*(\frac{5}{7}+\frac{4}{6}+\frac{4}{6}+\frac{2}{3})=0.68$
+		Como el más cercano es R1 que es A y R3 también, no se añade a la lista.
+	R5:
+		$d(R5, R1)=\frac{1}{4}*(\frac{7}{7}+\frac{5}{6}+\frac{5}{6}+\frac{2}{3})=0.83$ 
+		$d(R5, R4)=\frac{1}{4}*(\frac{1}{7}+\frac{1}{6}+\frac{0}{6}+\frac{1}{3})=0.16$
+		Como el más cercano es R4 que es B y R5 también, no se añade a la lista.
+	R6:
+		$d(R6, R1)=\frac{1}{4}*(\frac{6}{7}+\frac{5}{6}+\frac{6}{6}+\frac{2}{3})=0.84$ 
+		$d(R6, R4)=\frac{1}{4}*(\frac{0}{7}+\frac{1}{6}+\frac{1}{6}+\frac{1}{3})=0.16$
+		Como el más cercano es R4 que es B y R6 también, no se añade a la lista.
+	R7:
+		$d(R7, R1)=\frac{1}{4}*(\frac{1}{7}+\frac{1}{6}+\frac{1}{6}+\frac{1}{3})=0.2$ 
+		$d(R7, R4)=\frac{1}{4}*(\frac{5}{7}+\frac{5}{6}+\frac{4}{6}+\frac{2}{3})=0.72$
+		Como el más cercano es R1 que es A y R7 también, no se añade a la lista.
+	R8:
+		$d(R8, R1)=\frac{1}{4}*(\frac{5}{7}+\frac{4}{6}+\frac{5}{6}+\frac{1}{3})=0.64$ 
+		$d(R8, R4)=\frac{1}{4}*(\frac{1}{7}+\frac{0}{6}+\frac{0}{6}+\frac{0}{3})=0.04$
+		Como el más cercano es R4 que es B y R8 también, no se añade a la lista.
+	De R9 a R14 es igual.
+	R15:
+		$d(R15, R1)=\frac{1}{4}*(\frac{3}{7}+\frac{2}{6}+\frac{3}{6}+\frac{0}{3})=0.32$ 
+		$d(R15, R4)=\frac{1}{4}*(\frac{3}{7}+\frac{2}{6}+\frac{2}{6}+\frac{1}{3})=0.36$
+		Como el más cercano es R1 que es A y R5 es B, se añade a la lista. $S=\{ R1, R4, R15 \}$
+El subconjunto final es $S=\{ R1, R4, R15 \}$
+
+c) Borra registros que están mal en el espacio. Elimina los mal clasificados de KNN. Se evalúa cada registro y, si su clase no coincide con la de la mayoría de sus $k$ vecinos más cercanos, el registro se elimina. CNN elimina lo que sobra. Se queda con la frontera. ENN elimina lo que molesta. Limpia la frontera.
+
+d y e) Es muy largo no lo hago. El conjunto inicial $S=\{R1, R2, R3, R4, R5, R6, R7, R8, R9, R10, R11, R12, R13, R14, R15\}$. En este caso el único que falla es R15 entonces se borra de S y queda $S=\{R1, R2, R3, R4, R5, R6, R7, R8, R9, R10, R11, R12, R13, R14\}. 
+
+## Ejercicio 33
+![[Pasted image 20260412201826.png]]
+a) Sabiendo que hay 7 de la clase A y 8 de la clase B, si de 15 elementos tenemos 8 de la clase B, para 8 elementos tenemos 4 (regla de 3) y para A tenemos 4.
+
+b) Un ejemplo de subconjunto sería $S=\{R1, R2, R3, R4, R5, R6, R7, R8\}$
+
+c) Porque mantiene la misma proporción de clases respecto al dataset original.
+
+## Ejercicio 34
+![[Pasted image 20260412202718.png]]
+a) $[3.2, 4.94),[4.94, 6.68),[6.68, 8.42),[8.42, 10.16),[10.16, 11.9)$
+
+b) $[3.2, 5),[5, 6.8),[6.8, 8.6),[8.6, 10.4),[10.4, 11.9)$
+
+c) $[3.2, 6), [6, 9), [9, 11.9)$
+
+## Ejercicio 35
+![[Pasted image 20260412204025.png]]
+a) $[12, 19.25),[19.25, 26.5),[26.5, 33.75),[33.75, 41)$
+
+b) $[12, 19),[19, 26),[26, 33),[33, 41)$
+
+c) $[12, 20),[20, 30),[30, 41)$
+
+## Ejercicio 36
+![[Pasted image 20260412204328.png]]
+a) Elimina el ruido y las variables redundantes. Al reducir la dimensionalidad, disminuimos el riesgo de sobreajuste, ya que el modelo se ve obligado a centrarse solo en los patrones realmente informativos
+
+b) En el caso de que hayan menos variables que datos. Redundancia de filas. Balancear clases.
+
+c) KNN no aprende una fórmula, sino que busca en toda la base de datos cada vez que predice. Al haber menos puntos, la búsqueda del vecino más cercano es más rápida. Al eliminar ruido, la frontera de decisión se vuelve más suave y clara.
+
+d) Problemas de que una clase tiene pocos ejemplos de esa clase y cuesta definir la frontera entre las clases.
+ 
+e) Simplificación: reduce complejidad del espacio. Robustez: atenúa pequeñas variaciones y ruido. Interpretabilidad: facilita reglas y explicaciones. Compatibilidad: útil en modelos que trabajan con variables categóricas.
