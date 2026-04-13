@@ -5,7 +5,7 @@ format: pdf
 ---
 
 ## Ejercicio 4
-Carga y Preparación. Carga el dataset wine, elimina la primera columna (que contiene la clase) y realiza una breve exploración estadística. ¿Crees que las variables están en la misma escala? Justifica si es necesario estandarizar.
+**Carga y Preparación. Carga el dataset wine, elimina la primera columna (que contiene la clase) y realiza una breve exploración estadística. ¿Crees que las variables están en la misma escala? Justifica si es necesario estandarizar.**
 
 ```{r}
 #| warning: false
@@ -23,29 +23,28 @@ head(wine_data)
 summary(wine_data)
 
 cor(wine_data) |> 
-  corrplot(method = "number", type = "upper", 
-           col = colorRampPalette(c("#BB4444", "#EE9988", "#FFFFFF", "#77AADD",
-                                    "#4477AA"))(200))
+  corrplot(method = "number", type = "upper", number.digits = 1, number.cex = 0.8,
+           col = colorRampPalette(c("green", "gray", "blue"))(200))
 
 boxplot(wine_data)
 
 ```
 
-Hemos imprimido dos gráficos: la primera muestra la correlación que hay entre variables y la segunda un boxplot para poder ver la varianza de los datos y sus magnitudes. Analizando este último, vemos que la variable V13 tiene una varianza muchísimo mayor que a los demás. Lo óptimo ahora mismo sería noralizar o escalar los datos:
+Hemos imprimido dos gráficos: la primera muestra la correlación que hay entre variables y la segunda un boxplot para poder ver la varianza de los datos y sus magnitudes. Analizando este último, vemos que la variable V13 tiene una varianza muchísimo mayor que las demás. Lo óptimo ahora mismo sería noralizar o escalar los datos:
 
 ```{r}
 wine_data <- scale(wine_data)
 
-boxplot(wine_data)
+boxplot(wine_data, )
 ```
 
-Una vez escalado, podemos ver que hay algunos outliers en algunas variables, que se representan como puntos fuera de los bigotes.
+Una vez escalado, podemos ver que hay algunos outliers en algunas variables, que se representan como puntos fuera de los límites.
 
 ## Ejercicio 5
-Ejecución del PCA. Realiza el PCA sobre wine_data asegurando que los datos se escalen (scale = TRUE).
+**Ejecución del PCA. Realiza el PCA sobre wine_data asegurando que los datos se escalen (scale = TRUE).**
 
-1. ¿Cuánta varianza explican las dos primeras componentes?
-1. ¿Cuántas componentes necesitarías para retener al menos el 80% de la información original? Dibuja el Scree Plot.
+**1. ¿Cuánta varianza explican las dos primeras componentes?**
+**1. ¿Cuántas componentes necesitarías para retener al menos el 80% de la información original? Dibuja el Scree Plot.**
 
 ```{r}
 pca_result_wine <- prcomp(wine_data, center = TRUE, scale = TRUE)
@@ -60,33 +59,34 @@ La varianza explicada representa cuanta informacion retiene cada componente prin
 Analizando el Scree Plot, las dos primeras varianzas explican un 36.2% y un 19.2%. Este conjunto nos permite retener un 36.2 + 19.2 = 55.4% de la información. Para retener el 80% de la información necesitariamos las primeras 5 componentes, reteniendo 80.2%.
 
 ## Ejercicio 6
-Interpretación de Pesos (Loadings). Examina la matriz de rotación (rotation). 
+**Interpretación de Pesos (Loadings). Examina la matriz de rotación (rotation).**
 
-1. Identifica las 3 variables que más contribuyen (positiva o negativamente) a la PC1. 
-1. Basándote en esto, ¿qué crees que intenta “medir” la primera componente en el perfil químico de un vino?
+**1. Identifica las 3 variables que más contribuyen (positiva o negativamente) a la PC1.** 
+**1. Basándote en esto, ¿qué crees que intenta “medir” la primera componente en el perfil químico de un vino?**
 
 ```{r}
 sort(abs(pca_result_wine$rotation[, 1]), decreasing = TRUE)[1:3]
 
 fviz_pca_var(pca_result_wine, col.var = "contrib", 
-             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+             gradient.cols = c("gray", "green", "blue"),
              repel = TRUE, title = "Variables y sus contribuciones")
 ```
 
 Para ver las variables que más contribuyen a la PC1, analizamos la primera columna (primera PC) de la matriz de loadings. Para obtener los mayores, ordenamos el mayor absoluto de cada peso y obtenemos las 3 primeras. En este caso las que mas contribuyen son V7, V6 y V12. También lo podemos obtener a partir del gráfico. Las que más contribuyen son las flechas más largas y pegadas al eje X. Como apuntan a la parte negativa del eje X, estas variables están negativamente correlacionadas con la PC1.
 
 ## Ejercicio 7
-Visualización: El Biplot. Genera un biplot del análisis.
+**Visualización: El Biplot. Genera un biplot del análisis.**
 
-1. Observa las flechas de Total phenols (V6)\* y Flavanoids (V7)\*. ¿Qué puedes decir sobre su correlación?
-1. Identifica si hay algún grupo de vinos que se separe claramente del resto. Colorea los puntos por la variable class original para verificarlo.
+**1. Observa las flechas de Total phenols (V6)\* y Flavanoids (V7)\*. ¿Qué puedes decir sobre su correlación?**
+**1. Identifica si hay algún grupo de vinos que se separe claramente del resto. Colorea los puntos por la variable class original para verificarlo.**
 
 *\ Como en el dataset no sale el nombre de la columna, he buscado en internet a que columna pertenece cada nombre
 
 ```{r}
 fviz_pca_biplot(pca_result_wine, repel = TRUE, habillage = wine[, 1],
-                col.var = "#2E9FDF", col.ind = "#696969",
-                title = "Biplot de wine", legend.title = "Cultivar")
+                col.var = "#2E9FDF", col.ind = "#696969", label = "none",
+                title = "Biplot de wine", legend.title = "Cultivar",
+                addEllipses = TRUE)
 ```
 
 Como vimos anteriormente, estaban en la parte negativa del eje X y bastante juntas, es decir, en la naturaleza de estos vinos, si uno tiene muchos flavonoids (V7), es casi seguro que también tendrá muchos Total phenols (V6). Además, ambas tienen una correlación inversa con la PC1.
@@ -94,15 +94,36 @@ Como vimos anteriormente, estaban en la parte negativa del eje X y bastante junt
 ## Preguntas de "Estructuras Algebraicas"
 
 ### Ejercicio 1
-Considerando el dataset wine_data con 13 variables numéricas, ¿cómo describirías el espacio vectorial en el que reside cada observación (cada vino) antes de aplicar el ACP? ¿Cuál es la dimensión de este espacio?
+**Considerando el dataset wine_data con 13 variables numéricas, ¿cómo describirías el espacio vectorial en el que reside cada observación (cada vino) antes de aplicar el ACP? ¿Cuál es la dimensión de este espacio?**
 
 Cada variable (columna) representa una dimensión en el sistema de coordenadas. Como tenemos 13 variables, estariamos trabajando en un espacio vectorial $\mathbb{R}^13$.
 
 ### Ejercicio 2
-El ACP genera nuevos componentes principales. Estos componentes forman una nueva base para el espacio de los datos. ¿Por qué esta nueva base es ortogonal? ¿Cómo se relaciona la construcción de esta base ortogonal con el proceso de diagonalización de la matriz de covarianza (o correlación)?
+**El ACP genera nuevos componentes principales. Estos componentes forman una nueva base para el espacio de los datos. ¿Por qué esta nueva base es ortogonal? ¿Cómo se relaciona la construcción de esta base ortogonal con el proceso de diagonalización de la matriz de covarianza (o correlación)?**
 
 Es ortogonal porque el PCA busca direcciones de varianza máxima que no estén correlacionadas entre sí. La matriz de covarianza $\Sigma$ se puede diagonalizar como $PDP^T$ donde P es la matriz de paso formado por los autovectores y D una matriz diagonal de autovalores.
 
 ### Ejercicio 3
-Los componentes principales son, de hecho, los autovectores de la matriz de (co)varianza de los datos escalados. En términos de una transformación lineal asociada a esta matriz, ¿qué propiedad fundamental satisface un autovector? ¿Cómo se manifiesta esta propiedad en el contexto del ACP y la preservación de la varianza?
+**Los componentes principales son, de hecho, los autovectores de la matriz de (co)varianza de los datos escalados. En términos de una transformación lineal asociada a esta matriz, ¿qué propiedad fundamental satisface un autovector? ¿Cómo se manifiesta esta propiedad en el contexto del ACP y la preservación de la varianza?**
 
+El autovector es la flecha que apunta al lugar donde hay más información, y su propiedad de no rotar asegura que esa información se capture de forma pura, sin mezclarse con otras dimensiones.
+
+### Ejercicio 4
+**Los autovalores asociados a cada componente principal cuantifican la cantidad de varianza de los datos que se encuentra en la dirección de ese componente. ¿Por qué el primer componente principal se corresponde siempre con el autovector asociado al mayor autovalor?**
+
+El objetivo de PCA es maximizar la varianza capturada en el primer paso (ese máximo es el autovalor dominante). Esto asegura que la PC1 sea el eje que mejor resume la dispersión de los datos.
+
+### Ejercicio 5
+**Al decidir retener solo los primeros k componentes principales (por ejemplo, los 2 o 3 que explican la mayor parte de la varianza), estamos esencialmente proyectando los datos originales sobre un subespacio vectorial de menor dimensión k. ¿Por qué se elige precisamente el subespacio generado por los k primeros componentes principales para lograr la mejor representación posible de los datos originales en una dimensión menor, en términos de la varianza preservada?**
+
+Al retener los mayores autovalores, garantizamos que estamos preservando la máxima varianza total posible de los datos originales en un espacio de menor dimensión
+
+### Ejercicio 6
+**Observando los loadings (pca_result_wine$rotation), ¿qué variables químicas originales parecen tener la mayor influencia en los primeros componentes principales? ¿Cómo interpretarías lo que representan estos primeros componentes en el contexto de las propiedades de los vinos? (Por ejemplo, el primer componente podría representar alguna medida general de la “calidad” o “densidad” del vino).**
+
+Variables como V6, V7 y V12 (conseguidos y analizados anteriormente) son los que dominan la PC1. Por ejemplo, en la naturaleza de estos vinos, si uno tiene muchos flavonoids (V7), es casi seguro que también tendrá muchos Total phenols (V6).
+
+### Ejercicio 7
+**Basado en el biplot (y opcionalmente, el análisis de clustering), ¿logran los primeros dos componentes principales capturar las diferencias entre los vinos de los distintos cultivares de forma que se vean visualmente separados? ¿Qué te indica esto sobre la utilidad del ACP para este dataset particular?**
+
+Sí, las dos primeras componentes logran separar los tres cultivares en nubes de puntos claramente diferenciadas (analizar el biplot anterior). La utilidad aquí con PCA es que hemos simplificado el problema de 13 a 2 variables sin perder la capacidad de clasificar los vinos.

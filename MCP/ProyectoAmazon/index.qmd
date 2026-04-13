@@ -1,0 +1,12 @@
+# Introducción {.unnumbered}
+
+En este proyecto de Aprendizaje Basado en Proyectos (ABP) vamos a actuar como analistas de datos para entender cómo se estructuran las relaciones entre productos y usuarios en Amazon. El objetivo es aplicar las técnicas vistas en clase, en particular, de reducción de datos, grafos y clasificación para predecir el comportamiento del mercado.
+
+Para ello, vamos a usar el dataset *Amazon Product Reviews*, que se puede encontrar y descargar en [Kaggle](https://www.kaggle.com/datasets/arhamrumi/amazon-product-reviews).
+
+
+
+```{r}
+library(sys)
+system("kaggle datasets download arhamrumi/amazon-product-reviews")
+```

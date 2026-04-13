@@ -1,0 +1,22 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Proyecto: Arquitectura de Influencia en Ecosistemas de Consumo. Dataset Amazon",
+    "section": "",
+    "text": "Introducción\nEn este proyecto de Aprendizaje Basado en Proyectos (ABP) vamos a actuar como analistas de datos para entender cómo se estructuran las relaciones entre productos y usuarios en Amazon. El objetivo es aplicar las técnicas vistas en clase, en particular, de reducción de datos, grafos y clasificación para predecir el comportamiento del mercado.\nPara ello vamos a usar el dataset Amazon Product Reviews, que se puede encontrar y descargar en Kaggle",
+    "crumbs": [
+      "Introducción"
+    ]
+  },
+  {
+    "objectID": "docs/intro.html",
+    "href": "docs/intro.html",
+    "title": "1  Introduction",
+    "section": "",
+    "text": "This is a book created from markdown and executable code.\nSee @knuth84 for additional discussion of literate programming.\n\n1 + 1\n\n[1] 2",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Introduction</span>"
+    ]
+  }
+]
