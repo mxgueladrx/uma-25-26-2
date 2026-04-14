@@ -51,7 +51,7 @@ Detecta y corrige errores, inconsistencias y datos faltantes en el conjunto de i
 		- **Máxima verosimilitud (EM)**: probabilístico. Encuentra valores que mejor encajarían para que la distribución total de los datos sea lo más coherente posible.
 			- **Expectation**: valor esperado para el dato perdido. $x_{miss}=\mu_{miss}+\Upsigma_{12}\Upsigma^{-1}_{22}(x_{obs}-\mu_{obs})$
 			- **Maximization**: maximizar la función de verosimilitud, que representa la probabilidad de tener las observaciones que tenemos en el dataset.
-			Hay que encontrar $\theta$ (media $\mu$ y varianza $\sigma$) que mejor expliquen los datos faltantes. 
+			Hay que encontrar $\theta$ (media $\mu$ y varianza $\sigma=\frac{\sum(x-\mu)^2}{N}$) que mejor expliquen los datos faltantes. Covarianza $\Sigma=\frac{\sum (x-\mu_{x})(y-\mu_{y})}{N}$:
 			![[Pasted image 20260302125736.png]]![[Pasted image 20260302125822.png]]![[Pasted image 20260302125831.png]]![[Pasted image 20260302125840.png|589]]
 
 ## Ejercicio
@@ -68,13 +68,12 @@ $D(6,5) = \frac{7/8 + 1}{2}=0.9375$
 			- **Normalización o reescalado Min-Max**: transformar valores a un rango específico. Normalmente se reescala a \[0,1]. Los valores extremos quedan cerca del 0 o 1. $$x'=\frac{x-min}{max-min}$$
 			- **Z-score**: mide cuantas desviaciones estándar se encuentra un punto de la media. Un valor normalizado superior a 3 es anómalo (regla 68,27; 95; 99,73)$$x'=\frac{x-\mu}{\sigma}$$
 			- **IQR (Rango Intercuartílico)**: dispersión de los datos. Se usan $Q_{1}$ y $Q_{3}$ y el rango intercuartílico $[Q_{1}-1.5*IQR, Q_{3}+1.5*IQR]$. Los puntos fuera del rango son anomalías.
-			![[Pasted image 20260225093427.png]]
-			![[Pasted image 20260225094611.png]]
+			![[Pasted image 20260225093427.png]]![[Pasted image 20260225094611.png]]
 		- **Técnicas de visualización**: 
 			- **Boxplots**: visualiza cuartiles y puntos aislados que superan los límites del IQR.
 			- **Scatter plots**: ver la relación entre dos variables e identificar puntos que se escapan del cluster principal.
 			- **Histogramas**: frecuencia de los datos. Barras pequeñas o alejadas en los extremos son posibles anomalías.
-			![[Pasted image 20260225093530.png]]
+			![[Pasted image 20260225093530.png|589]]
 	- **Acciones**:
 		- **Eliminación crítica**: se elimina si es error, el impacto es aceptable (menos del 5% de los datos) y no provoca sesgos.
 		- **Imputación**: sustituir valores (apartado anterior).
