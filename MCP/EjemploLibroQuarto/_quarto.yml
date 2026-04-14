@@ -7,16 +7,6 @@ book:
   date: "3/4/2026"
   chapters:
     - index.qmd
-    - capitulo1.qmd
-    - ejercicios1.qmd
-    - Practica1.qmd
-    - capitulo2.qmd
-    - ejercicios2.qmd
-    - Practica2.qmd
-    - capitulo3.qmd
-    - ejercicios3.qmd
-    - Practica3.qmd
-    - capitulo5.qmd
 
 bibliography: references.bib
 

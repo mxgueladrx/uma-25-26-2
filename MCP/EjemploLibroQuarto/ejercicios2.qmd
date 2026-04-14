@@ -1,3 +1,8 @@
+---
+title: "Ejercicios2"
+format: html
+---
+
 ## Ejercicio 2.1  
 
 1. Adapta el código del Ejemplo 2.5 para crear una matriz $A$ de $100 \times 100$ que sea pentadiagonal.
@@ -53,12 +58,12 @@ R[lower.tri(R)] <- 0
 
 b <- rnorm(n)
 
-solve(R, b)
+# solve(R, b) falla
 
 backsolve(R, b)
 
 library(microbenchmark)
-microbenchmark(solve(R, b), backsolve(R, b), times = 10)
+microbenchmark(backsolve(R, b), times = 10)
 ```
 
 Vemos que siempre falla usando solve ya que no es capaz de encontrar una solución. Con backsolve lo resuelve en ms.

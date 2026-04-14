@@ -1,3 +1,8 @@
+---
+title: "Capitulo2"
+format: html
+---
+
 # Resolución de sistemas de ecuaciones problemáticos
 
 ## Crear una matriz y resolver sistemas
@@ -31,7 +36,7 @@ A_singular <- matrix(
 
 det(A_singular)
 
-solve(A_singular, b)
+# solve(A_singular, b) falla
 ```
 
 El error U[3,3] = 0 significa que la matriz triangular superior, el índice [3,3] es 0, por lo que no se puede resolver. Ha usado factorización LU.
@@ -110,7 +115,7 @@ b <- matrix(
 
 qr.solve(A, b)
 
-qr.solve(A_singular, b)
+# qr.solve(A_singular, b) falla
 
 decomp_qr <- qr(A)
 
@@ -143,21 +148,6 @@ A_dispersa <- sparseMatrix(
 
 print(object.size(A_densa), units = "MB")
 print(object.size(A_dispersa), units = "KB")
-```
-
-## Matrices banda y tridiagonales (-1, 3, -1)
-
-```{r}
-n <- 10000
-
-b <- matrix(0, nrow = n, ncol = 1)
-b[n] <- pi
-
-tridiagonal <- sparseMatrix(
-  i <- c(1:n, 2:n),
-  j <- c(1:n, ),
-  k <- c(3, ),
-)
 ```
 
 ## Métodos iterativos para sistemas grandes

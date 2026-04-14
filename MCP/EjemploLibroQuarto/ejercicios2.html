@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.25">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>ejercicios2</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="ejercicios2_files/libs/clipboard/clipboard.min.js"></script>
+<script src="ejercicios2_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="ejercicios2_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="ejercicios2_files/libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="ejercicios2_files/libs/quarto-html/popper.min.js"></script>
+<script src="ejercicios2_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="ejercicios2_files/libs/quarto-html/anchor.min.js"></script>
+<link href="ejercicios2_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="ejercicios2_files/libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="ejercicios2_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="ejercicios2_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="ejercicios2_files/libs/bootstrap/bootstrap-b812df4b0fe95f3257c82f11506d1bab.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+
+
+
+<section id="ejercicio-2.1" class="level2">
+<h2 class="anchored" data-anchor-id="ejercicio-2.1">Ejercicio 2.1</h2>
+<ol type="1">
+<li>Adapta el código del Ejemplo 2.5 para crear una matriz <span class="math inline">\(A\)</span> de <span class="math inline">\(100 \times 100\)</span> que sea pentadiagonal.</li>
+<li>La diagonal principal debe tener el valor ‘10’.</li>
+<li>Las primeras sub/super-diagonales deben tener el valor ‘-2’.</li>
+<li>Las segundas sub/super-diagonales (es decir, <span class="math inline">\(a_{i, i+2}\)</span> y <span class="math inline">\(a_{i, i-2}\)</span>) deben tener el valor ‘1’.</li>
+<li>Visualiza la estructura de la matriz resultante con image(A).</li>
+</ol>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(Matrix)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">5</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Definir las diagonales</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>diag_principal <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">10</span>, n)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>sub_diag_1 <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="sc">-</span><span class="dv">2</span>, n <span class="sc">-</span> <span class="dv">1</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>super_diag_1 <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="sc">-</span><span class="dv">2</span>, n <span class="sc">-</span> <span class="dv">1</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>sub_diag_2 <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">1</span>, n <span class="sc">-</span> <span class="dv">2</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>super_diag_2 <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">1</span>, n <span class="sc">-</span> <span class="dv">2</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Definir las posiciones (i, j)</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>i_idx <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span>n, <span class="dv">2</span><span class="sc">:</span>n, <span class="dv">1</span><span class="sc">:</span>(n <span class="sc">-</span> <span class="dv">1</span>), <span class="dv">3</span><span class="sc">:</span>n, <span class="dv">1</span><span class="sc">:</span>(n <span class="sc">-</span> <span class="dv">2</span>))</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>j_idx <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span>n, <span class="dv">1</span><span class="sc">:</span>(n <span class="sc">-</span> <span class="dv">1</span>), <span class="dv">2</span><span class="sc">:</span>n, <span class="dv">1</span><span class="sc">:</span>(n <span class="sc">-</span> <span class="dv">2</span>), <span class="dv">3</span><span class="sc">:</span>n)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>x_val <span class="ot">&lt;-</span> <span class="fu">c</span>(diag_principal, sub_diag_1, super_diag_1, sub_diag_2, super_diag_2)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Crear la matriz dispersa</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>A <span class="ot">&lt;-</span> <span class="fu">sparseMatrix</span>(</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">i =</span> i_idx, </span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">j =</span> j_idx, </span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> x_val,</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">dims =</span> <span class="fu">c</span>(n, n)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>A</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>5 x 5 sparse Matrix of class "dgCMatrix"
+                   
+[1,] 10 -2  1  .  .
+[2,] -2 10 -2  1  .
+[3,]  1 -2 10 -2  1
+[4,]  .  1 -2 10 -2
+[5,]  .  .  1 -2 10</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">image</span>(A)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="ejercicios2_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="ejercicio-2.2" class="level2">
+<h2 class="anchored" data-anchor-id="ejercicio-2.2">Ejercicio 2.2</h2>
+<ol type="1">
+<li>Crea una matriz triangular superior <span class="math inline">\(R\)</span> de <span class="math inline">\(1000 \times 1000\)</span> con números aleatorios en y sobre la diagonal. (Pista: para generar números aleatorios, puedes usar la función rnorm o runif, y a continuación puedes usar la función matrix para convertirlos en una matriz. A continuación, puedes usar las funciones upper.tri y lower.tri sabiamente para hacer 0 por debajo de la diagonal principal).</li>
+<li>Crea un vector <span class="math inline">\(b\)</span> de 1000 números aleatorios.</li>
+<li>Resuelve el sistema <span class="math inline">\(Rx=b\)</span> de dos maneras:</li>
+</ol>
+<ol type="a">
+<li>Usando el solver genérico (solve()).</li>
+<li>Usando el solver específico para sistemas triangulares (backsolve()).</li>
+</ol>
+<ol type="1">
+<li>Usa el paquete microbenchmark para comparar el tiempo de ambas operaciones: microbenchmark(solve(R, b), backsolve(R, b), times = 10).</li>
+<li>¿Qué conclusiones extraes sobre usar la función adecuada a la estructura de la matriz?</li>
+</ol>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>R <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">rnorm</span>(n<span class="sc">*</span>n), </span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>            <span class="at">byrow =</span> <span class="cn">TRUE</span>, </span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">nrow =</span> n)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>R[<span class="fu">lower.tri</span>(R)] <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>b <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co"># solve(R, b) falla</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="fu">backsolve</span>(R, b)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   [1]  6.645211e+290  8.003735e+290  1.519381e+289  4.789507e+289
+   [5] -9.780076e+284  4.036266e+284 -1.759291e+285  2.023976e+285
+   [9] -1.094964e+285 -3.158079e+284 -4.948782e+284  4.632993e+284
+  [13] -5.867080e+283  7.506667e+283 -8.617348e+283 -1.317937e+283
+  [17] -3.891384e+282  1.617145e+283 -4.516696e+282  4.533672e+281
+  [21]  6.604656e+281  1.768065e+281 -1.685887e+281 -7.845210e+278
+  [25]  4.304064e+279  7.683035e+278 -1.839046e+279  3.895887e+279
+  [29] -1.618141e+278  2.144202e+277  9.051513e+277 -3.265981e+276
+  [33]  7.127522e+277 -7.069633e+276 -2.274362e+277 -1.523281e+276
+  [37]  3.632436e+276 -5.459686e+275  6.942299e+276  2.118132e+275
+  [41]  5.083439e+274 -1.022497e+274 -5.556128e+275  9.237699e+274
+  [45]  4.778882e+274 -1.760495e+274  1.009806e+274  2.230563e+274
+  [49] -5.729305e+273  6.475616e+273  1.528173e+273 -6.855717e+270
+  [53]  4.186585e+272 -7.417433e+272  4.859925e+272  7.071004e+272
+  [57] -1.275681e+271 -8.904362e+270 -9.473567e+270  1.465580e+271
+  [61]  1.051480e+269 -2.463731e+269 -3.046652e+269  3.685741e+268
+  [65] -1.763430e+269  3.279351e+269 -2.003953e+268  1.069778e+269
+  [69]  1.002403e+269  1.030151e+269  2.711889e+268  1.900296e+268
+  [73]  2.095693e+268  1.321277e+268 -1.940582e+268 -3.670319e+267
+  [77]  7.023814e+267 -6.384112e+266  2.982703e+267 -2.812595e+265
+  [81] -3.925044e+266  7.334264e+265  8.389513e+266 -3.390033e+266
+  [85] -8.770093e+264  3.514832e+265 -1.444927e+262 -7.883493e+264
+  [89] -1.735868e+265  9.160696e+264 -5.848697e+264  7.133712e+264
+  [93] -8.566046e+264  4.989358e+264  2.372075e+263 -1.761107e+263
+  [97] -3.007863e+263 -1.302063e+263 -9.828998e+262  2.673720e+261
+ [101]  3.928276e+261 -3.020020e+261  1.929037e+261  1.724640e+261
+ [105] -2.227976e+261 -2.516406e+261 -1.070997e+261 -8.987767e+260
+ [109] -6.242708e+260  6.294001e+260 -2.064242e+260 -4.330642e+260
+ [113] -8.510717e+259 -8.311030e+258 -9.555830e+258 -2.257981e+257
+ [117] -4.440140e+257 -1.082400e+257 -6.574286e+256  3.725419e+256
+ [121]  1.791153e+256 -2.458492e+256 -1.243341e+255  1.724656e+254
+ [125]  6.597148e+254 -3.388341e+254  9.432163e+252  1.814419e+254
+ [129]  3.054236e+253  1.580250e+253  1.978448e+251 -5.143722e+251
+ [133]  5.239554e+251 -1.690965e+251  2.030612e+251  3.077859e+250
+ [137] -2.073177e+250  7.319680e+250  5.360872e+249 -1.832600e+250
+ [141] -1.459669e+249 -3.956147e+248  4.738096e+248 -9.080157e+248
+ [145] -1.270623e+249  2.779315e+248  4.714360e+248  7.067344e+247
+ [149] -1.744059e+247  3.310015e+248  1.120861e+248 -4.791566e+247
+ [153]  8.468774e+245  8.703040e+246 -2.024443e+246  1.287791e+246
+ [157] -1.198361e+245  1.974135e+245 -1.025277e+245  1.779146e+245
+ [161] -1.625197e+244 -2.779772e+243 -3.712840e+243 -3.587387e+243
+ [165]  2.729560e+242 -3.628766e+242  4.891775e+241  1.936248e+242
+ [169] -2.287295e+242 -3.280793e+241  8.899551e+240  6.744301e+240
+ [173] -1.358855e+241 -4.562226e+239  1.455793e+238  2.424652e+239
+ [177] -5.705704e+239 -1.778825e+238 -8.024594e+238  4.098462e+238
+ [181] -4.798500e+238  1.591870e+238 -6.441597e+237  5.913003e+237
+ [185]  2.077896e+237 -8.058471e+236  5.640877e+235  8.715439e+235
+ [189] -2.271980e+236 -1.272122e+236  2.992645e+235  1.587207e+235
+ [193] -4.372064e+234 -3.493621e+233  8.324276e+234  3.559600e+234
+ [197] -1.578095e+234 -4.974481e+233 -1.137006e+234 -4.082017e+233
+ [201]  8.742912e+232 -1.731947e+233  4.107436e+232 -5.616442e+232
+ [205]  2.228011e+229 -1.952027e+229  7.224480e+229  2.568650e+229
+ [209]  2.213602e+229  5.743067e+228 -4.739143e+227  8.701968e+227
+ [213] -9.291632e+226 -9.351532e+225 -1.636086e+224  4.392250e+224
+ [217]  1.076241e+222  7.488611e+222  3.265718e+223  9.923394e+222
+ [221]  4.822023e+222 -6.495767e+221  1.963380e+222 -1.225409e+222
+ [225] -3.610215e+222 -1.932599e+222 -2.735226e+222 -2.425671e+222
+ [229]  3.018407e+222 -2.347717e+221 -3.876768e+221 -2.279604e+222
+ [233] -1.571024e+221  1.045656e+221 -1.871106e+221  4.913703e+220
+ [237] -7.734428e+220 -2.612271e+220  1.589711e+220 -2.786148e+220
+ [241] -4.008546e+220 -5.030876e+220 -1.026044e+221  6.300932e+219
+ [245]  7.968638e+219 -7.233182e+218  3.949730e+217  6.578285e+218
+ [249]  3.982338e+218 -1.123178e+218 -4.503959e+217 -4.727261e+216
+ [253]  3.200938e+216 -2.287192e+216  5.969385e+214  3.799024e+214
+ [257] -1.167920e+215  2.649562e+214  1.194232e+214  2.626405e+213
+ [261]  1.351121e+214  6.661963e+213  3.423232e+213  2.666477e+212
+ [265]  5.559735e+213 -2.954383e+213  1.549711e+213  3.241974e+211
+ [269] -2.474893e+211 -4.317924e+210 -4.923573e+210 -5.199406e+210
+ [273]  4.298598e+210 -2.103394e+210 -1.149932e+210 -7.667653e+208
+ [277]  4.268207e+208 -5.015206e+208  5.356418e+208  4.057063e+208
+ [281]  3.462279e+208  1.957666e+207 -6.793465e+207 -2.080215e+208
+ [285] -1.228171e+207 -1.142633e+207  2.103466e+207 -8.979860e+206
+ [289]  6.684541e+206  5.338636e+206 -2.158270e+206 -4.260835e+206
+ [293]  4.210873e+206  7.838501e+205 -5.082917e+205 -5.194579e+205
+ [297] -6.344613e+205  9.628323e+204  5.757528e+205  8.803044e+204
+ [301]  1.041635e+205 -1.008828e+204 -2.451770e+203  8.216077e+200
+ [305]  2.908228e+201  9.438668e+199  1.730977e+201  1.058143e+201
+ [309] -1.650351e+201 -2.989410e+199  2.457970e+200  2.210661e+200
+ [313]  1.555442e+200  5.585235e+199  6.773654e+199 -3.061164e+199
+ [317] -7.964503e+197  1.408716e+198  6.063588e+197 -5.615468e+197
+ [321] -5.585310e+197 -1.039695e+197  1.013653e+197 -1.684831e+197
+ [325]  5.165631e+196  8.144195e+194 -8.584156e+193  7.963190e+194
+ [329] -7.131083e+194  7.821033e+193  1.930541e+194  1.043833e+194
+ [333]  2.650665e+194 -2.265380e+194 -1.055913e+194  1.128514e+194
+ [337] -5.387409e+192  2.624333e+192 -1.864943e+191  7.708512e+191
+ [341] -5.500279e+191  8.644482e+190  1.440737e+189 -2.173383e+189
+ [345]  8.101959e+188  2.047371e+188 -1.385805e+188  5.338556e+187
+ [349] -1.197408e+188  2.231638e+186  1.964094e+186 -2.985601e+186
+ [353] -2.248118e+186  1.348209e+186 -2.475092e+186 -6.344863e+185
+ [357]  8.784044e+184  1.683278e+184 -6.332083e+183  2.072343e+184
+ [361] -3.322713e+184 -2.792524e+183 -3.277677e+181  9.928054e+182
+ [365]  9.089298e+182  6.898249e+182  2.685690e+181 -2.668577e+182
+ [369]  2.585832e+182 -2.239285e+182  2.012360e+182 -4.864599e+181
+ [373]  9.032685e+180 -1.425676e+180 -1.574084e+180  5.161693e+180
+ [377]  5.686608e+179 -7.402981e+178 -5.902278e+178 -6.969210e+177
+ [381]  1.620987e+177  7.193040e+176  8.766199e+176  1.871649e+176
+ [385] -2.768901e+175 -5.181892e+174 -2.095055e+175  2.436699e+174
+ [389]  1.004620e+173  2.240341e+173 -1.908311e+172 -1.198348e+173
+ [393]  5.646595e+172  2.732160e+172 -3.490717e+171 -5.712430e+171
+ [397] -1.263357e+172 -2.323274e+171  1.660325e+170 -8.931648e+169
+ [401]  8.399328e+169  1.377434e+169  8.655239e+167 -1.545546e+169
+ [405] -2.772687e+169 -9.817036e+167 -9.110037e+168  3.563965e+168
+ [409]  4.411390e+168 -1.939035e+168  1.003653e+167  9.880361e+166
+ [413]  4.587825e+166 -9.640267e+166  1.685350e+166 -3.866328e+165
+ [417]  7.065772e+164 -2.242237e+166  1.186511e+165 -2.370248e+165
+ [421]  2.989536e+164  1.552211e+164 -1.150691e+165  5.429403e+164
+ [425]  1.244156e+163  2.348153e+163 -1.394346e+162  2.168374e+163
+ [429] -2.668703e+162 -1.458428e+161  4.166851e+160 -9.686828e+159
+ [433] -9.179137e+158  1.007802e+159 -1.867752e+159  1.095175e+157
+ [437] -6.361850e+157  2.757553e+157 -8.785703e+155 -6.794814e+156
+ [441] -1.920073e+156  1.733208e+156 -2.203635e+155  4.143688e+155
+ [445] -1.076814e+154  6.202184e+154 -2.273596e+154 -2.380153e+154
+ [449]  7.746212e+153  4.583702e+152 -1.597317e+152 -2.076058e+152
+ [453] -5.264295e+151 -7.065348e+151 -1.603470e+152  2.998723e+151
+ [457]  9.978755e+151 -9.692033e+151  7.822569e+151 -6.118248e+151
+ [461] -1.933537e+151 -4.668264e+149 -3.265702e+150 -8.311543e+150
+ [465]  1.077815e+150 -4.570615e+149 -9.726565e+149  2.751473e+149
+ [469]  1.393267e+149  5.215357e+148  4.938991e+147 -1.724441e+147
+ [473] -2.757286e+146  6.320432e+147 -8.291898e+146 -5.936103e+146
+ [477]  3.031921e+145 -2.565582e+144 -1.354309e+145 -3.031487e+144
+ [481] -1.725287e+144  3.010160e+144  1.117852e+144 -2.190045e+143
+ [485] -1.068313e+143 -7.411141e+142  3.346235e+142  2.077349e+142
+ [489]  7.112514e+142 -8.528195e+140  9.429847e+140 -1.505554e+141
+ [493] -6.057998e+141 -2.793948e+141  8.040939e+141 -1.685597e+141
+ [497]  4.916896e+141  3.242795e+141 -1.580898e+141 -3.237928e+141
+ [501]  3.147142e+141  1.656051e+141 -5.859505e+140  2.291042e+140
+ [505]  3.679911e+139  1.316899e+140  1.231137e+140 -1.761278e+140
+ [509]  2.984508e+139 -1.848219e+139  9.992979e+138 -3.071693e+138
+ [513]  8.816413e+138 -1.637581e+137 -8.447021e+136  5.801437e+136
+ [517]  2.422407e+135 -1.589153e+136  1.746287e+135 -2.654143e+135
+ [521] -5.974087e+135  5.858987e+135  4.919730e+134  1.844854e+134
+ [525] -3.085555e+134 -2.999955e+134  1.441677e+133 -8.793964e+131
+ [529]  4.092217e+131  1.595777e+131 -1.890295e+131  9.781220e+129
+ [533] -3.876789e+130  1.348279e+130  4.575560e+130 -1.199023e+130
+ [537] -4.117643e+129 -4.260676e+130 -1.267140e+130  1.692341e+130
+ [541] -4.813780e+128  4.780830e+126  9.589569e+126 -7.437413e+126
+ [545]  9.717572e+126  1.506510e+126  9.272715e+125 -6.929162e+125
+ [549] -7.220715e+124  7.463495e+125  5.739659e+124 -7.612856e+124
+ [553] -5.110876e+122  5.769233e+122 -2.135458e+122 -2.585348e+122
+ [557] -3.627100e+121  5.542026e+121 -2.958733e+122  1.252319e+122
+ [561] -2.483838e+121 -1.539452e+122  4.154318e+121  2.979676e+121
+ [565] -1.646557e+121 -1.953874e+121  1.589429e+121 -1.612362e+120
+ [569] -1.021395e+120 -5.854760e+119  7.113489e+118 -1.337341e+119
+ [573]  1.554748e+119 -1.232094e+119 -1.199888e+119  3.290980e+118
+ [577]  4.692399e+118  1.357972e+118  3.803161e+117  1.340168e+117
+ [581]  5.084565e+116 -1.746642e+117 -1.773284e+116 -2.203223e+116
+ [585]  2.288268e+116 -7.671831e+115 -8.831389e+115 -1.692249e+116
+ [589] -2.112021e+115  8.732580e+114 -3.520739e+114  8.448168e+114
+ [593] -2.778988e+115  7.463323e+114  2.385434e+113  1.010110e+114
+ [597] -8.461662e+113  1.717646e+113  3.656278e+113  1.058549e+113
+ [601] -9.755560e+112 -9.111430e+110 -7.140940e+109  4.344559e+110
+ [605]  2.676904e+110 -4.367609e+108  1.393057e+109  1.360930e+108
+ [609] -7.602455e+107  2.644453e+107  1.837446e+107  1.727819e+107
+ [613]  4.221983e+106  2.081072e+106  6.818090e+105  7.234104e+104
+ [617] -5.227154e+105  7.490745e+104 -4.636717e+105 -1.001586e+105
+ [621] -1.038275e+105  1.504329e+104 -5.880142e+104  7.092499e+104
+ [625]  7.611370e+103 -6.194774e+103 -2.757837e+103  1.604549e+104
+ [629]  2.314902e+104 -3.772263e+103 -2.831597e+103  6.231474e+101
+ [633] -6.771696e+102 -1.306267e+103  1.109290e+103  2.703958e+102
+ [637]  4.305419e+102  2.202137e+101  1.701290e+102  7.780121e+100
+ [641] -1.852304e+100 -1.612621e+100  2.154664e+100   6.917574e+99
+ [645]   4.905332e+98  -2.432498e+99   7.758414e+96   1.030213e+97
+ [649]  -2.355183e+95  -6.351484e+95   5.632484e+95   4.700041e+93
+ [653]   3.537933e+93  -2.079984e+94  -1.413121e+92  -3.691083e+91
+ [657]   1.622933e+90  -3.328068e+91  -1.190287e+89   2.142327e+90
+ [661]  -2.277384e+90   2.373687e+89  -2.434142e+89   3.753358e+88
+ [665]  -2.521717e+89  -1.376044e+89  -6.280954e+88   7.906567e+87
+ [669]   6.618318e+88  -7.086919e+88   2.987671e+88  -9.019352e+87
+ [673]   3.645771e+86  -1.136721e+86   6.750889e+85  -5.022811e+85
+ [677]  -4.349039e+86   1.363255e+86  -8.384042e+85   1.010746e+86
+ [681]  -6.486377e+85  -5.938050e+85   1.386651e+86  -7.863514e+85
+ [685]   2.193006e+85   2.576034e+85   3.293062e+84  -8.534110e+83
+ [689]  -1.386406e+83   4.630348e+82  -3.346024e+82   5.364988e+81
+ [693]  -3.510451e+81  -1.072261e+81  -1.024139e+81  -7.913278e+78
+ [697]   5.797185e+80  -7.716219e+80  -2.489251e+80   1.389203e+80
+ [701]  -8.468533e+79   4.759139e+78  -2.762897e+78  -4.688424e+77
+ [705]  -1.944390e+76   9.406323e+75   1.960343e+75  -1.677365e+76
+ [709]  -4.816252e+75  -9.021673e+74   1.197464e+75   5.435643e+74
+ [713]   3.046954e+74  -4.460707e+74  -1.090095e+75  -7.563718e+72
+ [717]   1.688730e+73   5.609303e+72   5.874112e+72   2.041367e+72
+ [721]  -3.589199e+71   1.253108e+73  -7.619463e+72   6.594717e+72
+ [725]  -3.271387e+71   5.950717e+72  -2.722353e+72   1.758603e+70
+ [729]   6.785015e+71  -3.771723e+71  -6.516188e+70  -3.593369e+68
+ [733]  -4.242436e+69  -7.463627e+68  -1.164215e+68  -2.940806e+68
+ [737]  -4.162680e+68   8.859889e+66  -4.365182e+66  -1.750287e+66
+ [741]  -7.718743e+66   7.458158e+66  -3.817179e+66  -3.941892e+66
+ [745]   2.916235e+66  -2.084366e+64   7.870370e+63  -4.753530e+64
+ [749]  -4.558791e+63  -1.346248e+63   6.462665e+62  -2.854734e+62
+ [753]  -2.727641e+62  -1.112950e+61   5.209839e+60  -4.433261e+61
+ [757]   1.923557e+61   1.599210e+60   8.100258e+60   9.551588e+60
+ [761]  -3.662470e+60   1.233634e+60   3.090188e+59  -1.450654e+59
+ [765]   3.620470e+58  -3.342072e+58   1.021786e+58   6.268379e+57
+ [769]  -7.879501e+57  -9.915345e+56   1.665226e+57   3.420102e+56
+ [773]  -1.129849e+55   3.931633e+54  -3.942735e+55   2.240185e+55
+ [777]   2.653828e+55   1.053554e+53  -4.923574e+54   1.308663e+53
+ [781]   8.133470e+53  -9.182742e+52  -8.302137e+53  -1.081577e+54
+ [785]  -7.925378e+52   1.495360e+53  -8.080404e+52   1.427823e+52
+ [789]   3.588649e+52  -3.592163e+52  -3.429001e+51  -1.035604e+51
+ [793]   6.451453e+49   1.322779e+51   5.153594e+50   3.460610e+50
+ [797]  -2.410782e+49  -6.524511e+49  -3.148798e+49   3.608855e+49
+ [801]  -1.426840e+49   6.129017e+48  -4.366116e+46  -3.051136e+47
+ [805]   4.558092e+47  -1.176936e+47  -4.956087e+47  -1.287205e+47
+ [809]  -6.745759e+46  -6.585658e+46  -3.536344e+45  -1.962703e+45
+ [813]  -3.536285e+44  -1.337762e+45   9.832123e+43  -6.443157e+44
+ [817]  -8.912746e+43   8.650622e+43  -4.052349e+41  -2.044004e+41
+ [821]   2.702436e+40   4.139636e+40  -7.105186e+40  -4.394783e+40
+ [825]  -1.637072e+40   1.442425e+40  -1.410839e+40  -4.795595e+39
+ [829]   2.108449e+39  -8.568089e+37   7.074258e+38  -7.031265e+37
+ [833]   4.353394e+36  -3.190603e+36   1.696661e+36   1.817341e+35
+ [837]   2.675085e+34   6.262946e+35  -5.210460e+34  -1.141625e+35
+ [841]   5.447424e+35  -1.834853e+35  -5.345847e+34  -2.256218e+34
+ [845]  -1.564377e+35   1.017634e+35   7.661298e+34  -3.678602e+34
+ [849]   2.304070e+34   6.496387e+32   2.370045e+33  -1.341571e+33
+ [853]  -2.963712e+33  -1.723281e+33   1.338922e+32  -1.211006e+33
+ [857]  -1.244984e+31   3.970327e+31  -1.414234e+32   3.764329e+30
+ [861]   4.159510e+30  -1.198937e+31  -1.215523e+30  -4.101339e+30
+ [865]   9.004541e+29  -2.963270e+28   9.149951e+29  -6.045920e+29
+ [869]   9.922830e+27  -1.422316e+29  -1.933557e+29   7.317487e+28
+ [873]   4.086851e+28  -1.221839e+29  -1.707242e+28  -1.398419e+27
+ [877]   1.052469e+28  -5.582335e+26   1.508685e+27  -9.312338e+26
+ [881]   3.593411e+26   7.565320e+25  -4.902447e+26  -9.204623e+26
+ [885]  -5.913707e+26  -4.038385e+25   4.605452e+25  -4.872965e+25
+ [889]  -1.977012e+25  -2.840808e+25  -4.791328e+25  -1.304296e+25
+ [893]  -1.525776e+24  -4.366802e+24  -2.712624e+24   3.934762e+24
+ [897]   8.757392e+23   8.214505e+23  -2.492434e+23  -3.838236e+23
+ [901]   5.065768e+22  -5.302449e+22  -8.795000e+22   3.071987e+22
+ [905]  -3.677083e+22   6.937975e+21  -1.324326e+21  -3.522157e+21
+ [909]  -1.467817e+22   4.511452e+20  -2.630134e+20  -1.589733e+20
+ [913]  -9.001773e+19  -2.380158e+20   6.380696e+19   5.854117e+19
+ [917]   4.979964e+17   1.164334e+18   1.482914e+18  -5.473548e+17
+ [921]  -2.470962e+17   3.901679e+14  -1.259756e+17   4.219204e+16
+ [925]   1.055294e+16  -3.879600e+15  -7.199205e+15  -4.559597e+15
+ [929]   1.444028e+15  -1.821263e+15  -7.025950e+14   1.418756e+15
+ [933]  -6.284575e+13  -3.823981e+14  -1.281788e+15   1.185867e+14
+ [937]  -3.146974e+12   4.147717e+13   8.993372e+13  -1.189740e+14
+ [941]  -6.113085e+13  -7.995611e+13  -1.503286e+12   9.086598e+13
+ [945]   3.208539e+13  -2.484497e+13   3.324729e+13   1.319172e+13
+ [949]  -9.335164e+11  -5.103135e+10   4.236175e+11  -1.810704e+11
+ [953]   1.694885e+11   6.670783e+10  -7.846375e+10   1.016616e+10
+ [957]  -9.077273e+09  -7.829484e+09   2.345739e+09  -4.359925e+09
+ [961]   9.840375e+08   1.779007e+09  -1.465796e+09  -2.098677e+09
+ [965]   1.437844e+09   5.643247e+09   1.772665e+09  -2.824939e+08
+ [969]   1.105459e+09   8.803578e+08  -1.759884e+08   2.034199e+08
+ [973]   5.066195e+08   2.359954e+06   1.090118e+04  -5.834348e+04
+ [977]  -1.603841e+05  -5.509301e+03   7.578237e+03  -9.068010e+03
+ [981]  -1.898767e+03  -3.465347e+02  -8.266899e+01   4.189056e+02
+ [985]   1.776217e+02  -1.113222e+03  -6.856788e+02   5.168255e+02
+ [989]   5.631163e+02   7.550753e+02  -1.827648e+02   3.346500e+02
+ [993]  -4.382067e+01  -4.574770e+01   9.880325e+01  -3.205366e+00
+ [997]   2.936882e+00  -4.156189e-01   2.380458e-01   9.341137e-01</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(microbenchmark)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">microbenchmark</span>(<span class="fu">backsolve</span>(R, b), <span class="at">times =</span> <span class="dv">10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Unit: microseconds
+            expr     min      lq     mean  median      uq      max neval
+ backsolve(R, b) 771.911 785.216 821.1187 788.758 819.551 1025.458    10</code></pre>
+</div>
+</div>
+<p>Vemos que siempre falla usando solve ya que no es capaz de encontrar una solución. Con backsolve lo resuelve en ms.</p>
+</section>
+<section id="ejercicio-2.3" class="level2">
+<h2 class="anchored" data-anchor-id="ejercicio-2.3">Ejercicio 2.3</h2>
+<p>(Método de Jacobi) Resolver el siguiente sistema utilizando el método de Jacobi, dando 300 iteraciones como máximo y partiendo del vector nulo:</p>
+<p><span class="math display">\[\left\{
+    \begin{array}{cccccc}
+    10x &amp; -y &amp; +2z &amp;   &amp;  =  &amp; 6 \\
+    -x &amp; +11y &amp; -z &amp; +3t &amp; = &amp; 25 \\
+    2x &amp; -y &amp;+10z &amp; -t &amp; = &amp; -11 \\
+    &amp;   3y &amp; -z &amp; +8t &amp; = &amp; 15  
+    \end{array}
+    \right.\]</span></p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(Rlinsolve)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>** ------------------------------------------------------- **</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>** Rlinsolve</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>**  - Solving (Sparse) System of Linear Equations</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>**</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>** Version    : 0.3.3      (2026)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>** Maintainer : Kisung You (kisung.you@outlook.com)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>**</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>** Please share any bugs or suggestions to the maintainer.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>** ------------------------------------------------------- **</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>A <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">10</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">0</span>,</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>              <span class="sc">-</span><span class="dv">1</span>, <span class="dv">11</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="dv">3</span>,</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>              <span class="dv">2</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="dv">10</span>, <span class="sc">-</span><span class="dv">1</span>,</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>              <span class="dv">0</span>, <span class="dv">3</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="dv">8</span>),</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">byrow =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">nrow =</span> <span class="dv">4</span>)</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>b <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">6</span>, <span class="dv">25</span>, <span class="sc">-</span><span class="dv">11</span>, <span class="dv">15</span>)</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a><span class="fu">lsolve.jacobi</span>(A, b, <span class="at">maxiter =</span> <span class="dv">300</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>* lsolve.jacobi : Initialiszed.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>* lsolve.jacobi : computations finished.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$x
+           [,1]
+[1,]  0.9999886
+[2,]  1.9999778
+[3,] -0.9999918
+[4,]  1.0000271
+
+$iter
+[1] 17
+
+$errors
+              [,1]
+ [1,] 1.659031e-01
+ [2,] 7.493164e-02
+ [3,] 3.892063e-02
+ [4,] 2.103995e-02
+ [5,] 1.156735e-02
+ [6,] 6.415773e-03
+ [7,] 3.577276e-03
+ [8,] 2.001284e-03
+ [9,] 1.122040e-03
+[10,] 6.299770e-04
+[11,] 3.540346e-04
+[12,] 1.990822e-04
+[13,] 1.119937e-04
+[14,] 6.301875e-05
+[15,] 3.546675e-05
+[16,] 1.996286e-05
+[17,] 1.123717e-05
+[18,] 6.325758e-06</code></pre>
+</div>
+</div>
+</section>
+<section id="ejercicio-2.4" class="level2">
+<h2 class="anchored" data-anchor-id="ejercicio-2.4">Ejercicio 2.4</h2>
+<p>Usando sparseMatrix(), construye una matriz <span class="math inline">\(A\)</span> de <span class="math inline">\(100 \times 100\)</span> que tenga la diagonal principal llena de ‘5’, las segundas subdiagonales (k=-2) y superdiagonales (k=2) llenas de ‘1’, y el resto ceros. Visualízala con image(A).</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">100</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Definir las diagonales</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>diag_principal <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">5</span>, n)</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>sub_diag_2 <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">1</span>, n <span class="sc">-</span> <span class="dv">2</span>)</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>super_diag_2 <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">1</span>, n <span class="sc">-</span> <span class="dv">2</span>)</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Definir las posiciones (i, j)</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>i_idx <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span>n, <span class="dv">3</span><span class="sc">:</span>n, <span class="dv">1</span><span class="sc">:</span>(n <span class="sc">-</span> <span class="dv">2</span>))</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>j_idx <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span>n, <span class="dv">1</span><span class="sc">:</span>(n <span class="sc">-</span> <span class="dv">2</span>), <span class="dv">3</span><span class="sc">:</span>n)</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>x_val <span class="ot">&lt;-</span> <span class="fu">c</span>(diag_principal, sub_diag_2, super_diag_2)</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Crear la matriz dispersa</span></span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>A <span class="ot">&lt;-</span> <span class="fu">sparseMatrix</span>(</span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">i =</span> i_idx, </span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">j =</span> j_idx, </span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> x_val,</span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">dims =</span> <span class="fu">c</span>(n, n)</span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a><span class="fu">image</span>(A)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="ejercicios2_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="ejercicio-2.5" class="level2">
+<h2 class="anchored" data-anchor-id="ejercicio-2.5">Ejercicio 2.5</h2>
+<p>La matriz <span class="math inline">\(A\)</span> del Ejemplo 2.2 es simétrica y definida positiva. Resuelve el sistema <span class="math inline">\(A^2 x = b\)</span> (es decir, <span class="math inline">\(A(Ax) = b\)</span>).</p>
+<p>Pista: No calcules <span class="math inline">\(A^2\)</span>. Usa la factorización <span class="math inline">\(A=R^T R\)</span> y resuelve <span class="math inline">\(R^T(R(R^T(R x))) = b\)</span> en cuatro pasos de sustitución progresiva/regresiva.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>A <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">2</span>, <span class="sc">-</span><span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">10</span>, <span class="dv">2</span>, <span class="sc">-</span><span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">5</span>), <span class="at">nrow =</span> <span class="dv">3</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>b <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">6</span>, <span class="dv">15</span>, <span class="dv">12</span>)</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>R <span class="ot">&lt;-</span> <span class="fu">chol</span>(A)</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>y1 <span class="ot">&lt;-</span> <span class="fu">forwardsolve</span>(<span class="fu">t</span>(R), b)</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>y2 <span class="ot">&lt;-</span> <span class="fu">backsolve</span>(R, y1)</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>y3 <span class="ot">&lt;-</span> <span class="fu">forwardsolve</span>(<span class="fu">t</span>(R), y2)</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">backsolve</span>(R, y3)</span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(x)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1]  2.1965021 -0.8158436  1.9382716</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">solve</span>(A <span class="sc">%*%</span> A, b)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1]  2.1965021 -0.8158436  1.9382716</code></pre>
+</div>
+</div>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

@@ -1,3 +1,8 @@
+---
+title: "Ejercicios3"
+format: html
+---
+
 ## Ejercicio 3.1 
 
 (Autovalores de una matriz) 
