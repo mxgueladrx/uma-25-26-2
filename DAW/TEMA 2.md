@@ -67,4 +67,4 @@ En Java se trabaja con JAXP (mapea objetos en XML), JAXB, STAX.
 
 ![[Pasted image 20260413190514.png]]
 
-En Java se trabaja con JSON-P (equivalente a JAXP), Jackson.
+En Java se trabaja con JSON-B (equivalente a JAXP), Jackson.

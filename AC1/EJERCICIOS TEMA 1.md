@@ -297,9 +297,9 @@ f) Ordinal encoding ya que podemos ver un orden entre los valores: primero hacem
 
 ## Ejercicio 30
 ![[Pasted image 20260412143321.png]]
-a y b) Obtenemos las variables que tienen mayor correlación con la objetivo, en este casi ingresos, número de créditos previos y antigüedad laboral (tienen una alta correlación). Edad y código postal tienen una correlación cercano a 0 por lo que no serviría mucho.
+a y b) Obtenemos las variables que tienen mayor correlación con la objetivo, en este caso ingresos, número de créditos previos y antigüedad laboral (tienen una alta correlación). Edad y código postal tienen una correlación cercano a 0 por lo que no serviría mucho.
 
-c) Son eficientes pero se evalúan las variables por separado. Es posible que la unión de algunas sean más potentes al combinarse y tengan más correlación.
+c) Son eficientes pero si evalúan las variables por separado. Es posible que la unión de algunas sean más potentes al combinarse y tengan más correlación.
 
 ## Ejercicio 31
 ![[Pasted image 20260412164840.png]]![[Pasted image 20260412164852.png]]
@@ -345,7 +345,7 @@ El subconjunto final es $S=\{ R1, R4, R15 \}$
 
 c) Borra registros que están mal en el espacio. Elimina los mal clasificados de KNN. Se evalúa cada registro y, si su clase no coincide con la de la mayoría de sus $k$ vecinos más cercanos, el registro se elimina. CNN elimina lo que sobra. Se queda con la frontera. ENN elimina lo que molesta. Limpia la frontera.
 
-d y e) Es muy largo no lo hago. El conjunto inicial $S=\{R1, R2, R3, R4, R5, R6, R7, R8, R9, R10, R11, R12, R13, R14, R15\}$. En este caso el único que falla es R15 entonces se borra de S y queda $S=\{R1, R2, R3, R4, R5, R6, R7, R8, R9, R10, R11, R12, R13, R14\}. 
+d y e) Es muy largo no lo hago. El conjunto inicial $S=\{R1, R2, R3, R4, R5, R6, R7, R8, R9, R10, R11, R12, R13, R14, R15\}$. En este caso el único que falla es R15 entonces se borra de S y queda $S=\{R1, R2, R3, R4, R5, R6, R7, R8, R9, R10, R11, R12, R13, R14\}$. 
 
 ## Ejercicio 33
 ![[Pasted image 20260412201826.png]]
