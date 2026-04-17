@@ -1,0 +1,60 @@
+---
+title: "Introducción al Análisis de Redes Sociales"
+format: html
+---
+
+```{r}
+# 1. CARGAR LAS LIBRERÍAS
+library(igraph)    # El motor, algoritmos para trabajar con grafos (algoritmos)
+library(tidygraph) # El puente (tablas), convertir a tablar para usar con tidyverse
+library(ggraph)    # El artista, ggplot para imprimir por pantalla los grafos
+
+# 2. CREAR LA RED (Responsabilidad de igraph/creación)
+# Creamos un grafo de "estrella" simple como ejemplo
+red_base <- play_islands(3, 10, 0.5, 1)
+
+# 3. MANIPULAR LOS DATOS (Responsabilidad de tidygraph)
+# Aquí tratamos la red como si fuera un Excel (tibble)
+red_limpia <- as_tbl_graph(red_base) |>
+  activate(nodes) |>
+  mutate(importancia = centrality_degree()) |> # Cálculo matemático
+  filter(importancia > 1)                       # Filtramos nodos aislados
+
+# 4. VISUALIZAR (Responsabilidad de ggraph)
+# Aquí solo nos centramos en que se vea profesional
+ggraph(red_limpia, layout = "nicely") + 
+  geom_edge_link(alpha = 0.2, color = "black") + # Dibujamos líneas
+  geom_node_point(aes(size = importancia, color = importancia)) + # Dibujamos puntos
+  theme_graph() + # Quitamos ejes y fondo feo de R
+  labs(title = "Análisis de Red Profesional",
+       subtitle = "Estructura procesada con la pila igraph-tidygraph-ggraph")
+```
+
+```{r}
+enlaces <- c("Ana", "Carlos", "Carlos", "Ana", "Elena", "Ana",
+             "David", "Ana", "Carlos", "David", "David", "Elena",
+             "Maria", "Elena") # Por pares
+
+g_ejemplo <- make_graph(enlaces, directed = TRUE)
+V(g_ejemplo)[1] # primer vertice
+V(g_ejemplo)[c(1, 4)]
+
+E(g_ejemplo)[1] # primera arista
+
+# Lista de aristas
+df <- as_data_frame(g_ejemplo)
+df[2, 1]
+
+# Matriz de adyacencia
+m <- as_adjacency_matrix(g_ejemplo) # usa matrices dispersas
+colSums(as.matrix(m))
+
+# tidygraph
+as_tbl_graph(g_ejemplo) |>
+  activate(edges) |> # activa las aristas
+  mutate(
+    from_name = .N()$name[from], # .N referencia a un nodo, .E arista
+    to_name = .N()$name[to]
+  )
+```
+
