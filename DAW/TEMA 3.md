@@ -18,9 +18,9 @@ Servidores de aplicaciones: programas que da herramientas de despliegue para la 
 - **Repositorios**: DAOs (Data Access Objects) que permiten acceder a la BD (@Repository). Heredan de interfaces que ofrecen métodos para el acceso.
 - **Servicios**: capa de negocio (@Service).
 
-![[Pasted image 20260413192247.png|567]]![[Pasted image 20260413192319.png|568]]![[Pasted image 20260413192349.png|569]]![[Pasted image 20260413192528.png|571]]
+![[Pasted image 20260413192247.png|567]]![[Pasted image 20260413192319.png|568]]![[Pasted image 20260413192349.png|569]]![[Pasted image 20260413192528.png|571]]![[Pasted image 20260419134938.png|573]]
 ![[Pasted image 20260413192607.png|575]]
-
+![[Pasted image 20260419133754.png|273]]
 ## Persistencia de datos mediante ORMs
 
 **ORM (Object Relational Mapping)**: mapean filas de tablas en objetos (entidades) para que sean manipulables en la aplicación.
@@ -50,7 +50,7 @@ Una entidad debe tener un constructor sin argumento, ser una clase top-level, no
 
 ![[Pasted image 20260413195748.png|344]]![[Pasted image 20260413195759.png|345]]
 
-En la sesión el servidor "recuerda" quién eres; en el token, tú le "demuestras" quién eres en cada mensaje.
+En la sesión el servidor "recuerda" quién eres (cookie); en el token, tú le "demuestras" quién eres en cada mensaje.
 
 **JWT (JSON Web Token)**: contiene información para la autorización (ID, roles, validez). Se usa tiempos cortos de validez.
 

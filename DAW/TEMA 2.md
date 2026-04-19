@@ -63,6 +63,8 @@ Los ficheros XML se pueden validar y transformar. Se pueden leer: DOM (Document 
 
 En Java se trabaja con JAXP (mapea objetos en XML), JAXB, STAX.
 
+![[Pasted image 20260419132641.png]]
+
 **JSON (JavaScript Object Notation)**: formato ligero de intercambio de datos procedente de JavaScript. Contiene un objeto (colección de pares clave/valor separados por ":"). Los valores pueden ser simples (números, cadenas, booleano, null) o compuestos (array entre "\[ ]", objeto entre  { }").
 
 ![[Pasted image 20260413190514.png|310]]
