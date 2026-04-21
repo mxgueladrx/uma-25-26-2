@@ -4,21 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "41f89c58701a2e91",
+        "id": "2d924342267b44d3",
         "type": "tabs",
         "children": [
           {
-            "id": "73dcf4dee9c9206e",
+            "id": "429a489e372ebfd9",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "DAW/TEMA 3.md",
+                "file": "AC1/CLASE 7.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "TEMA 3"
+              "title": "CLASE 7"
             }
           }
         ]
@@ -183,16 +183,19 @@
       "bases:Crear nueva base": false
     }
   },
-  "active": "73dcf4dee9c9206e",
+  "active": "429a489e372ebfd9",
   "lastOpenFiles": [
+    "Imagenes/Pasted image 20260421095414.png",
+    "Imagenes/Pasted image 20260421095111.png",
+    "AC1/CLASE 3, 4, 5, 6.md",
+    "AC1/CLASE 7.md",
+    "DAW/TEMA 3.md",
+    "DAW/Preguntas Kahoot.pdf",
     "Imagenes/Pasted image 20260419134938.png",
     "DAW/TEMA 2.md",
-    "DAW/TEMA 3.md",
     "Imagenes/Pasted image 20260419133754.png",
     "DAW/TEMA 1.md",
-    "DAW/Preguntas Kahoot.pdf",
     "Imagenes/Pasted image 20260419132641.png",
-    "AC1/CLASE 3, 4, 5, 6.md",
     "Imagenes/Pasted image 20260415104124.png",
     "AC1/EJERCICIOS TEMA 1.md",
     "DAW/Kahoot.md",
@@ -204,8 +207,6 @@
     "Imagenes/Pasted image 20260413200618.png",
     "Imagenes/Pasted image 20260413200603.png",
     "Imagenes/Pasted image 20260413200540.png",
-    "Imagenes/Pasted image 20260413200400.png",
-    "Imagenes/Pasted image 20260413195952.png",
     "DAW/t2.md",
     "Pasted image 20260220091618.md",
     "DAW/t.md",

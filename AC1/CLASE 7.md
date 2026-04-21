@@ -1,0 +1,37 @@
+**Aprendizaje supervisado**: sea $\tau$ datos de entrenamiento y cada $x_{i}$ consta de $p$ componentes (numéricas o categóricas). Cada $p$ tiene una variable objetivo $y_{i}$. La salida $Y$ es numérica (regresión) o categórica (clasificación binaria o multiclase).
+
+## Métodos basados en instancias: KNN
+**KNN**: se usa para clasificación y regresión. Si el dato de prueba $x^{*}$ esta cerca del punto de entrenamiento $x_{i}$, entonces $\hat{y}$ en clasificación será la clase que más se repite entre esos $y_{i}$ vecinos (votación mayoritaria), y en regresión será el promedio de los valores $y_{i}$ de esos vecinos.
+
+**Métricas**: las variables deben estar en la misma escala (normalizar o escalar).
+- **Euclídea (L2)**: atributos numéricos. Funciona bien. $d(x_{i}, x_{j})=\sqrt{\sum^{p}_{k=1} (x_{ik}-x_{jk})^2}$
+- **Manhattan (L1)**: atributos numéricos. Más robusta en presencia de ruido/outliers. $d(x_{i}, x_{j})=\sum^{p}_{k=1} |x_{ik}-x_{jk}|$ 
+- **Gower**: atributos numéricos o categóricos. Es Manhattan normalizada y promediada. $d(x_{i}, x_{j})=\frac{1}{p}\sum^{p}_{k=1}d^{k}_{i,j}$. Si el atributo es numérico, $d^{k}_{i,j}=\frac{|x_{ik}-x_{jk}|}{R_{k}}$ donde $R_{k}$ es el rango de $k$. Si el atributo es categórico, $d^{k}_{i,j}=0$ si los valores coinciden, 1 si no.
+
+**Elección de K**: controla el suavizado del modelo.
+- **K pequeño**: modelo se ajusta mucho a los datos, puede ser sensible al ruido (overfitting).
+- **K grande**: modelo más suave, pero puede perder detalles importantes (underfitting).
+- Valor óptimo de K depende del problema, se prueban con validación.
+
+No construye un modelo explícito, usa los datos de entrenamiento para predecir. Se puede usar ponderaciones por distancia. Se asigna un peso a cada vecino $x_{i}$ en función de su distancia a $x^*$: $w_{i}=\frac{1}{d(x^*,x_{i})+\epsilon}$. En clasificación se hace una votación ponderada, en regresión un promedio ponderado. Es útil con K grandes o presencia de ruido/outliers.
+
+### Ejercicio
+![[Pasted image 20260421095414.png]]
+
+$d(x^*,1)=\sqrt{(65-50)^2+(2-1)^2}=15$
+$d(x^*,2)=\sqrt{(65-60)^2+(2-2)^2}=5$
+$d(x^*,3)=\sqrt{(65-70)^2+(2-2)^2}=5$
+$d(x^*,4)=\sqrt{(65-90)^2+(2-3)^2}=25$
+$d(x^*,5)=\sqrt{(65-100)^2+(2-3)^2}=35$
+
+$w_{1}=\frac{1}{15}$
+$w_{1}=\frac{1}{5}$
+$w_{1}=\frac{1}{5}$
+$w_{1}=\frac{1}{25}$
+$w_{1}=\frac{1}{35}$
+
+Usando KNN con K = 3 es $\frac{180+210+150}{3}=180$€
+Usando KNN ponderado con K = 3 es $\frac{180/5 + 210/5 + 150/15}{1/15 + 1/5 + 1/5}=188.7$€
+
+![[Pasted image 20260421095111.png]]
+
