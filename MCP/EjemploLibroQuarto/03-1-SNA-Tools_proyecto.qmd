@@ -85,16 +85,18 @@ V(g_tronos)$color <- case_when(
 
 # ----------------------------
 # Profe
-idxLeon <- V(g_tronos)$casa == "León"
+#idxLeon <- V(g_tronos)$casa == "León" # Da un vector booleano
+idxLeon <- which(V(g_tronos)$casa == "León") # Da un vector con los indices numericos
 V(g_tronos)[idxLeon]$color <- "gold"
-idxLobo <- V(g_tronos)$casa == "Lobo"
+idxLobo <- which(V(g_tronos)$casa == "Lobo")
 V(g_tronos)[idxLobo]$color <- "gray70"
-idxCuervo <- V(g_tronos)$casa == "Cuervo"
+idxCuervo <- which(V(g_tronos)$casa == "Cuervo")
 V(g_tronos)[idxCuervo]$color <- "purple"
-idxNinguna <- V(g_tronos)$casa == "Ninguna"
+idxNinguna <- which(V(g_tronos)$casa == "Ninguna")
 V(g_tronos)[idxNinguna]$color <- "black"
 
 V(g_tronos)$label.color <- "white"
+V(g_tronos)$label <- V(g_tronos)$nombre # El nombre se use como etiqueta
 ```
 
 ### Tarea 2.3: Grosor de relaciones
@@ -129,7 +131,8 @@ Dibuja el grafo usando el algoritmo de fuerzas **Fruchterman-Reingold**. Asegúr
 ```{r reto-3-1}
 # Escribe tu código aquí
 plot(g_tronos,
-     layout = layout_with_fr(g_tronos))
+     layout = layout_with_fr(g_tronos), # layout_with_kk, layout_with_fr
+     edge.curved = 0.2)
 ```
 
 ### Tarea 3.2: Agrupaciones (The "Mark Groups" feature)
@@ -140,16 +143,29 @@ El director necesita ver claramente la separación mental de las tres Casas prin
 
 ```{r reto-3-2}
 # Escribe tu código aquí
+grupos <- list(idxLeon, idxLobo)
 
+plot(g_tronos,
+     layout = layout_with_fr(g_tronos),
+     mark.groups = grupos,
+     mark.col = c("red", "yellow")
+     )
 ```
 
 ## Reto Opcional (Modo Dios): Interrogando la topología
 
 Sin mirar las tablas de Excel originales, usando solo código de `igraph`: 
-Encuentra qué personaje (`name`) recibe información (flecha entrante) del "Espía".
+Encuentra qué personaje (`name`) recibe información (flecha entrante) del "Espía" (Dragón).
 *(Pista: Puedes usar el operador direccional `%->%` o investigar los vecinos `neighbors()` o `incident()`)*
 
 ```{r reto-4-opcional}
 # Escribe tu código aquí
+idxDragon <- which(V(g_tronos)$casa == "Dragón")
 
+aristas <- E(g_tronos)[idxDragon %->% V(g_tronos)] # Que aristas a la izquierda son dragones
+head_of(g_tronos, aristas)
+
+vertices <- neighbors(g_tronos, idxDragon, mode = "out") # out - dragon apunta a, in - apunta a dragon
+
+V(g_tronos)[vertices]
 ```

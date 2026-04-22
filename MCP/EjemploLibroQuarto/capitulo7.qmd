@@ -1,0 +1,115 @@
+---
+title: "Visualización y Manipulación de Grafos"
+format: html
+---
+
+```{r}
+library(igraph)
+library(tidygraph)
+library(ggraph)
+
+karate <- make_graph("Zachary")
+karate
+
+# Como name esta vacio, le añadimos nombres N1, N2...
+V(karate)$name <- paste0("N", 1:vcount(karate))
+V(karate)
+
+V(karate)$shape <- "circle"
+V(karate)$color <- "lightblue"
+plot(karate)
+
+# En el dataset Zachary, el nodo 1 y 34 son los líderes
+V(karate)[c(1, 34)]$shape <- "rectangle"
+V(karate)[c(1, 34)]$color <- "orange"
+plot(karate, vertex.size = 40, main = "Atributos Condicionales")
+
+if(is.null(E(karate)$weight)) {
+  E(karate)$weight <- sample(1:5, ecount(karate), replace = TRUE)
+}
+
+E(karate)$width <- E(karate)$weight * 0.5
+
+# 1. Configuración de atributos de Vértices (Nodos)
+V(karate)$size <- 15
+V(karate)$label.color <- "black"
+V(karate)$label.font <- 2    # Negrita
+V(karate)$label.cex <- 0.8   # Tamaño del texto
+
+# 2. Diferenciar a los líderes visualmente
+# El nodo 1 (Mr. Hi) y el 34 (John A.)
+V(karate)[c(1, 34)]$shape <- "rectangle"
+V(karate)[c(1, 34)]$color <- "orange"
+V(karate)[c(1, 34)]$size  <- 30 
+
+# 3. Configuración de Aristas (Edges)
+# Usamos el peso (weight) para el grosor de las líneas
+E(karate)$width <- E(karate)$weight * 0.5 
+E(karate)$color <- "gray80"
+E(karate)$curved <- 0.2       # Un toque de curvatura hace que se vea más orgánico
+
+# 4. El Plot final consolidado
+plot(karate,
+     main = "Red Social de Zachary: Facciones de Liderazgo",
+     vertex.frame.color = "white",    # Borde de los nodos
+     vertex.label.dist = 1.2,         # Desplaza la etiqueta para que no pise el nodo
+     edge.arrow.size = 0,             # El karate club es no dirigido
+     layout = layout_with_kk(karate)) # Algoritmo Kamada-Kawai para mejor distribución
+```
+
+```{r}
+library(igraphdata)
+data(karate)
+
+color_facciones <- c("skyblue", "tomato")
+V(karate)$color <- color_facciones[V(karate)$Faction]
+
+# Asignar  nombres secuenciales
+V(karate)$name <- paste0("N", 1:vcount(karate))
+
+plot(karate, vertex.color = V(karate)$color, main = "Facciones Reales")
+
+# 2. Lógica para las aristas (Edges)
+# Obtenemos los nodos de inicio (from) y fin (to) de cada arista
+edge_nodes <- as_edgelist(karate, names = FALSE)
+
+# Creamos un vector de colores para las aristas
+edge_colors <- sapply(1:ecount(karate), function(i) {
+  faccion_nodo1 <- V(karate)$Faction[edge_nodes[i, 1]]
+  faccion_nodo2 <- V(karate)$Faction[edge_nodes[i, 2]]
+  
+  if (faccion_nodo1 == faccion_nodo2) {
+    return(color_facciones[faccion_nodo1]) # Color de la facción si son iguales
+  } else {
+    return("gray80") # Gris si conectan facciones distintas
+  }
+})
+
+# 3. Personalización del gráfico al estilo "Peliculas"
+plot(karate,
+     layout = layout_with_fr(karate), # Layout de fuerzas
+     vertex.size = 12,
+     vertex.label = paste0("N", 1:vcount(karate)),
+     vertex.label.cex = 0.7,
+     vertex.label.color = "black",
+     vertex.label.dist = 1.2,
+     edge.color = edge_colors,        # Aplicamos los colores calculados
+     edge.width = 2,                  # Aristas un poco más gruesas
+     edge.curved = 0.2,
+     main = "Coloreado por Facciones (Interno vs Inter-grupal)")
+
+# Añadir una leyenda para entender el gráfico
+legend("topleft", legend = c("Facción Mr. Hi", "Facción John A.", "Inter-facciones"), 
+       fill = c("skyblue", "tomato", "gray80"), bty = "n", cex = 0.8)
+```
+
+```{r}
+notas <- list(clase1 = c(4,7,8,5,9,7,4),
+              clase2 = c(3,4,5,7,8,9))
+notas
+
+sapply(notas, mean)
+sapply(notas, function(x) {mean(x) + 1}) # devuelve vector
+lapply(notas, mean) # devuelve lista
+```
+
