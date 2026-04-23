@@ -13,7 +13,7 @@
 - **K grande**: modelo más suave, pero puede perder detalles importantes (underfitting).
 - Valor óptimo de K depende del problema, se prueban con validación.
 
-No construye un modelo explícito, usa los datos de entrenamiento para predecir. Se puede usar ponderaciones por distancia. Se asigna un peso a cada vecino $x_{i}$ en función de su distancia a $x^*$: $w_{i}=\frac{1}{d(x^*,x_{i})+\epsilon}$. En clasificación se hace una votación ponderada, en regresión un promedio ponderado. Es útil con K grandes o presencia de ruido/outliers.
+No construye un modelo explícito, usa los datos de entrenamiento para predecir (lazy learning). Se puede usar ponderaciones por distancia. Se asigna un peso a cada vecino $x_{i}$ en función de su distancia a $x^*$: $w_{i}=\frac{1}{d(x^*,x_{i})+\epsilon}$. En clasificación se hace una votación ponderada, en regresión un promedio ponderado. Es útil con K grandes o presencia de ruido/outliers.
 
 ### Ejercicio
 ![[Pasted image 20260421095414.png]]
@@ -34,4 +34,20 @@ Usando KNN con K = 3 es $\frac{180+210+150}{3}=180$€
 Usando KNN ponderado con K = 3 es $\frac{180/5 + 210/5 + 150/15}{1/15 + 1/5 + 1/5}=188.7$€
 
 ![[Pasted image 20260421095111.png]]
+
+**Annoy**: reduce el tiempo de búsqueda y obtiene resultados precisos. Busca vecinos aproximadamente cercanos construyendo estructuras de tipo árbol que dividen el espacio en regiones.
+
+![[Pasted image 20260423091402.png]]
+
+![[Pasted image 20260423091439.png]]
+
+![[Pasted image 20260423091713.png]]
+
+Un problema es que los vecinos pueden quedar fuera de la región seleccionada.
+
+![[Pasted image 20260423091656.png]]
+
+La k debe ser menor que el número máximo de puntos que fijo en cada región.
+
+![[Pasted image 20260423095641.png]]
 
