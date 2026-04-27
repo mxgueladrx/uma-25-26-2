@@ -1,0 +1,36 @@
+# Bloque 1: Análisis de Componentes Principales (PCA)
+
+En esta primera fase, el objetivo es extraer las dimensiones latentes que definen el éxito de un
+producto.
+
+```{r}
+#| message: false
+library(tidyverse)
+library(factoextra)
+library(patchwork)
+library(corrplot)
+library(data.table)
+
+df <- fread("../data/Reviews.csv")
+```
+
+Una vez cargados los datos en el entorno de trabajo, procedemos a realizar una inspección de los 10 atributos que componen el dataset. Según la documentación de [Kaggle](https://www.kaggle.com/datasets/arhamrumi/amazon-product-reviews), estas variables recogen la siguiente información:
+
+1. **Id**: Atributo numérico. Identificador único de la reseña.
+1. **ProductId**: Atributo nominal (alfanumérico). Identificador único de un producto.
+1. **UserId**: Atributo nominal (alfanumérico). Identificador único del autor de la reseña.
+1. **ProfileName**: Atributo nominal. Nombre de perfil del usuario que ha hecho la reseña.
+1. **HelpfulnessNumerator**: Atributo numérico discreto. Cantidad de votos que califican la reseña como "útil".
+1. **HelpfulnessDenominator**: Atributo numérico discreto. Cantidad total de votos recibidos por la reseña (útiles y no útiles).
+1. **Score**: Atributo numérico ordinal. Calificación del producto en una escala de 1 a 5.
+1. **Time**: Atributo numérico (timestamp). Segundo exacto de la creación de la reseña.
+1. **Summary**: Texto. Resumen de la reseña.
+1. **Text**: Texto. Contenido completo de la reseña.
+
+Analicemos ahora cada atributo y obtengamos algunas métricas:
+
+```{r}
+metricas <- df |>
+  group_by(ProductId)
+```
+

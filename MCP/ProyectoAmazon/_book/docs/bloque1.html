@@ -6,10 +6,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Miguel Adrián Gheorghe">
-<meta name="dcterms.date" content="2026-04-13">
 
-<title>Proyecto: Arquitectura de Influencia en Ecosistemas de Consumo. Dataset Amazon</title>
+<title>1&nbsp; Bloque 1: Análisis de Componentes Principales (PCA) – Proyecto: Arquitectura de Influencia en Ecosistemas de Consumo. Dataset Amazon</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -60,25 +58,25 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<link href="./docs/bloque1.html" rel="next">
-<script src="site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-b29f53597728eb8d5bc9247032823cdf.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../index.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-b29f53597728eb8d5bc9247032823cdf.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -119,7 +117,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">Introducción</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../docs/bloque1.html"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Bloque 1: Análisis de Componentes Principales (PCA)</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -133,10 +131,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <!-- sidebar -->
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
     <div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
-      <a href="./index.html" class="sidebar-logo-link">
+      <a href="../index.html" class="sidebar-logo-link">
       </a>
     <div class="sidebar-title mb-0 py-0">
-      <a href="./">Proyecto: Arquitectura de Influencia en Ecosistemas de Consumo. Dataset Amazon</a> 
+      <a href="../">Proyecto: Arquitectura de Influencia en Ecosistemas de Consumo. Dataset Amazon</a> 
     </div>
       </div>
         <div class="mt-2 flex-shrink-0 align-items-center">
@@ -148,13 +146,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./index.html" class="sidebar-item-text sidebar-link active">
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Introducción</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./docs/bloque1.html" class="sidebar-item-text sidebar-link">
+  <a href="../docs/bloque1.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Bloque 1: Análisis de Componentes Principales (PCA)</span></span></a>
   </div>
 </li>
@@ -163,44 +161,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active">
-    <h2 id="toc-title">Table of contents</h2>
-   
-  <ul>
-  <li><a href="#introducción" id="toc-introducción" class="nav-link active" data-scroll-target="#introducción">Introducción</a>
-  <ul class="collapse">
-  <li><a href="#configuración-del-entorno-y-carga-de-datos" id="toc-configuración-del-entorno-y-carga-de-datos" class="nav-link" data-scroll-target="#configuración-del-entorno-y-carga-de-datos">Configuración del Entorno y Carga de Datos</a></li>
-  <li><a href="#diario-de-interacción-con-ia" id="toc-diario-de-interacción-con-ia" class="nav-link" data-scroll-target="#diario-de-interacción-con-ia">Diario de Interacción con IA</a></li>
-  </ul></li>
-  </ul>
-</nav>
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+        
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Proyecto: Arquitectura de Influencia en Ecosistemas de Consumo. Dataset Amazon</h1>
+<h1 class="title"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Bloque 1: Análisis de Componentes Principales (PCA)</span></h1>
 </div>
 
 
 
 <div class="quarto-title-meta">
 
-    <div>
-    <div class="quarto-title-meta-heading">Author</div>
-    <div class="quarto-title-meta-contents">
-             <p>Miguel Adrián Gheorghe </p>
-          </div>
-  </div>
     
-    <div>
-    <div class="quarto-title-meta-heading">Published</div>
-    <div class="quarto-title-meta-contents">
-      <p class="date">April 13, 2026</p>
-    </div>
-  </div>
   
     
   </div>
@@ -210,41 +186,63 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<section id="introducción" class="level1 unnumbered">
-<h1 class="unnumbered">Introducción</h1>
-<p>En este proyecto de Aprendizaje Basado en Proyectos (ABP) vamos a actuar como analistas de datos para entender cómo se estructuran las relaciones entre productos y usuarios en Amazon. El objetivo es aplicar las técnicas vistas en clase, en particular, de reducción de datos, grafos y clasificación para predecir el comportamiento del mercado.</p>
-<p>Para ello, vamos a usar el dataset <em>Amazon Product Reviews</em>, que se puede encontrar y descargar en <a href="https://www.kaggle.com/datasets/arhamrumi/amazon-product-reviews">Kaggle</a>.</p>
-<section id="configuración-del-entorno-y-carga-de-datos" class="level2">
-<h2 class="anchored" data-anchor-id="configuración-del-entorno-y-carga-de-datos">Configuración del Entorno y Carga de Datos</h2>
-<p>Para que nuestro proyecto sea fácilmente ejecutable en cualquier entorno, hemos implementado un fragmento de código para garantizar la existencia de los datos sin necesidad de gestionarlo manualmente.</p>
+<p>En esta primera fase, el objetivo es extraer las dimensiones latentes que definen el éxito de un producto.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">timeout =</span> <span class="dv">600</span>)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">dir.exists</span>(<span class="st">"data"</span>)) {</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">dir.create</span>(<span class="st">"data"</span>)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>}</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(factoextra)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(corrplot)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(data.table)</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>url <span class="ot">&lt;-</span> <span class="st">"https://www.kaggle.com/api/v1/datasets/download/arhamrumi/amazon-product-reviews"</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>destino <span class="ot">&lt;-</span> <span class="st">"data/amazon-product-reviews.zip"</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Descargar dataset automáticamente</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(destino)) {</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">download.file</span>(url, <span class="at">destfile =</span> destino, <span class="at">mode =</span> <span class="st">"wb"</span>)</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Descomprimir dataset</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(<span class="st">"data/Reviews.csv"</span>)) {</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">unzip</span>(destino, <span class="at">exdir =</span> <span class="st">"data"</span>)</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">fread</span>(<span class="st">"../data/Reviews.csv"</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(df, <span class="dv">5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      Id  ProductId         UserId                       ProfileName
+   &lt;int&gt;     &lt;char&gt;         &lt;char&gt;                            &lt;char&gt;
+1:     1 B001E4KFG0 A3SGXH7AUHU8GW                        delmartian
+2:     2 B00813GRG4 A1D87F6ZCVE5NK                            dll pa
+3:     3 B000LQOCH0  ABXLMWJIXXAIN Natalia Corres ""Natalia Corres""
+4:     4 B000UA0QIQ A395BORC6FGVXV                              Karl
+5:     5 B006K2ZZ7K A1UQRSCLF8GW1T   Michael D. Bigham ""M. Wassir""
+   HelpfulnessNumerator HelpfulnessDenominator Score       Time
+                  &lt;int&gt;                  &lt;int&gt; &lt;int&gt;      &lt;int&gt;
+1:                    1                      1     5 1303862400
+2:                    0                      0     1 1346976000
+3:                    1                      1     4 1219017600
+4:                    3                      3     2 1307923200
+5:                    0                      0     5 1350777600
+                   Summary
+                    &lt;char&gt;
+1:   Good Quality Dog Food
+2:       Not as Advertised
+3: ""Delight"" says it all
+4:          Cough Medicine
+5:             Great taffy
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              Text
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            &lt;char&gt;
+1:                                                                                                                                                                                                                                                         I have bought several of the Vitality canned dog food products and have found them all to be of good quality. The product looks more like a stew than a processed meat and it smells better. My Labrador is finicky and she appreciates this product better than  most.
+2:                                                                                                                                                                                                                                                                                                                                Product arrived labeled as Jumbo Salted Peanuts...the peanuts were actually small sized unsalted. Not sure if this was an error or if the vendor intended to represent the product as ""Jumbo"".
+3: This is a confection that has been around a few centuries.  It is a light, pillowy citrus gelatin with nuts - in this case Filberts. And it is cut into tiny squares and then liberally coated with powdered sugar.  And it is a tiny mouthful of heaven.  Not too chewy, and very flavorful.  I highly recommend this yummy treat.  If you are familiar with the story of C.S. Lewis' ""The Lion, The Witch, and The Wardrobe"" - this is the treat that seduces Edmund into selling out his Brother and Sisters to the Witch.
+4:                                                                                                                                                                                                                                                                                                     If you are looking for the secret ingredient in Robitussin I believe I have found it.  I got this in addition to the Root Beer Extract I ordered (which was good) and made some cherry soda.  The flavor is very medicinal.
+5:                                                                                                                                                                                                                                                                                                                                                                                    Great taffy at a great price.  There was a wide assortment of yummy taffy.  Delivery was very quick.  If your a taffy lover, this is a deal.</code></pre>
 </div>
-</section>
-<section id="diario-de-interacción-con-ia" class="level2">
-<h2 class="anchored" data-anchor-id="diario-de-interacción-con-ia">Diario de Interacción con IA</h2>
-<p>Para el apoyo en la toma de decisiones, hemos empleado el LLM Gemini Pro de Google. Al final de cada bloque se incluirá un apartado donde se mostrará las interacciones más importantes y destacables con la IA.</p>
+</div>
+<p>Una vez cargados los datos en el entorno de trabajo, procedemos a realizar una inspección de los 10 atributos que componen el dataset. Según la documentación de <a href="https://www.kaggle.com/datasets/arhamrumi/amazon-product-reviews">Kaggle</a>, estas variables recogen la siguiente información:</p>
+<ol type="1">
+<li><strong>Id</strong>: Atributo numérico. Identificador único de la reseña.</li>
+<li><strong>ProductId</strong>: Atributo nominal (alfanumérico). Identificador único de un producto.</li>
+<li><strong>UserId</strong>: Atributo nominal (alfanumérico). Identificador único del autor de la reseña.</li>
+<li><strong>ProfileName</strong>: Atributo nominal. Nombre de perfil del usuario que ha hecho la reseña.</li>
+<li><strong>HelpfulnessNumerator</strong>: Atributo numérico discreto. Cantidad de votos que califican la reseña como “útil”.</li>
+<li><strong>HelpfulnessDenominator</strong>: Atributo numérico discreto. Cantidad total de votos recibidos por la reseña (útiles y no útiles).</li>
+<li><strong>Score</strong>: Atributo numérico ordinal. Calificación del producto en una escala de 1 a 5.</li>
+<li><strong>Time</strong>: Atributo numérico (timestamp). Segundo exacto de la creación de la reseña.</li>
+<li><strong>Summary</strong>: Texto. Resumen de la reseña.</li>
+<li><strong>Text</strong>: Texto. Contenido completo de la reseña.</li>
+</ol>
 
 
-</section>
-</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -649,11 +647,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
+      <a href="../index.html" class="pagination-link" aria-label="Introducción">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Introducción</span>
+      </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./docs/bloque1.html" class="pagination-link" aria-label="Bloque 1: Análisis de Componentes Principales (PCA)">
-        <span class="nav-page-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Bloque 1: Análisis de Componentes Principales (PCA)</span></span> <i class="bi bi-arrow-right-short"></i>
-      </a>
   </div>
 </nav>
 </div> <!-- /content -->
