@@ -113,3 +113,7 @@ sapply(notas, function(x) {mean(x) + 1}) # devuelve vector
 lapply(notas, mean) # devuelve lista
 ```
 
+```{r}
+
+```
+
