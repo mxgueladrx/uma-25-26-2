@@ -51,3 +51,11 @@ La k debe ser menor que el número máximo de puntos que fijo en cada región.
 
 ![[Pasted image 20260423095641.png]]
 
+## Árboles de decisión y ensembles
+
+### Ejercicio 
+![[Pasted image 20260428090409.png]]
+
+**Árbol 3**: cat (4/7), not cat (2/3). Acierta 6/10
+
+**Entropía cruzada**: sea $p$ el porcentaje de ejemplos que son gatos, hay que minimizar$H(p)=-p\log_{2}(p)-(1-p)\log_{2}(1-p)$, y maximizar la ganancia de información 
