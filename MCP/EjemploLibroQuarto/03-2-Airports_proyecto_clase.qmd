@@ -178,6 +178,6 @@ ggraph(red_multi, layout = "fr") +
 Pintar de un color especial todas las aristas que tengan como origen o destino **Madrid**, utilizando la potencia de `tidygraph`.
 
 ```{r}
-madrid = 
+
 ```
 

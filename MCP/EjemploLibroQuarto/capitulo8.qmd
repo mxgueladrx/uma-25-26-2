@@ -1,0 +1,29 @@
+---
+title: "Métricas y Análisis Estructural"
+format: html
+---
+
+```{r}
+library(igraph)
+
+# Grafo de ejemplo para ilustrar métricas
+g1 <- graph( c(1, 2, 1, 3, 2,  3,
+               3, 4, 3, 5, 1,  5,
+               4, 2, 3, 6, 4,  8,
+               8, 1, 9, 1, 10, 2,
+               7, 6, 5,10))
+
+grados <- degree(g1)
+indices <- order(grados, decreasing = TRUE)
+V(g1)[indices][1:2]
+
+```
+
+```{r}
+betweenness(g1)
+```
+
+```{r}
+closeness(g1)
+```
+
