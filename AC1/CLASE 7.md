@@ -58,4 +58,29 @@ La k debe ser menor que el número máximo de puntos que fijo en cada región.
 
 **Árbol 3**: cat (4/7), not cat (2/3). Acierta 6/10
 
-**Entropía cruzada**: sea $p$ el porcentaje de ejemplos que son gatos, hay que minimizar$H(p)=-p\log_{2}(p)-(1-p)\log_{2}(1-p)$, y maximizar la ganancia de información 
+**Entropía cruzada**: sea $p$ el porcentaje de ejemplos que son gatos, hay que minimizar$H(p)=-p\log_{2}(p)-(1-p)\log_{2}(1-p)$, y maximizar la ganancia de información
+
+## Máquinas de Vectores de Soporte (SVM)
+
+**Ecuación de la recta**: $\frac{x-x_{1}}{x_{2}-x_{1}}=\frac{y-y_{1}}{y_{2}-y_{1}}$
+Pasos:
+1. Vectores Soporte
+2. Segmento y punto medio
+3. Perpendicular
+4. Rectas paralelas
+5. Conseguir +1 y -1
+
+### Ejercicio
+![[Pasted image 20260430091022.png]]
+![[Pasted image 20260430091235.png]]
+![[Pasted image 20260430091247.png]]![[Pasted image 20260430091301.png]]
+![[Pasted image 20260430091332.png]]
+
+### Ejercicio
+![[Pasted image 20260430091616.png]]
+
+1. Candidatos N3 y P2
+2. $\frac{x-5}{8-5}=\frac{y-3}{6-3}; 3x-15=3y-9; y=x-2$
+3. Punto medio: $(\frac{5+8}{2}, \frac{3+6}{2})=(6.5, 4.5)$
+4. ...
+

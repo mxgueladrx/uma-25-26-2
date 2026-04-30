@@ -336,6 +336,7 @@ Annots
 Alt
 AAAAAA
 Annoy
+Acierta
 tico
 til
 trivial
@@ -1125,6 +1126,8 @@ cookie
 consta
 controla
 construyendo
+cat
+cruzada
 en
 estar
 expl
@@ -1530,6 +1533,7 @@ eJK
 eZy
 escalar
 estructuras
+ensembles
 la
 los
 limpieza
@@ -3578,6 +3582,7 @@ prueban
 ponderaciones
 ponderado
 precisos
+porcentaje
 Machine
 ML
 Mining
@@ -5912,6 +5917,7 @@ gsF
 gLcl
 gGZ
 grande
+gatos
 vol
 valor
 valores
@@ -6528,6 +6534,7 @@ ngM
 nSN
 normalizar
 normalizada
+not
 impl
 interpretaci
 incluye
@@ -8051,6 +8058,7 @@ EXG
 EdC
 Eucl
 Elecci
+Entrop
 Juan
 JV
 JFIF
