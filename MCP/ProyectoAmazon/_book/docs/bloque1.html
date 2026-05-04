@@ -105,6 +105,35 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -194,39 +223,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(corrplot)</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(data.table)</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">fread</span>(<span class="st">"../data/Reviews.csv"</span>)</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(df, <span class="dv">5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>      Id  ProductId         UserId                       ProfileName
-   &lt;int&gt;     &lt;char&gt;         &lt;char&gt;                            &lt;char&gt;
-1:     1 B001E4KFG0 A3SGXH7AUHU8GW                        delmartian
-2:     2 B00813GRG4 A1D87F6ZCVE5NK                            dll pa
-3:     3 B000LQOCH0  ABXLMWJIXXAIN Natalia Corres ""Natalia Corres""
-4:     4 B000UA0QIQ A395BORC6FGVXV                              Karl
-5:     5 B006K2ZZ7K A1UQRSCLF8GW1T   Michael D. Bigham ""M. Wassir""
-   HelpfulnessNumerator HelpfulnessDenominator Score       Time
-                  &lt;int&gt;                  &lt;int&gt; &lt;int&gt;      &lt;int&gt;
-1:                    1                      1     5 1303862400
-2:                    0                      0     1 1346976000
-3:                    1                      1     4 1219017600
-4:                    3                      3     2 1307923200
-5:                    0                      0     5 1350777600
-                   Summary
-                    &lt;char&gt;
-1:   Good Quality Dog Food
-2:       Not as Advertised
-3: ""Delight"" says it all
-4:          Cough Medicine
-5:             Great taffy
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              Text
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            &lt;char&gt;
-1:                                                                                                                                                                                                                                                         I have bought several of the Vitality canned dog food products and have found them all to be of good quality. The product looks more like a stew than a processed meat and it smells better. My Labrador is finicky and she appreciates this product better than  most.
-2:                                                                                                                                                                                                                                                                                                                                Product arrived labeled as Jumbo Salted Peanuts...the peanuts were actually small sized unsalted. Not sure if this was an error or if the vendor intended to represent the product as ""Jumbo"".
-3: This is a confection that has been around a few centuries.  It is a light, pillowy citrus gelatin with nuts - in this case Filberts. And it is cut into tiny squares and then liberally coated with powdered sugar.  And it is a tiny mouthful of heaven.  Not too chewy, and very flavorful.  I highly recommend this yummy treat.  If you are familiar with the story of C.S. Lewis' ""The Lion, The Witch, and The Wardrobe"" - this is the treat that seduces Edmund into selling out his Brother and Sisters to the Witch.
-4:                                                                                                                                                                                                                                                                                                     If you are looking for the secret ingredient in Robitussin I believe I have found it.  I got this in addition to the Root Beer Extract I ordered (which was good) and made some cherry soda.  The flavor is very medicinal.
-5:                                                                                                                                                                                                                                                                                                                                                                                    Great taffy at a great price.  There was a wide assortment of yummy taffy.  Delivery was very quick.  If your a taffy lover, this is a deal.</code></pre>
-</div>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">fread</span>(<span class="st">"../data/Reviews.csv"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Una vez cargados los datos en el entorno de trabajo, procedemos a realizar una inspección de los 10 atributos que componen el dataset. Según la documentación de <a href="https://www.kaggle.com/datasets/arhamrumi/amazon-product-reviews">Kaggle</a>, estas variables recogen la siguiente información:</p>
 <ol type="1">
@@ -241,6 +238,142 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><strong>Summary</strong>: Texto. Resumen de la reseña.</li>
 <li><strong>Text</strong>: Texto. Contenido completo de la reseña.</li>
 </ol>
+<p>Podemos darnos cuenta que no tenemos ningún atributo que sea el precio, por lo que obtener alguna métrica del mismo no será posible.</p>
+<p>Primero vamos a comprobar si tenemos algún valor faltante en el dataset:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">is.na</span>(df))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 4</code></pre>
+</div>
+</div>
+<p>Vemos que tenemos 4 valores nulos, son muy pocos y eliminarlos no afectaría casi nada al dataset, ya que tenemos más de medio millón de registros, por lo que vamos a eliminarlos:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">drop_na</span>(df)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Una vez asegurados que no tenemos ningún valor faltante, analicemos ahora cada atributo y mostremos una tabla con algunas métricas:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>metricas <span class="ot">&lt;-</span> df <span class="sc">|&gt;</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(ProductId) <span class="sc">|&gt;</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">ratingPromedio =</span> <span class="fu">round</span>(<span class="fu">mean</span>(Score), <span class="dv">1</span>),</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">numeroResenas =</span> <span class="fu">n</span>(),</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">longitudResenaPromedio =</span> <span class="fu">round</span>(<span class="fu">mean</span>(<span class="fu">nchar</span>(Text)))</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>ProductId)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(metricas)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 3
+  ratingPromedio numeroResenas longitudResenaPromedio
+           &lt;dbl&gt;         &lt;int&gt;                  &lt;dbl&gt;
+1            4.4            37                    428
+2            5               1                    378
+3            3.5             2                    235
+4            5               1                    342
+5            4.8           173                    379
+6            4.8           173                    379</code></pre>
+</div>
+</div>
+<p>Tras generar las métricas, nos damos cuenta de un problema, y es la escala en la que están los datos. Por ejemplo, el valor de <strong>ratingPromedio</strong> va de 1 a 5, mientras que el <strong>longitudResenaPromedio</strong> toma valores de 300 a 400. Como PCA es sensible a estos cambios bruscos de escala, lo suyo sería hacer una normalización a los datos. Veamos gráficamente la dispersión de los datos:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">boxplot</span>(metricas, </span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">main =</span> <span class="st">"Dispersión de los atributos"</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>        )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="bloque1_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Visualmente podemos ver que el atributo de <strong>longitudResenaPromedio</strong> es mucho más disperso a las demás. Como comentamos antes, estos atributos no están en la misma escala, asi que ahora vamos a normalizarlos y veamos un nuevo boxplot:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>metricas <span class="ot">&lt;-</span> <span class="fu">scale</span>(metricas)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">boxplot</span>(metricas,</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">main =</span> <span class="st">"Dispersión de los atributos normalizados"</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>        )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="bloque1_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Aunque ahora tampoco veamos mucha diferencia, el eje <span class="math inline">\(Y\)</span> se mueve ahora en un rango de hasta 50, cuando antes era hasta 15000. Aunque sigan existiendo muchos outliers, las métricas están ahora en un rango mucho más manejable para PCA. Apliquemos PCA:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>pca <span class="ot">&lt;-</span> <span class="fu">prcomp</span>(metricas)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(pca)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Importance of components:
+                          PC1    PC2    PC3
+Standard deviation     1.0255 1.0020 0.9718
+Proportion of Variance 0.3506 0.3347 0.3148
+Cumulative Proportion  0.3506 0.6852 1.0000</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">fviz_eig</span>(pca, <span class="at">addlabels =</span> <span class="cn">TRUE</span>, <span class="at">title =</span> <span class="st">"Scree Plot"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="bloque1_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Analizando el Scree Plot, las dos primeras PC explican un 35.1% y un 33.5% de la varianza. Este conjunto nos permite retener un 68.5% de la información.</p>
+<p>Además, el criterio de Kaiser establece que solo deben mantenerse las PC cuyos autovalores sean mayores que 1 (ya que esto indica que la componente explica más varianza que una variable original individual). Para obtener los autovalores, que son las varianzas, basta con elevar al cuadrado las desviaciones típicas de PCA:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>pca<span class="sc">$</span>sdev<span class="sc">^</span><span class="dv">2</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1.051698 1.003976 0.944326</code></pre>
+</div>
+</div>
+<p>Al observar que únicamente los dos primeros autovalores superan el umbral de 1, trabajaremos con las dos primeras PC. Para ver que representa cada PC, analizamos la matriz de rotación:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>pca<span class="sc">$</span>rotation</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                              PC1        PC2        PC3
+ratingPromedio         -0.6164844 0.49923653 -0.6088594
+numeroResenas           0.3200732 0.86540884  0.3855135
+longitudResenaPromedio  0.7193748 0.04278349 -0.6933033</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Mostramos solo las dos primeras PC, que son las que nos interesa</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">fviz_pca_var</span>(pca, </span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>             <span class="at">col.var =</span> <span class="st">"contrib"</span>,</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>             <span class="at">gradient.cols =</span> <span class="fu">c</span>(<span class="st">"gray20"</span>, <span class="st">"green"</span>, <span class="st">"blue"</span>),</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>             <span class="at">repel =</span> <span class="cn">TRUE</span>, </span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>             <span class="at">title =</span> <span class="st">"Variables y sus contribuciones"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="bloque1_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Analicemos cada PC: - <strong>PC1</strong>: Existe una correlación inversa entre la longitud de la reseña y la valoración del producto. Productos con reseñas más largas tienden a tener una valoración mucho menor, ya que los clientes detallan las quejas y críticas. Esta componente muestra la relación entre cantidad y calidad. - <strong>PC2</strong>: Existe una correlación directa entre el número de reseñas de un producto y su valoración. Productos con mayor número de reseñas, mayor valoración llegan a tener. Esta componente muestra la relación que a mayor consumo, mayor satisfacción. - <strong>PC3</strong>: Existe una correlación directa entre la valoración del producto y la longitud de su reseña, contrastadas con el número de ventas. Productos con peores valoraciones tienen reseñas más cortas pero con muchas ventas. Esta componente muestra la relación que hay en artículos malos que se compran mucho pero hacen que el cliente no escriba una reseña elaborada.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">fviz_pca_biplot</span>(pca,</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>                <span class="at">geom.ind =</span> <span class="st">"point"</span>,</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>                <span class="at">repel =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>                <span class="at">col.var =</span> <span class="st">"red"</span>, </span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>                <span class="at">col.ind =</span> <span class="st">"skyblue"</span>,</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>                <span class="at">title =</span> <span class="st">"Biplot"</span>,</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>                <span class="at">pointsize =</span> <span class="fl">0.5</span>,</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>                <span class="at">alpha.ind =</span> <span class="fl">0.1</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>                )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="bloque1_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>En el Biplot enseñaremos la distribución de los productos en este nuevo espacio dimensional. Se observa cómo los productos se dispersan siguiendo las direcciones de las flechas: los productos situados en el cuadrante de longitudResenaPromedio coinciden con aquellos de menor ratingPromedio, confirmando la tendencia de quejas detalladas identificada en el PC1.</p>
 
 
 

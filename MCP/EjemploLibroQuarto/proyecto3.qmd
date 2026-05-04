@@ -97,6 +97,7 @@ resumen <- US |>
 indices <- sapply(objetivo, function(x) {
   which(grepl(x, resumen$carrier))
 })
+
 resumen$TotalSalidas[indices]
 
 # 3
@@ -113,7 +114,31 @@ indice <- which.max(E(US)$Passengers)
 E(US)[indice]
 
 # 7
-E(US)$Ocupacion <- E(US)$Passengers / E(US)$Seats 
+pos_no_vacias <- E(US)$Seats != 0
+E(US)$Ocupacion[pos_no_vacias] <- E(US)$Passengers[pos_no_vacias] / E(US)$Seats[pos_no_vacias]
+E(US)$Ocupacion[!pos_no_vacias] <- NA
+
+# mejor ocupacion
+ind_max <- which.max(E(US)$Ocupacion)
+E(US)[ind_max]
+
+# 8
+grados <- degree(US, mode = "out")
+ind_max <- which.max(grados)
+v_atl <- V(US)[ind_max]
+
+vuelos_desde_atl <- E(US)[v_atl %->% V(US)]
+which.max(table(vuelos_desde_atl$Carrier)) # tabla de frecuencia
+
+# 9
+US |>
+  as_tbl_graph() |>
+  activate(edges) |>
+  as_tibble() |>
+  group_by(Carrier) |>
+  summarise(distancia_media = mean(Distance)) |>
+  arrange(desc(distancia_media)) |>
+  head(1)
 ```
 
 ---
@@ -129,6 +154,13 @@ E(US)$Ocupacion <- E(US)$Passengers / E(US)$Seats
 
 ```{r}
 #| label: ex-3
+
+indices <- which(grepl("Angeles", V(US)$City[1:20]))
+V(US)[indices]$name
+V(US)[indices]$City
+
+indices <- which(grepl("^Wash", V(US)$City))
+V(US)[indices]$name
 ```
 
 ### Ejercicio 4: Operadores de Selección y Edición
@@ -140,6 +172,13 @@ E(US)$Ocupacion <- E(US)$Passengers / E(US)$Seats
 
 ```{r}
 #| label: ex-4
+
+E(US)["JFK" %--% "BOS"]
+E(US)["JFK" %->% "BOS"]
+
+delete_edges(E(US)["BJC" %--% "MIA"])
+
+US <- US - E(US)["BJC" %--% "MIA"]
 ```
 
 ### Ejercicio 5: Flujos entre Estados (California a Nueva York)
@@ -149,6 +188,8 @@ E(US)$Ocupacion <- E(US)$Passengers / E(US)$Seats
 
 ```{r}
 #| label: ex-5
+
+
 ```
 
 ---
@@ -162,6 +203,12 @@ E(US)$Ocupacion <- E(US)$Passengers / E(US)$Seats
 
 ```{r}
 #| label: ex-6
+
+indices <- which(grepl("Vegas", V(US)$City))
+vecinos_vegas <- ego(US, order = 2, nodes = indices, mode = "out")
+red <- induced_subgraph(US, unlist(vecinos_vegas))
+
+names(vecinos_vegas[[1]])
 ```
 
 ### Ejercicio 7: Morphing y Entornos locales
@@ -171,6 +218,17 @@ E(US)$Ocupacion <- E(US)$Passengers / E(US)$Seats
 
 ```{r}
 #| label: ex-7
+
+id_SEA <- which(grepl("SEA", V(US)$name))
+id_MIA <- which(grepl("MIA", V(US)$name))
+
+grafo_camino <- US |>
+  as_tbl_graph() |>
+  activate(nodes) |>
+  mutate(en_ruta = FALSE)
+  morph(to_shortest_path, from = id_SEA, to = id_MIA) |>
+  mutate(en_ruta = TRUE) |>
+  unmorph()
 ```
 
 ### Ejercicio 8: Visualización Temática con ggraph
@@ -181,6 +239,27 @@ E(US)$Ocupacion <- E(US)$Passengers / E(US)$Seats
 
 ```{r}
 #| label: ex-8
+
+indices_50 <- degree(US) > 50
+V(US)[indices_50]
+
+library(stringr)
+
+red <- induced_subgraph(US, indices_50)
+
+red <- red |>
+  as_tbl_graph() |>
+  activate(nodes) |>
+  mutate(Estado = sapply(str_split(City, ", "), function(x) {
+    return(x[2])
+  })) |>
+  mutate(grado=centrality_degree())
+  
+  
+red |>
+  ggraph(layout = "fr") +
+  geom_node_point(aes(color=Estado, size=grado)) +
+  geom_edge_link(aes(alpha=Passengers))
 ```
 
 ---

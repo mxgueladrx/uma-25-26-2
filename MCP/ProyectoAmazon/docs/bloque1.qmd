@@ -27,10 +27,100 @@ Una vez cargados los datos en el entorno de trabajo, procedemos a realizar una i
 1. **Summary**: Texto. Resumen de la reseña.
 1. **Text**: Texto. Contenido completo de la reseña.
 
-Analicemos ahora cada atributo y obtengamos algunas métricas:
+Podemos darnos cuenta que no tenemos ningún atributo que sea el precio, por lo que obtener alguna métrica del mismo no será posible.
+
+Primero vamos a comprobar si tenemos algún valor faltante en el dataset:
+
+```{r}
+sum(is.na(df))
+```
+
+Vemos que tenemos 4 valores nulos, son muy pocos y eliminarlos no afectaría casi nada al dataset, ya que tenemos más de medio millón de registros, por lo que vamos a eliminarlos:
+
+```{r}
+df <- drop_na(df)
+```
+
+Una vez asegurados que no tenemos ningún valor faltante, analicemos ahora cada atributo y mostremos una tabla con algunas métricas:
 
 ```{r}
 metricas <- df |>
-  group_by(ProductId)
+  group_by(ProductId) |>
+  summarise(
+    ratingPromedio = round(mean(Score), 1),
+    numeroResenas = n(),
+    longitudResenaPromedio = round(mean(nchar(Text)))
+  ) |>
+  select(-ProductId)
+
+head(metricas)
 ```
+
+Tras generar las métricas, nos damos cuenta de un problema, y es la escala en la que están los datos. Por ejemplo, el valor de **ratingPromedio** va de 1 a 5, mientras que el **longitudResenaPromedio** toma valores de 300 a 400. Como PCA es sensible a estos cambios bruscos de escala, lo suyo sería hacer una normalización a los datos. Veamos gráficamente la dispersión de los datos:
+
+```{r}
+boxplot(metricas, 
+        main = "Dispersión de los atributos"
+        )
+```
+
+Visualmente podemos ver que el atributo de **longitudResenaPromedio** es mucho más disperso a las demás. Como comentamos antes, estos atributos no están en la misma escala, asi que ahora vamos a normalizarlos y veamos un nuevo boxplot:
+
+```{r}
+metricas <- scale(metricas)
+
+boxplot(metricas,
+        main = "Dispersión de los atributos normalizados"
+        )
+```
+
+Aunque ahora tampoco veamos mucha diferencia, el eje $Y$ se mueve ahora en un rango de hasta 50, cuando antes era hasta 15000. Aunque sigan existiendo muchos outliers, las métricas están ahora en un rango mucho más manejable para PCA. Apliquemos PCA:
+
+```{r}
+pca <- prcomp(metricas)
+
+summary(pca)
+
+fviz_eig(pca, addlabels = TRUE, title = "Scree Plot")
+```
+
+Analizando el Scree Plot, las dos primeras PC explican un 35.1% y un 33.5% de la varianza. Este conjunto nos permite retener un 68.5% de la información. 
+
+Además, el criterio de Kaiser establece que solo deben mantenerse las PC cuyos autovalores sean mayores que 1 (ya que esto indica que la componente explica más varianza que una variable original individual). Para obtener los autovalores, que son las varianzas, basta con elevar al cuadrado las desviaciones típicas de PCA:
+
+```{r}
+pca$sdev^2
+```
+
+Al observar que únicamente los dos primeros autovalores superan el umbral de 1, trabajaremos con las dos primeras PC. Para ver que representa cada PC, analizamos la matriz de rotación:
+
+```{r}
+pca$rotation
+
+# Mostramos solo las dos primeras PC, que son las que nos interesa
+fviz_pca_var(pca, 
+             col.var = "contrib",
+             gradient.cols = c("gray20", "green", "blue"),
+             repel = TRUE, 
+             title = "Variables y sus contribuciones")
+```
+
+Analicemos cada PC:
+- **PC1**: Existe una correlación inversa entre la longitud de la reseña y la valoración del producto. Productos con reseñas más largas tienden a tener una valoración mucho menor, ya que los clientes detallan las quejas y críticas. Esta componente muestra la relación entre cantidad y calidad.
+- **PC2**: Existe una correlación directa entre el número de reseñas de un producto y su valoración. Productos con mayor número de reseñas, mayor valoración llegan a tener. Esta componente muestra la relación que a mayor consumo, mayor satisfacción.
+- **PC3**: Existe una correlación directa entre la valoración del producto y la longitud de su reseña, contrastadas con el número de ventas. Productos con peores valoraciones tienen reseñas más cortas pero con muchas ventas. Esta componente muestra la relación que hay en artículos malos que se compran mucho pero hacen que el cliente no escriba una reseña elaborada.
+
+```{r}
+fviz_pca_biplot(pca,
+                geom.ind = "point",
+                repel = TRUE,
+                col.var = "red", 
+                col.ind = "skyblue",
+                title = "Biplot",
+                pointsize = 0.5,
+                alpha.ind = 0.1
+                )
+```
+
+En el Biplot enseñaremos la distribución de los productos en este nuevo espacio dimensional. Se observa cómo los productos se dispersan siguiendo las direcciones de las flechas: los productos situados en el cuadrante de longitudResenaPromedio coinciden con aquellos de menor ratingPromedio, confirmando la tendencia de quejas detalladas identificada en el PC1.
 
