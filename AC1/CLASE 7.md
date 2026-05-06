@@ -84,3 +84,4 @@ Pasos:
 3. Punto medio: $(\frac{5+8}{2}, \frac{3+6}{2})=(6.5, 4.5)$
 4. ...
 
+## Medidas de rendimiento y validación de modelos

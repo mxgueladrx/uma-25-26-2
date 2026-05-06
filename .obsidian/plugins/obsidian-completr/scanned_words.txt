@@ -2129,6 +2129,7 @@ qdd
 qyvI
 qUtV
 quedar
+quinas
 ordenadores
 objeto
 orden
@@ -3583,6 +3584,7 @@ ponderaciones
 ponderado
 precisos
 porcentaje
+paralelas
 Machine
 ML
 Mining
@@ -4984,6 +4986,7 @@ mZQ
 mXK
 multiclase
 mayoritaria
+medio
 realizar
 real
 respuesta
@@ -8059,6 +8062,7 @@ EdC
 Eucl
 Elecci
 Entrop
+Ecuaci
 Juan
 JV
 JFIF
@@ -8940,6 +8944,8 @@ CUm
 CYr
 CAAAAA
 Chjzssjzzjsszj
+Conseguir
+Candidatos
 Si
 Soporte
 SVM
@@ -9266,6 +9272,7 @@ SJZZ
 SVn
 SrS
 StructElem
+Segmento
 No
 Nearest
 Neighbors
@@ -9865,6 +9872,7 @@ VUU
 VPa
 VqR
 VBb
+Vectores
 Reglas
 Regresi
 Rm
@@ -10164,6 +10172,7 @@ RRS
 RUJbPW
 Roboto
 Regular
+Rectas
 Polinomial
 PDF
 Photoshop
@@ -10451,6 +10460,9 @@ ParentTree
 ParentTreeNextKey
 PQa
 ProductSans
+Pasos
+Perpendicular
+Punto
 Filter
 FlateDecode
 FH
