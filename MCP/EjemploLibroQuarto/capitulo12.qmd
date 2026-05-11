@@ -1,0 +1,111 @@
+---
+title: "Series Temporales"
+format: html
+---
+
+```{r}
+library(tidyverse)
+library(ggraph)
+library(forecast)
+library(tseries)
+library(TTR)
+```
+
+
+```{r}
+dataset_malaga <- read_csv("malaga_2026.csv", show_col_types = FALSE) |>
+  filter(!str_detect(fecha, "-13")) |>
+  mutate(
+    # Creamos una columna fecha tipo Date para representar el mes
+    fecha_date = ymd(paste0(fecha, "-01")) 
+    )
+
+ggplot(dataset_malaga, aes(x = fecha_date, y = p_mes)) +
+  geom_line(color = "steelblue", alpha = 0.8) +
+  theme_minimal(base_size = 13) +
+  labs(
+    x = "Año", y = "Precipitaciones (mm)"
+  ) +
+  theme(plot.title = element_text(face = "bold"))
+```
+
+```{r}
+# Existen algunos registros mensuales vacíos (NA), los interpolamos/imputamos
+temp_minima_limpia <- na.interp(dataset_malaga$p_mes)
+
+# Aquí creamos la serie temporal con R
+ts_malaga <- ts(
+  temp_minima_limpia, # Vector con mediciones
+  start     = c(1951, 1), # Cuando empieza
+  frequency = 12 # Frecuencia
+)
+
+cat("Clase del objeto: ", class(ts_malaga), "\n")
+cat("Frecuencia: ", frequency(ts_malaga), "(mensual)\n")
+cat("Inicio: ", start(ts_malaga), "\n")
+cat("Fin: ", end(ts_malaga), "\n")
+```
+
+```{r}
+# Tendencia: direccion a largo plazo
+# Estacionalidad: patron que se repite con periodo fijo
+# Ruido: variacion aleatoria no explicada por las anteriores
+decomp_stl <- stl(ts_malaga, s.window = "periodic")
+
+autoplot(decomp_stl) +
+  theme_minimal(base_size = 12) +
+  theme(plot.title = element_text(face = "bold"))
+
+# Graficos estacionales
+ggsubseriesplot(ts_malaga) +
+  labs(
+    x        = NULL,
+    y        = "Precipitaciones (mm)"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(plot.title = element_text(face = "bold"))
+```
+
+```{r}
+# Para la visualización y validación tomaremos los últimos 15 años
+ts_reciente <- window(ts_malaga, start = c(2005, 1))
+
+# Entrenamiento: hasta 2019, Test: 2020 en adelante
+ts_train <- window(ts_reciente, end = c(2019, 12))
+ts_test  <- window(ts_reciente, start = c(2020, 1))
+h        <- length(ts_test)
+
+# Predice la media histórica de toda la serie
+fc_media <- meanf(ts_train, h = h)
+# Predice el último valor conocido
+fc_naive <- naive(ts_train, h = h)
+# Predice el valor del mismo mes del año pasado
+fc_snaive <- snaive(ts_train, h = h)
+# Une el primer y último dato con una recta
+fc_drift  <- rwf(ts_train, h = h, drift = TRUE)
+
+autoplot(ts_train) +
+  autolayer(fc_media,  series = "Media",             PI = FALSE) +
+  autolayer(fc_naive,  series = "Naïve",             PI = FALSE) +
+  autolayer(fc_snaive, series = "Naïve Estacional",  PI = FALSE) +
+  autolayer(fc_drift,  series = "Deriva",            PI = FALSE) +
+  autolayer(ts_test,   series = "Real (test)",       linetype = "dashed") +
+  labs(
+    x = "Año", 
+    y = "Precipitaciones (mm)", color = "Método"
+  ) +
+  theme_minimal(base_size = 13) + theme(legend.position = "bottom")
+```
+
+```{r}
+# Holt-Winters ajusta tres parámetros: alpha, beta, gamma
+hw_fit <- HoltWinters(ts_train)
+cat("Parámetros clave:\n α (nivel) =", round(hw_fit$alpha, 3), "\n β (tend) =", 
+    round(hw_fit$beta, 3), "\n γ (est) =", round(hw_fit$gamma, 3), "\n")
+
+hw_fc <- forecast(hw_fit, h = h)
+autoplot(hw_fc) + 
+  theme_minimal(base_size = 13) + 
+  labs(title = "Pronóstico con Holt-Winters")
+```
+
