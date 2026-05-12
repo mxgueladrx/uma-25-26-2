@@ -1,0 +1,233 @@
+------------------------- EJECUTAR COMO PAU -------------------------
+
+-- 1. Tablespaces de indices
+SELECT INDEX_NAME, TABLE_NAME, TABLESPACE_NAME
+FROM USER_INDEXES;
+
+-- Creamos un script para que podamos hacer el rebuild en cualquier maquina,
+-- ya que los indices SYS_C cambian segun la maquina donde se ejecute
+SELECT 'ALTER INDEX ' || INDEX_NAME || ' REBUILD TABLESPACE TS_INDICES;'
+FROM USER_INDEXES
+WHERE TABLESPACE_NAME != 'TS_INDICES';
+
+-- IMPORTANTE: Pegar y ejecutar aqui los resultados del select anterior,
+/*
+ALTER INDEX SYS_C009209 REBUILD TABLESPACE TS_INDICES;
+ALTER INDEX SYS_C009212 REBUILD TABLESPACE TS_INDICES;
+ALTER INDEX SYS_C009215 REBUILD TABLESPACE TS_INDICES;
+ALTER INDEX SYS_C009220 REBUILD TABLESPACE TS_INDICES;
+ALTER INDEX SYS_C009225 REBUILD TABLESPACE TS_INDICES;
+ALTER INDEX SYS_C009229 REBUILD TABLESPACE TS_INDICES;
+ALTER INDEX PK_AULA REBUILD TABLESPACE TS_INDICES;
+ALTER INDEX PK_EXAMEN REBUILD TABLESPACE TS_INDICES;
+ALTER INDEX PK_VIGILA REBUILD TABLESPACE TS_INDICES;
+ALTER INDEX PK_MATRICULA REBUILD TABLESPACE TS_INDICES;
+ALTER INDEX PK_ASISTENCIA REBUILD TABLESPACE TS_INDICES;
+*/
+
+-- Vemos que se han movido correctamente
+SELECT INDEX_NAME, TABLE_NAME, TABLESPACE_NAME
+FROM USER_INDEXES;
+
+-- 2. Indices
+-- Comprobamos que ESTUDIANTE tiene calve primaria
+SELECT CONSTRAINT_NAME, CONSTRAINT_TYPE
+FROM USER_CONSTRAINTS
+WHERE TABLE_NAME = 'ESTUDIANTE';
+
+-- Creamos índices útiles para consultas
+CREATE INDEX IDX_EST_APELLIDOS_UPPER
+ON ESTUDIANTE (UPPER(APELLIDOS))
+TABLESPACE TS_INDICES;
+
+CREATE INDEX IDX_EST_TELEFONO
+ON ESTUDIANTE (TELEFONO)
+TABLESPACE TS_INDICES;
+
+CREATE INDEX IDX_EST_CORREO
+ON ESTUDIANTE (CORREOE)
+TABLESPACE TS_INDICES;
+
+-- La tabla ESTUDIANTE está en la tabla TS_PAU y los índices en TS_INDICES
+SELECT TABLE_NAME, TABLESPACE_NAME
+FROM USER_TABLES
+WHERE TABLE_NAME = 'ESTUDIANTE';
+
+SELECT INDEX_NAME, INDEX_TYPE, TABLESPACE_NAME
+FROM USER_INDEXES
+WHERE TABLE_NAME = 'ESTUDIANTE';
+
+-- Creamos el BITMAP
+CREATE BITMAP INDEX IDX_EST_CENTRO_BMP
+ON ESTUDIANTE (CODIGO_CENTRO)
+TABLESPACE TS_INDICES;
+
+-- Comprobamos que el índice de código_centro es de tipo BITMAP
+SELECT INDEX_NAME, INDEX_TYPE, TABLESPACE_NAME
+FROM USER_INDEXES
+WHERE TABLE_NAME = 'ESTUDIANTE';
+
+-- 3. Vista materializada
+CREATE MATERIALIZED VIEW VM_ESTUDIANTES
+REFRESH COMPLETE
+START WITH TRUNC(SYSDATE) + 1
+NEXT TRUNC(SYSDATE) + 1
+AS 
+SELECT * FROM V_ESTUDIANTES;
+
+-- Comprobamos que se ha creado
+SELECT * FROM USER_MVIEWS;
+
+-- 4. Sinonimos
+CREATE OR REPLACE SYNONYM S_ESTUDIANTES FOR VM_ESTUDIANTES;
+
+-- Comprobamos que se ha creado
+SELECT * FROM USER_SYNONYMS;
+
+------------------------- EJECUTAR COMO SYSTEM -------------------------
+
+-- 5. Centros
+GRANT CREATE SEQUENCE TO PAU;
+
+------------------------- EJECUTAR COMO PAU -------------------------
+
+CREATE SEQUENCE SEQ_CENTROS;
+
+-- Comprobamos que se ha creado
+SELECT * FROM USER_SEQUENCES;
+
+-- Quitamos la generación automática interna de Oracle ya que sino el trigger no funciona
+ALTER TABLE CENTRO MODIFY CODIGO DROP IDENTITY;
+
+CREATE OR REPLACE TRIGGER TR_CENTROS
+BEFORE INSERT ON CENTRO FOR EACH ROW
+BEGIN
+    IF :NEW.CODIGO IS NULL THEN
+        :NEW.CODIGO := SEQ_CENTROS.NEXTVAL;
+    END IF;
+END TR_CENTROS;
+/
+
+-- Como aún no sabemos la sede de cada centro modificamos el atributo que indica el código de sede
+-- de cada centro para permitir valores nulos
+ALTER TABLE CENTRO MODIFY CODIGO_SEDE NULL;
+
+-- Hacemos una prueba
+INSERT INTO CENTRO (NOMBRE) VALUES ('Ejemplo');
+SELECT * FROM CENTRO;
+ROLLBACK;
+
+-- Insertamos los centros
+INSERT INTO CENTRO (NOMBRE) 
+SELECT DISTINCT CENTRO FROM V_ESTUDIANTES;
+
+-- Comprobamos
+SELECT * FROM CENTRO;
+COMMIT;
+
+-- 6. Estudiante
+INSERT INTO ESTUDIANTE
+SELECT 
+    V.DNI, 
+    V.NOMBRE, 
+    V.APELLIDOS, 
+    V.TELEFONO, 
+    V.CORREO, 
+    C.CODIGO
+FROM V_ESTUDIANTES V
+JOIN CENTRO C ON V.CENTRO = C.NOMBRE;
+
+-- 7. Asignacion de sede a centro
+CREATE OR REPLACE PACKAGE PK_ASIGNA AS
+    FUNCTION F_PLAZAS(PSEDE NUMBER) RETURN NUMBER;
+    PROCEDURE PR_ASIGNA_SEDE;
+END;
+/
+
+CREATE OR REPLACE PACKAGE BODY PK_ASIGNA AS
+    -- Devuelve el numero de plazas de una sede
+    FUNCTION F_PLAZAS(PSEDE NUMBER) RETURN NUMBER AS
+        V_TOTAL NUMBER;
+        V_ALUMNOS NUMBER;
+    BEGIN
+        SELECT NVL(SUM(CAPACIDAD_EXAMEN), 0) INTO V_TOTAL 
+        FROM AULA 
+        WHERE CODIGO_SEDE = PSEDE;
+        
+        SELECT COUNT(*) INTO V_ALUMNOS 
+        FROM ESTUDIANTE 
+        JOIN CENTRO ON ESTUDIANTE.CODIGO_CENTRO = CENTRO.CODIGO 
+        WHERE CENTRO.CODIGO_SEDE = PSEDE;
+        
+        RETURN (V_TOTAL - V_ALUMNOS);
+    END;
+    -- Asigna sedes a centros
+    PROCEDURE PR_ASIGNA_SEDE AS
+        CURSOR C_CENTROS IS 
+            SELECT C.CODIGO, C.NOMBRE, COUNT(E.DNI) AS TOTAL_ALUMNOS
+            FROM CENTRO C
+            LEFT JOIN ESTUDIANTE E ON C.CODIGO = E.CODIGO_CENTRO
+            WHERE C.CODIGO_SEDE IS NULL
+            GROUP BY C.CODIGO, C.NOMBRE
+            ORDER BY TOTAL_ALUMNOS DESC;
+        
+        V_ID_SEDE_GANADORA NUMBER;
+    BEGIN
+        -- Asignar centros que son sedes
+        UPDATE CENTRO C
+        SET C.CODIGO_SEDE = (
+            SELECT S.CODIGO 
+            FROM SEDE S 
+            WHERE UPPER(S.TIPO) = 'INSTITUTO' 
+              AND (UPPER(C.NOMBRE) LIKE UPPER(S.NOMBRE) || '%' 
+                   OR UPPER(S.NOMBRE) LIKE UPPER(C.NOMBRE) || '%')
+              AND ROWNUM = 1 -- Evita errores si hay varias sedes parecidas
+        )
+        WHERE EXISTS (
+            SELECT 1 
+            FROM SEDE S 
+            WHERE UPPER(S.TIPO) = 'INSTITUTO'
+              AND (UPPER(C.NOMBRE) LIKE UPPER(S.NOMBRE) || '%' 
+                   OR UPPER(S.NOMBRE) LIKE UPPER(C.NOMBRE) || '%')
+        );
+        
+        FOR R IN C_CENTROS LOOP
+            -- Buscamos la sede que más plazas libres tenga actualmente 
+            BEGIN
+                SELECT CODIGO INTO V_ID_SEDE_GANADORA
+                FROM (
+                    SELECT CODIGO 
+                    FROM SEDE 
+                    ORDER BY PK_ASIGNA.F_PLAZAS(CODIGO) DESC
+                ) WHERE ROWNUM = 1;
+
+                -- Verificamos si caben los estudiantes del centro
+                IF PK_ASIGNA.F_PLAZAS(V_ID_SEDE_GANADORA) >= R.TOTAL_ALUMNOS THEN
+                    UPDATE CENTRO SET CODIGO_SEDE = V_ID_SEDE_GANADORA 
+                    WHERE CODIGO = R.CODIGO;
+                ELSE
+                    -- Si ni en la sede más vacía caben, lanzamos excepción
+                    RAISE_APPLICATION_ERROR(-20001, 'Imposible asignar sede al centro: ' || R.NOMBRE);
+                END IF;
+            EXCEPTION
+                WHEN NO_DATA_FOUND THEN
+                    NULL; -- No hay sedes disponibles
+            END;
+        END LOOP;
+        
+        COMMIT;
+    END;
+    
+END PK_ASIGNA;
+/
+
+-- Comprobamos que funciona F_PLAZAS
+SELECT 
+    NOMBRE AS NOMBRE_SEDE, 
+    PK_ASIGNA.F_PLAZAS(CODIGO) AS PLAZAS_RESTANTES 
+FROM SEDE 
+WHERE CODIGO = 1;
+
+-- Asignamos centros a sedes
+UPDATE CENTRO SET CODIGO_SEDE = NULL;
+EXEC PK_ASIGNA.PR_ASIGNA_SEDE;
