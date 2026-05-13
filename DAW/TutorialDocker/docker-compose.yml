@@ -1,0 +1,37 @@
+services:
+  backend:
+    build: ./backend
+    container_name: proyectos-software
+    ports:
+        - "8080:8080"
+    environment:
+        - SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/proyectos
+        - SPRING_DATASOURCE_USERNAME: desarrollador
+        - SPRING_DATASOURCE_PASSWORD: dlpd
+        - SPRING_DATASOURCE_DRIVERCLASSNAME: com.mysql.cj.jdbc.Driver
+        - SPRING_JPA_DATABASE-PLATFORM: org.hibernate.dialect.MySQLDialect
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: always
+  mysql:
+    image: "mysql:8.4.0"
+    container_name: mysql
+    environment:
+        - MYSQL_ROOT_PASSWORD=rootpassword
+        - MYSQL_DATABASE=proyecto
+        - MYSQL_USER=desarrollador
+        - MYSQL_PASSWORD=dlpd
+    ports:
+        - "3306:3306"
+    volumes:
+        - "datos:/var/lib/mysql"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+    restart: always
+
+volumes:
+    datos:
