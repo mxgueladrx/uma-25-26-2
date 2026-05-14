@@ -1,0 +1,47 @@
+---
+title: "Predicción de demanda eléctrica en Victoria (Australia)"
+format: html
+---
+
+```{r}
+library(tidyverse)
+library(ggraph)
+library(forecast)
+library(tseries)
+library(TTR)
+library(fpp3)
+
+vic <- vic_elec %>%
+
+  as_tibble() %>%
+
+  mutate(Date = as_date(Time)) %>%
+
+  group_by(Date) %>%
+
+  summarise(Demand = sum(Demand))
+```
+
+```{r}
+vic_ts <- ts(
+  vic$Demand,
+  frequency = 7
+)
+
+autoplot(vic_ts) +
+  theme_minimal(base_size = 12) +
+  theme(plot.title = element_text(face = "bold")) +
+  labs(
+    x = "Time",
+    y = "Demanda (MW)"
+  )
+```
+
+```{r}
+decomp_stl <- stl(vic_ts, s.window = "periodic")
+
+autoplot(decomp_stl) +
+  theme_minimal(base_size = 12) +
+  theme(plot.title = element_text(face = "bold"))
+```
+

@@ -109,3 +109,9 @@ autoplot(hw_fc) +
   labs(title = "Pronóstico con Holt-Winters")
 ```
 
+```{r}
+# auto.arima se encarga de la diferenciación (d) y la selección de (p,q)
+fit_sarima <- auto.arima(ts_train, seasonal = TRUE, stepwise = FALSE)
+summary(fit_sarima)
+```
+
