@@ -1,0 +1,45 @@
+# Bloque 1: Análisis de Componentes Principales (PCA)
+
+## Desarrollo del bloque
+
+Una vez reducida la dimensionalidad, pasaremos a modelar el ecosistema de consumo como una red
+compleja bidimensional.
+
+### Carga de librerías
+
+```{r}
+#| message: false
+library(tidygraph)
+library(igraph)
+library(ggraph)
+
+set.seed(42)
+```
+
+### Grafo de copartición
+
+```{r}
+coparticion <- df |>
+  select(UserId, ProductId)
+
+parejas_unicas <- coparticion |>
+  inner_join(coparticion, by = "UserId", relationship = "many-to-many") |>
+  filter(ProductId.x < ProductId.y)
+
+```
+
+```{r}
+N_usuarios <- 10
+
+enlaces <- parejas_unicas |>
+  count(ProductId.x, ProductId.y, name = "n") |>
+  rename(from = ProductId.x, to = ProductId.y) |>
+  filter(n >= N_usuarios)
+```
+
+```{r}
+grafo <- as_tbl_graph(enlaces, directed = FALSE)
+```
+
+### Métricas de centralidad
+

@@ -80,6 +80,9 @@ lexicon_esp <- tibble(
             -3, -3, -4, -3, -2,
             -1, -2, -3)
 )
+
+ 
+
 ```
 
 
@@ -88,13 +91,21 @@ lexicon_esp <- tibble(
 
 ```{r}
 #inserta tu código 
+
+library(tidyverse)
 num_positivas <- lexicon_esp |>
-  filter(valor >= 0) |>
-  summarise(num_positivas = n())
+  filter(valor>=0)|>
+  summarise(num_positivas=n())
+
+num_positivas
 
 num_negativas <- lexicon_esp |>
-  filter(valor < 0) |>
-  summarise(num_positivas = n())
+  filter(valor<0)|>
+  summarise(num_negativas=n())
+
+num_negativas
+
+
 ```
 
 ::: callout-note
@@ -104,12 +115,18 @@ num_negativas <- lexicon_esp |>
 
 ```{r}
 #inserta tu código 
+
+lexicon_esp
+
+
 mi_lexicon_esp <- tibble(
-  word = c("progreso", "injusticia"),
+  word  = c("progreso","injusticia"),
   valor = c(3, -4)
 )
 
-lex <- rbind(lexicon_esp, mi_lexicon_esp)
+
+lex <- rbind(lexicon_esp,mi_lexicon_esp)
+
 ```
 :::
 
@@ -118,6 +135,7 @@ lex <- rbind(lexicon_esp, mi_lexicon_esp)
 
 ```{r}
 #| label: textos
+
 
 textos <- tibble(
   id    = 1:7,
@@ -138,6 +156,10 @@ textos |> select(id, bando, texto)
 
 ```
 
+
+
+
+
 ## Paso 4: Tokenización → la "palabra suelta"
 
 El primer paso del NLP es romper el texto en palabras individuales (**tokens**). Usa unnest_tokens y guarda resultado en variable `tokens`:
@@ -145,8 +167,10 @@ El primer paso del NLP es romper el texto en palabras individuales (**tokens**).
 ```{r}
 #| label: tokenizacion
 #inserta tu código 
-tokens <- textos |>
-  unnest_tokens(word, texto)
+
+mi_tokens <- textos |>
+  unnest_tokens(word,texto)
+
 
 ```
 
@@ -154,11 +178,14 @@ tokens <- textos |>
 
 ```{r}
 #inserta tu código 
-tokens |>
-  group_by(id) |>
-  summarise(num_palabras = n())
+mi_tokens |>
+  group_by(id)|>
+  summarise(numero_palabras=n())
 
 ```
+
+
+
 
 > Preprocesamiento Avanzado (Stemming y Stopwords)
 
@@ -170,12 +197,13 @@ En análisis reales, no filtramos palabras a mano. Usamos técnicas automáticas
 ```{r}
 #| label: stemming
 
-library(SnowballC)
 # Usamos la lista de stopwords de tidytext para español
 data("stop_words")
+library(SnowballC)
+
 stop_words_es <- get_stopwords(language = "es")
 
-tokens_limpios <- tokens |>
+tokens_limpios <- mi_tokens |>
   anti_join(stop_words_es, by = c("word" = "word")) |>
   mutate(stem = wordStem(word, language = "spanish"))
 
@@ -206,13 +234,16 @@ Guarda en una variable llamada `resultado` el sentimiento de cada texto.
 ```{r}
 #inserta tu código 
 
+
 lexicon_esp
 
-resultado <- tokens |> 
-  inner_join(lexicon_esp, by = "word") |>
-  group_by(word) |>
-  summarise(puntuacion=sum(valor))
-  
+ 
+
+resultado <- mi_tokens |>
+  inner_join(lexicon_esp, by = "word")|>
+  group_by(id)|>
+  summarise(sentimiento=sum(valor))
+resultado
 
 ```
 
@@ -221,11 +252,13 @@ Calcula el sentimiento de cada bando. Guarda en una variable llamada `resultado_
 ```{r}
 #inserta tu código 
 
-resultado_bando <- tokens |> 
-  inner_join(lexicon_esp, by = "word") |>
-  group_by(bando) |>
+
+resultado_bando <- mi_tokens |>
+  inner_join(lexicon_esp, by = "word")|>
+  group_by(bando)|>
   summarise(sentimiento=sum(valor))
 
+resultado_bando
 ```
 
 ### Visualización del sentimiento
@@ -240,10 +273,12 @@ Con `resultado` queremos:
 #inserta tu código 
 
 # visualizo cada frase
+
 resultado |>
-  ggplot(aes(x = id, y = sentimiento, fill = sentimiento > 0)) +
-  geom_col() +
-  geom_text(aes(label = sentimiento))
+  ggplot(aes(x=id, y=sentimiento, fill=sentimiento>0))+
+  geom_col()+
+  geom_text(aes(label=sentimiento))
+
 
 ```
 
@@ -265,11 +300,15 @@ Ahora construimos una **red de palabras** donde dos palabras están conectadas s
 ```{r}
 #inserta tu código 
 
-word_cors <- tokens |>
-  group_by(word) |>
-  filter(n() >= 5) |>
-  pairwise_cor(word, document, sort = TRUE)
-``` 
+
+word_cors <- mi_tokens |>
+  filter(nchar(word)>3)|>
+  anti_join(stop_words_es, by = c("word" = "word")) |>
+  pairwise_cor(word,id, sort=TRUE)
+
+ 
+
+```
 
 Creamos la red semantica entre las palabras (mira material de book).
 
@@ -279,11 +318,29 @@ Creamos la red semantica entre las palabras (mira material de book).
 
 -   añade la comunidad usando el algoritmo de louvain
 
--   dibuja el grado
+-   dibuja el grafo
 
 ```{r}
  
+red <- word_cors |>
+      filter(correlation>0)|>
+      as_tbl_graph(directed = FALSE)|>
+      mutate(comunidad=group_louvain())
 
+red
+
+ggraph(red, layout = "fr") +
+  # Burbujas de comunidades discursivas
+  geom_mark_hull(aes(x = x, y = y, fill = comunidad, group = comunidad), 
+                 alpha = 0.1, color = NA, expand = unit(3, "mm")) +
+  geom_edge_link(aes(edge_alpha = correlation), edge_colour = "gray80") +
+  geom_node_point(aes(color = comunidad), size = 5) +
+  geom_node_text(aes(label = name), repel = TRUE, size = 3.5, fontface="bold") +
+  theme_graph() +
+  theme(legend.position = "none") +
+  labs(title = "La Anatomía del Debate: Red Semántica de la Ley de Vivienda",
+       subtitle = "Nodos: Palabras | Envolventes: Comunidades de significado")
+```
 ```
 
 ------------------------------------------------------------------------
@@ -301,12 +358,14 @@ El ecosistema `quanteda` (Exploración de Corpus)
 ```{r}
 #| label: quanteda-corpus
 
+library(quanteda)
 # Crear objeto corpus
 mi_corpus <- corpus(textos, text_field = "texto")
 
 # Buscar contexto de "ley"
 kwic_ley <- kwic(tokens(mi_corpus), pattern = "ley")
 head(kwic_ley)
+
 ```
 
 * (N-gramas)
@@ -316,12 +375,15 @@ head(kwic_ley)
 ```{r}
 #| label: colocaciones
 
+library(quanteda.textstats)
+
 mis_tokens <- tokens(mi_corpus, remove_punct = TRUE) |> 
   tokens_remove(stop_words_es$word)
 
 # IMPORTANTE: Con pocos textos, bajamos min_count a 1 para ver resultados
 colocaciones <- textstat_collocations(mis_tokens, size = 2, min_count = 1)
 head(colocaciones)
+
 ```
 
 ::: {.callout-note}
@@ -338,6 +400,9 @@ El **Structural Topic Modeling** (STM) permite que los tópicos dependan de meta
 #| label: stm-prepa
 #| message: false
 
+
+library(stm)
+ 
 # Preparar DFM (Document-Feature Matrix)
 mi_dfm <- dfm(mis_tokens)
 
@@ -347,7 +412,7 @@ out <- convert(mi_dfm, to = "stm")
 # Entrenar modelo con 2 tópicos
 modelo_stm <- stm(documents = out$documents, 
                   vocab = out$vocab, 
-                  K = 2, 
+                  K = 3, 
                   verbose = FALSE)
 
 # Ver palabras clave por tópico
@@ -423,17 +488,20 @@ Reddit es más abierto y no requiere API Keys para búsquedas básicas:
 El flujo de extracción de los hilos de un temas sería:
 
 ```{r}
+
 library(RedditExtractoR)
+
 # 1. Buscar hilos sobre un tema (usamos palabras genéricas para asegurar resultados)
+
 hilos <- find_thread_urls(keywords = "Guerra Iran", sort_by = "new")
 
 # 2. Filtrar hilos que tengan al menos un comentario
+
 hilos_con_comentarios <- hilos |> filter(comments > 0)
 
 if(nrow(hilos_con_comentarios) > 0) {
   # Obtener el contenido (comentarios) de los hilos que sí tienen actividad
   contenido <- get_thread_content(hilos_con_comentarios$url[1:min(3, nrow(hilos_con_comentarios))])
-  
   # 3. Preparar para el análisis
   if(!is.null(contenido$comments) && nrow(contenido$comments) > 0) {
     textos_reddit <- contenido$comments |>
@@ -453,8 +521,7 @@ if(nrow(hilos_con_comentarios) > 0) {
 Una vez tienes los datos de cualquier fuente, el flujo es siempre el mismo:
 
 
-### Ejercicio Adicional (os coloco una tarea en CV con un "deadline"):
-
+### Ejercicio  
 
 Extraer datos y aplicar: 
 
@@ -467,10 +534,7 @@ Extraer datos y aplicar:
    - Tópicos (`stm` o `quanteda`).
    
    
-   
->> Cada alumno podrá llevarse al control 2 este ejercicio completo resuelto en .qmd incluido el ejercicio adicional
-
-
+ 
 
 # Anexo: Análisis de Emociones Complejo (NRC)
 

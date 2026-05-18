@@ -65,6 +65,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
+<link href="../docs/bloque2.html" rel="next">
 <link href="../index.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -185,13 +186,37 @@ window.Quarto = {
  <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Bloque 1: Análisis de Componentes Principales (PCA)</span></span></a>
   </div>
 </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../docs/bloque2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">bloque2.html</span></span></a>
+  </div>
+</li>
     </ul>
     </div>
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#desarrollo-del-bloque" id="toc-desarrollo-del-bloque" class="nav-link active" data-scroll-target="#desarrollo-del-bloque"><span class="header-section-number">1.1</span> Desarrollo del bloque</a>
+  <ul class="collapse">
+  <li><a href="#carga-de-librerías" id="toc-carga-de-librerías" class="nav-link" data-scroll-target="#carga-de-librerías"><span class="header-section-number">1.1.1</span> Carga de librerías</a></li>
+  <li><a href="#análisis-exploratorio-de-datos" id="toc-análisis-exploratorio-de-datos" class="nav-link" data-scroll-target="#análisis-exploratorio-de-datos"><span class="header-section-number">1.1.2</span> Análisis exploratorio de datos</a></li>
+  <li><a href="#boxplot" id="toc-boxplot" class="nav-link" data-scroll-target="#boxplot"><span class="header-section-number">1.1.3</span> BoxPlot</a></li>
+  <li><a href="#scree-plot" id="toc-scree-plot" class="nav-link" data-scroll-target="#scree-plot"><span class="header-section-number">1.1.4</span> Scree Plot</a></li>
+  <li><a href="#biplot" id="toc-biplot" class="nav-link" data-scroll-target="#biplot"><span class="header-section-number">1.1.5</span> Biplot</a></li>
+  </ul></li>
+  <li><a href="#interacción-con-ia" id="toc-interacción-con-ia" class="nav-link" data-scroll-target="#interacción-con-ia"><span class="header-section-number">1.2</span> Interacción con IA</a>
+  <ul class="collapse">
+  <li><a href="#consulta-1" id="toc-consulta-1" class="nav-link" data-scroll-target="#consulta-1"><span class="header-section-number">1.2.1</span> Consulta 1</a></li>
+  <li><a href="#consulta-2" id="toc-consulta-2" class="nav-link" data-scroll-target="#consulta-2"><span class="header-section-number">1.2.2</span> Consulta 2</a></li>
+  </ul></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -215,6 +240,10 @@ window.Quarto = {
 </header>
 
 
+<section id="desarrollo-del-bloque" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="desarrollo-del-bloque"><span class="header-section-number">1.1</span> Desarrollo del bloque</h2>
+<section id="carga-de-librerías" class="level3" data-number="1.1.1">
+<h3 data-number="1.1.1" class="anchored" data-anchor-id="carga-de-librerías"><span class="header-section-number">1.1.1</span> Carga de librerías</h3>
 <p>En esta primera fase, el objetivo es extraer las dimensiones latentes que definen el éxito de un producto.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
@@ -225,6 +254,9 @@ window.Quarto = {
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">fread</span>(<span class="st">"../data/Reviews.csv"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+</section>
+<section id="análisis-exploratorio-de-datos" class="level3" data-number="1.1.2">
+<h3 data-number="1.1.2" class="anchored" data-anchor-id="análisis-exploratorio-de-datos"><span class="header-section-number">1.1.2</span> Análisis exploratorio de datos</h3>
 <p>Una vez cargados los datos en el entorno de trabajo, procedemos a realizar una inspección de los 10 atributos que componen el dataset. Según la documentación de <a href="https://www.kaggle.com/datasets/arhamrumi/amazon-product-reviews">Kaggle</a>, estas variables recogen la siguiente información:</p>
 <ol type="1">
 <li><strong>Id</strong>: Atributo numérico. Identificador único de la reseña.</li>
@@ -238,7 +270,7 @@ window.Quarto = {
 <li><strong>Summary</strong>: Texto. Resumen de la reseña.</li>
 <li><strong>Text</strong>: Texto. Contenido completo de la reseña.</li>
 </ol>
-<p>Podemos darnos cuenta que no tenemos ningún atributo que sea el precio, por lo que obtener alguna métrica del mismo no será posible.</p>
+<p>Podemos darnos cuenta que no tenemos ningún atributo relativo al precio, por lo que obtener alguna métrica del mismo no será posible.</p>
 <p>Primero vamos a comprobar si tenemos algún valor faltante en el dataset:</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">is.na</span>(df))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -274,7 +306,10 @@ window.Quarto = {
 6            4.8           173                    379</code></pre>
 </div>
 </div>
-<p>Tras generar las métricas, nos damos cuenta de un problema, y es la escala en la que están los datos. Por ejemplo, el valor de <strong>ratingPromedio</strong> va de 1 a 5, mientras que el <strong>longitudResenaPromedio</strong> toma valores de 300 a 400. Como PCA es sensible a estos cambios bruscos de escala, lo suyo sería hacer una normalización a los datos. Veamos gráficamente la dispersión de los datos:</p>
+<p>Tras generar las métricas, nos damos cuenta de un problema, y es la escala en la que están los datos. Por ejemplo, el valor de <code>ratingPromedio</code> va de 1 a 5, mientras que el <code>longitudResenaPromedio</code> toma valores significativamente mayores. Como PCA es sensible a estos cambios bruscos de escala, lo suyo sería hacer una normalización a los datos. Veamos gráficamente la dispersión de los datos:</p>
+</section>
+<section id="boxplot" class="level3" data-number="1.1.3">
+<h3 data-number="1.1.3" class="anchored" data-anchor-id="boxplot"><span class="header-section-number">1.1.3</span> BoxPlot</h3>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">boxplot</span>(metricas, </span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">main =</span> <span class="st">"Dispersión de los atributos"</span></span>
@@ -287,7 +322,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<p>Visualmente podemos ver que el atributo de <strong>longitudResenaPromedio</strong> es mucho más disperso a las demás. Como comentamos antes, estos atributos no están en la misma escala, asi que ahora vamos a normalizarlos y veamos un nuevo boxplot:</p>
+<p>Visualmente podemos ver que el atributo de <code>longitudResenaPromedio</code> es mucho más disperso a los demás. Como comentamos antes, estos atributos no están en la misma escala, asi que ahora vamos a normalizarlos y veamos un nuevo boxplot:</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>metricas <span class="ot">&lt;-</span> <span class="fu">scale</span>(metricas)</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -302,6 +337,9 @@ window.Quarto = {
 </div>
 </div>
 </div>
+</section>
+<section id="scree-plot" class="level3" data-number="1.1.4">
+<h3 data-number="1.1.4" class="anchored" data-anchor-id="scree-plot"><span class="header-section-number">1.1.4</span> Scree Plot</h3>
 <p>Aunque ahora tampoco veamos mucha diferencia, el eje <span class="math inline">\(Y\)</span> se mueve ahora en un rango de hasta 50, cuando antes era hasta 15000. Aunque sigan existiendo muchos outliers, las métricas están ahora en un rango mucho más manejable para PCA. Apliquemos PCA:</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>pca <span class="ot">&lt;-</span> <span class="fu">prcomp</span>(metricas)</span>
@@ -340,12 +378,11 @@ ratingPromedio         -0.6164844 0.49923653 -0.6088594
 numeroResenas           0.3200732 0.86540884  0.3855135
 longitudResenaPromedio  0.7193748 0.04278349 -0.6933033</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Mostramos solo las dos primeras PC, que son las que nos interesa</span></span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">fviz_pca_var</span>(pca, </span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>             <span class="at">col.var =</span> <span class="st">"contrib"</span>,</span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>             <span class="at">gradient.cols =</span> <span class="fu">c</span>(<span class="st">"gray20"</span>, <span class="st">"green"</span>, <span class="st">"blue"</span>),</span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>             <span class="at">repel =</span> <span class="cn">TRUE</span>, </span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>             <span class="at">title =</span> <span class="st">"Variables y sus contribuciones"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">fviz_pca_var</span>(pca, </span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>             <span class="at">col.var =</span> <span class="st">"contrib"</span>,</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>             <span class="at">gradient.cols =</span> <span class="fu">c</span>(<span class="st">"gray20"</span>, <span class="st">"green"</span>, <span class="st">"blue"</span>),</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>             <span class="at">repel =</span> <span class="cn">TRUE</span>, </span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>             <span class="at">title =</span> <span class="st">"Variables y sus contribuciones"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -355,6 +392,10 @@ longitudResenaPromedio  0.7193748 0.04278349 -0.6933033</code></pre>
 </div>
 </div>
 <p>Analicemos cada PC: - <strong>PC1</strong>: Existe una correlación inversa entre la longitud de la reseña y la valoración del producto. Productos con reseñas más largas tienden a tener una valoración mucho menor, ya que los clientes detallan las quejas y críticas. Esta componente muestra la relación entre cantidad y calidad. - <strong>PC2</strong>: Existe una correlación directa entre el número de reseñas de un producto y su valoración. Productos con mayor número de reseñas, mayor valoración llegan a tener. Esta componente muestra la relación que a mayor consumo, mayor satisfacción. - <strong>PC3</strong>: Existe una correlación directa entre la valoración del producto y la longitud de su reseña, contrastadas con el número de ventas. Productos con peores valoraciones tienen reseñas más cortas pero con muchas ventas. Esta componente muestra la relación que hay en artículos malos que se compran mucho pero hacen que el cliente no escriba una reseña elaborada.</p>
+</section>
+<section id="biplot" class="level3" data-number="1.1.5">
+<h3 data-number="1.1.5" class="anchored" data-anchor-id="biplot"><span class="header-section-number">1.1.5</span> Biplot</h3>
+<p>Finalmente, para validar la distribución espacial de las muestras y contrastarlo con las nuevas componentes, recurrimos a la proyección del Biplot:</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">fviz_pca_biplot</span>(pca,</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>                <span class="at">geom.ind =</span> <span class="st">"point"</span>,</span>
@@ -373,9 +414,59 @@ longitudResenaPromedio  0.7193748 0.04278349 -0.6933033</code></pre>
 </div>
 </div>
 </div>
-<p>En el Biplot enseñaremos la distribución de los productos en este nuevo espacio dimensional. Se observa cómo los productos se dispersan siguiendo las direcciones de las flechas: los productos situados en el cuadrante de longitudResenaPromedio coinciden con aquellos de menor ratingPromedio, confirmando la tendencia de quejas detalladas identificada en el PC1.</p>
+<p>En el Biplot enseñaremos la distribución de los productos en este nuevo espacio dimensional. Se observa cómo los productos se dispersan siguiendo las direcciones de las flechas: los productos situados en el cuadrante de <code>longitudResenaPromedio</code> coinciden con aquellos de menor <code>ratingPromedio</code>, confirmando la tendencia de quejas detalladas identificada en el PC1.</p>
+</section>
+</section>
+<section id="interacción-con-ia" class="level2" data-number="1.2">
+<h2 data-number="1.2" class="anchored" data-anchor-id="interacción-con-ia"><span class="header-section-number">1.2</span> Interacción con IA</h2>
+<p>A continuación, se presenta un registro de los hitos más relevantes de la interacción con la IA, omitiendo las consultas redundantes y priorizando aquellos puntos donde la intervención humana fue crítica para el diseño del proyecto:</p>
+<section id="consulta-1" class="level3" data-number="1.2.1">
+<h3 data-number="1.2.1" class="anchored" data-anchor-id="consulta-1"><span class="header-section-number">1.2.1</span> Consulta 1</h3>
+<ol type="1">
+<li><strong>Prompt</strong>:</li>
+</ol>
+<p><em>“El último apartado del 2.1 menciona: ‘Justificad la retención de varianza mediante el criterio de Kaiser o el gráfico de sedimentación…’. ¿Qué es el criterio de Kaiser y el gráfico de sedimentación? No lo he dado en teoría y se debe de buscar información y hacerlo.”</em></p>
+<ol start="2" type="1">
+<li><strong>Respuesta errónea o ineficiente de la IA</strong>:</li>
+</ol>
+<p><em>Si ves que del PC1 al PC2 hay una caída enorme, pero del PC2 al PC3 la línea se vuelve casi plana (como si fuera “sedimento” o escombros en la base de una montaña)</em></p>
+<p><em>Bajo esta lógica, ¿cuál crees que es el valor mínimo de varianza (autovalor) que debería tener un componente para que merezca la pena conservarlo?</em></p>
+<p><em>Antes de buscar la fórmula matemática, justifícame: ¿Por qué crees que es preferible perder un poco de información (varianza) a cambio de trabajar con solo 2 ejes en lugar de los 4 originales?.</em></p>
+<ol start="3" type="1">
+<li><strong>Crítica</strong>:</li>
+</ol>
+<p>La IA fue muy poco eficiente para el ritmo que requería la práctica. En lugar de darme la definición técnica directa o decirme qué comandos escribir en R para resolver el apartado (aunque no se lo pedí explícitamente), empezó a darme explicaciones usando metáforas sobre “piedras y escombros que se caen en la base de una montaña” y a devolverme preguntas para que yo adivinase la respuesta.</p>
+<p>Aunque las metáforas pueden ayudar a entender la idea de forma superficial, este tipo de explicaciones resulta ineficiente para el desarrollo de la entrega.</p>
+<p>Además, a pesar de haberle indicado explícitamente que estos temas no se habían profundizado en clase y que necesitaba buscar información clara para poder realizar el bloque, la IA complicó la respuesta haciéndola mucho más rebuscada de lo que realmente era.</p>
+<ol start="4" type="1">
+<li><strong>Solución</strong>:</li>
+</ol>
+<p>Tuve que frenar a la IA y exigirle la respuesta directa con un segundo prompt (consulta 2). No obstante, debido a que su planteamiento inicial fue confuso y poco útil para comprender directamente el criterio de Kaiser, decidí contrastar la información investigando de forma independiente en fuentes externas de internet para asegurar la correcta asimilación del concepto.</p>
+</section>
+<section id="consulta-2" class="level3" data-number="1.2.2">
+<h3 data-number="1.2.2" class="anchored" data-anchor-id="consulta-2"><span class="header-section-number">1.2.2</span> Consulta 2</h3>
+<ol type="1">
+<li><strong>Prompt</strong>:</li>
+</ol>
+<p><em>“No te he preguntado eso, te he dicho que me expliques que es el criterio de Kaiser y qué es un gráfico de sedimentación”</em></p>
+<ol start="2" type="1">
+<li><strong>Respuesta errónea o ineficiente de la IA</strong>:</li>
+</ol>
+<p>Para plantearme un caso imaginario, la IA redactó el siguiente ejemplo:</p>
+<p><em>“Si tu gráfico de sedimentación muestra un ‘codo’ muy claro en el segundo componente, pero el tercer componente tiene un valor de varianza de 1.1, ¿a qué criterio le darías más peso…?”</em></p>
+<ol start="3" type="1">
+<li><strong>Crítica</strong>:</li>
+</ol>
+<p>Este escenario que se inventó la IA es una imposibilidad matemática En nuestro análisis tenemos exactamente 3 variables normalizadas, por lo que toda la información junta (la varianza total) tiene que sumar exactamente 3. Además, por reglas matemáticas, los componentes van siempre ordenados obligatoriamente de mayor a menor (<span class="math inline">\(PC1 \ge PC2 \ge PC3\)</span>).</p>
+<p>Si el componente 2 marca el “codo” (lo que significa que la información ya ha caído al suelo), es imposible que el componente 3 vuelva a subir y valga 1.1. Si el tercero valiera 1.1, los dos primeros tendrían que valer al menos 1.1 cada uno, y la suma de los tres superaría el límite total de 3 de nuestro sistema. La IA inventó una gráfica que subía y bajaba saltándose las reglas básicas del álgebra.</p>
+<ol start="4" type="1">
+<li><strong>Solución</strong>:</li>
+</ol>
+<p>Detecté este fallo lógico de la IA, ignoré su caso inventado y preferí guiarme por los resultados reales que me devolvía R. Al ejecutar el comando <code>pca$sdev^2</code>, comprobé que mis números iban en orden decreciente perfecto (<span class="math inline">\(35.1\% \rightarrow 33.5\% \rightarrow 31.4\%\)</span>) y que el tercer valor caía por debajo de 1. Así demostré que en los datos reales de nuestro proyecto el método del codo y el de Kaiser se complementan perfectamente sin dar ningún error.</p>
 
 
+</section>
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -785,6 +876,9 @@ longitudResenaPromedio  0.7193748 0.04278349 -0.6933033</code></pre>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
+      <a href="../docs/bloque2.html" class="pagination-link" aria-label="bloque2.html">
+        <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">bloque2.html</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
   </div>
 </nav>
 </div> <!-- /content -->
