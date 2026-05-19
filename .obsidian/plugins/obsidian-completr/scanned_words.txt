@@ -1184,6 +1184,12 @@ considerar
 cleo
 conectando
 cleos
+conservando
+combinaciones
+coordenadas
+centra
+calculan
+coordenada
 en
 estar
 expl
@@ -1612,6 +1618,10 @@ evita
 estable
 encaja
 esf
+ejes
+extracci
+eje
+explicada
 la
 los
 limpieza
@@ -1919,6 +1929,7 @@ learning
 local
 linealmente
 lejano
+longitud
 que
 qs
 qxi
@@ -2505,6 +2516,7 @@ out
 optimizaci
 optimizar
 optimiza
+ortogonales
 aprenden
 algoritmos
 aprendan
@@ -2913,6 +2925,13 @@ asume
 anillo
 agrupa
 adido
+altas
+apuntan
+autovalores
+autovectores
+acumulada
+apenas
+aumenta
 sin
 ser
 selecci
@@ -3313,6 +3332,9 @@ suelen
 separables
 significativa
 separan
+siguientes
+subespacio
+sta
 programados
 partir
 puedan
@@ -3735,6 +3757,10 @@ partes
 promedian
 principales
 preprocesamiento
+proyectan
+proyecciones
+proyecci
+proyectada
 Machine
 ML
 Mining
@@ -4091,6 +4117,7 @@ Matriz
 Mide
 Mover
 Minimiza
+Maldici
 Learning
 Log
 Lineal
@@ -4418,6 +4445,8 @@ Link
 LDKql
 LyC
 Lagrange
+Lleva
+Las
 de
 datos
 decisiones
@@ -4845,6 +4874,10 @@ deas
 dependiendo
 deja
 densidad
+dimensiones
+dispersos
+direcciones
+determinan
 modelos
 menes
 mining
@@ -5193,6 +5226,10 @@ mezcla
 mejora
 maximiza
 meloides
+minimiza
+maximizando
+minimizando
+mayores
 realizar
 real
 respuesta
@@ -5538,6 +5575,9 @@ rondas
 reinicio
 reubicar
 radio
+recoge
+restantes
+resuma
 Data
 Debe
 Discovery
@@ -6483,6 +6523,8 @@ vector
 validation
 vecindario
 vecindad
+vuelven
+visualizar
 no
 nominales
 nea
@@ -7705,6 +7747,7 @@ uaL
 uTv
 underfitting
 umbrales
+unitaria
 Objetos
 OET
 Op
@@ -8335,6 +8378,7 @@ Est
 Estimar
 Estrategia
 Expandir
+Escalar
 Juan
 JV
 JFIF
@@ -9226,6 +9270,8 @@ Classification
 Curva
 Clustering
 Clusters
+Construye
+Calcular
 Si
 Soporte
 SVM
@@ -9561,6 +9607,7 @@ Soluci
 Silhouette
 Sensible
 Ser
+Siendo
 No
 Nearest
 Neighbors
@@ -10165,6 +10212,7 @@ VPa
 VqR
 VBb
 Vectores
+Varianza
 Reglas
 Regresi
 Rm
@@ -10767,6 +10815,7 @@ Punto
 Pointy
 Present
 Parar
+Porcentaje
 Filter
 FlateDecode
 FH

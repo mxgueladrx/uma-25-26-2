@@ -1,6 +1,5 @@
 **Aprendizaje no supervisado**: datos no etiquetados
 ## Clustering
-
 Divide el conjunto de datos en clusters con características similares.
 
 **K-means**: optimiza la media del cuadrado de las distancias euclídeas entre cada ejemplo y el centroide que se le asigna. La función de coste sería $J=\frac{1}{m}\sum^{m}_{i=1}||x_i-\mu_{c_i}||^2$.
@@ -55,3 +54,48 @@ Los clusters se forman conectando núcleos cercanos.
 ![[Pasted image 20260518213410.png]]
 
 ## Análisis de componentes principales
+**Maldición de dimensionalidad**: en altas dimensiones, los datos se vuelven más dispersos. Si el dataset tiene $m$ rasgos y cada uno $n$ intervalos, hay $n^m$ regiones.
+
+**PCA**: representa datos con menos dimensiones conservando la mayor variabilidad. Construye PC como combinaciones de las variables. La PC1 recoge la máxima variabilidad, las siguientes las restantes. Hay que escalar antes de PCA (z-score), así se centra en analizar la estructura de variabilidad y correlación.
+
+Lleva los datos a un nuevo sistema de coordenadas donde los nuevos ejes apuntan en direcciones de máxima varianza. Los datos se proyectan en el subespacio que determinan las PC.
+
+Reduce dimensionalidad, más simple de visualizar datos, extracción de rasgos a partir de las PC y elimina redundancia.
+
+**Calcular proyecciones sobre las PC**:
+
+![[Pasted image 20260519170010.png]]
+
+Busca una dirección unitaria $u$ tal que las proyecciones de los puntos sobre esa dirección tengan máxima varianza. $\max_{||u|=1}\sum_i (x_i * u)^2$ donde la longitud de la proyección $y_i=x_i*u$.
+
+No es regresión lineal, ésta predice y minimiza errores en el eje $y$. PCA busca una dirección que resuma los datos maximizando la varianza proyectada y minimizando distancias ortogonales.
+
+Algoritmo:
+- Escalar con z-score.
+- Calcular la matriz de covarianzas $\Sigma = \frac{1}{m}\sum_{i=1}^{m} x_i x_i^T = \begin{pmatrix} \text{Var}(X_1) & \text{Cov}(X_1, X_2) \\ \text{Cov}(X_1, X_2) & \text{Var}(X_2) \end{pmatrix}$.
+- Calcular los $k$ mayores autovalores $det(\Sigma - \lambda I) = 0$ y autovectores $\Sigma u = \lambda u$, $(\Sigma - \lambda_k I)u_k = 0$.
+- Calcular la matriz de autovectores $U_k=[u_1,...,u_k]$
+- Las proyecciones se calculan como $y_i=U_k^T x_i = \begin{pmatrix} u_1^T x_i \\ \vdots \\ u_k^T x_i \end{pmatrix}$ Siendo cada $u_k^T x_i$ la coordenada del punto sobre la PC$k$.
+
+**Varianza y número óptimo de PC**: sea $m$ muestras y $p$ variables:
+- **Varianza explicada por la componente $r$**: $Var(y_r)=\lambda_r$
+- **Porcentaje de varianza explicada por la componente $r$**: $\frac{\lambda_r}{\sum^{p}_{j=1}\lambda_j}$
+- **Porcentaje de varianza acumulada hasta la componente $r$**: $\frac{\sum^{r}_{j=1}\lambda_j}{\sum^{p}_{j=1}\lambda_j}$. Se elige un número de componentes tal que el porcentaje de varianza acumulada sea $\ge \alpha$. El menor a partir del cual añadir más PC apenas aumenta la varianza (criterio del codo).
+
+### Ejercicio
+![[Pasted image 20260519173019.png]]
+
+$\Sigma = \begin{pmatrix} 5.549 & 0.5539 \\ 0.5539 & 0.6449 \end{pmatrix}$
+$det(\Sigma - \lambda I)=0; det\begin{pmatrix} 0.5549-\lambda & 0.5539 \\ 0.5539 & 0.6449-\lambda \end{pmatrix}=0; (0.5549-\lambda)(0.6449-\lambda)-0.3068; \lambda^2 - 1.1998\lambda + 0.051 = 0; \lambda_1 = 1.1557, \lambda_2 = 0.0441$
+**Autovector de $\lambda_1$**:
+$\begin{pmatrix} 0.5549-1.1557 & 0.5539 \\ 0.5539 & 0.6449-1.1557 \end{pmatrix}u_k = 0; \begin{pmatrix} -0.6007 & 0.5539 \\ 0.5539 & -0.5107 \end{pmatrix} u_k = 0; -0.6007 * u_1 + 0.5539 * u_2 = 0; u_2= 1.08453 * u_1$
+Para $u_1=1 \implies v_1=\begin{pmatrix} 1 \\ 1.0845 \end{pmatrix}$. Normalizamos dividiendo por $\sqrt{1^2+1.0845^2}; v_1= \begin{pmatrix} 0.6779 \\ 0.7352 \end{pmatrix}$
+**Autovector de $\lambda_2$**:
+$\begin{pmatrix} 0.5549-0.0441 & 0.5539 \\ 0.5539 & 0.6449-0.0441 \end{pmatrix}u_k = 0; \begin{pmatrix} 0.5107 & 0.5539 \\ 0.5539 & 0.6007 \end{pmatrix} u_k = 0; 0.5107 * u_1 + 0.5539 * u_2 = 0; u_2= -0.9221 * u_1$
+Para $u_1=1 \implies v_1=\begin{pmatrix} 1 \\ -0.9221 \end{pmatrix}$. Normalizamos dividiendo por $\sqrt{1^2+(-0.9221)^2}; v_1= \begin{pmatrix} 0.7352 \\ -0.6779 \end{pmatrix}$
+
+Proyectamos los puntos, por ejemplo para $x_1$:
+$PC1=v_1^Tx_1=0.6779*0.69+0.7352*0.49= 0.828$
+$PC2=v_2^Tx_1=0.7352*0.69-0.6779*0.49= 0.1751$
+
+![[Pasted image 20260519172933.png]]![[Pasted image 20260519172943.png]]
