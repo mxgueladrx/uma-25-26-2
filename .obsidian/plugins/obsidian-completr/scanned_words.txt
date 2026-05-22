@@ -345,6 +345,7 @@ Algoritmo
 Asignamos
 Actualizamos
 Alternativas
+Autovector
 tico
 til
 trivial
@@ -9924,6 +9925,7 @@ Not
 Normalizar
 Ning
 Noise
+Normalizamos
 Valores
 Vectorial
 Vfv
@@ -10816,6 +10818,7 @@ Pointy
 Present
 Parar
 Porcentaje
+Proyectamos
 Filter
 FlateDecode
 FH
