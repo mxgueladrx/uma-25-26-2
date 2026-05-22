@@ -293,7 +293,10 @@ predecir_voto <- function(M, S, usuario, item) {
 
 ```{r}
 # Escribe aquí tu código en R para el Ejercicio 4.1
+sim <- similitud_usuarios(M)
+sim[1:4, 1:4]
 
+r2b <- predecir_voto(M, sim, "Usuario_1", "The Office")
 ```
 
 3.  **Comparación:** Compara este resultado con el obtenido a mano en la sección 3 (donde solo usamos 2 vecinos). ¿Por qué cambian las cifras y qué ventajas tiene usar toda la base de datos de usuarios?
@@ -316,7 +319,14 @@ Escribe un script en R que:
 
 ```{r}
 # Escribe aquí tu script en R para el Ejercicio 4.2
+indices_no_vistas <- which(is.na(M[1, ]))
+pelis_no_vistas <- names(indices_no_vistas)
+predicciones <- sapply(pelis_no_vistas, function(x) predecir_voto(M, sim, "Usuario_1", x))
 
+d1 <- data.frame(pelicula = pelis_no_vistas, pred = predicciones)
+d1 |>
+  arrange(desc(pred)) |>
+  head(3)
 ```
 
 ---
