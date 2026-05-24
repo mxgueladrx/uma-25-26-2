@@ -54,11 +54,11 @@ Una vez asegurados que no tenemos ningún valor faltante, analicemos ahora cada 
 metricas <- df |>
   group_by(ProductId) |>
   summarise(
-    ratingPromedio = round(mean(Score), 1),
+    ratingPromedio = round(mean(Score), 2),
     numeroResenas = n(),
     longitudResenaPromedio = round(mean(nchar(Text)))
   ) |>
-  select(-ProductId)
+  column_to_rownames(var = "ProductId")
 
 head(metricas)
 ```
@@ -68,9 +68,10 @@ Tras generar las métricas, nos damos cuenta de un problema, y es la escala en l
 ### BoxPlot
 
 ```{r}
-boxplot(metricas, 
-        main = "Dispersión de los atributos"
-        )
+boxplot(
+  metricas, 
+  main = "Dispersión de los atributos"
+)
 ```
 
 Visualmente podemos ver que el atributo de ``longitudResenaPromedio`` es mucho más disperso a los demás. Como comentamos antes, estos atributos no están en la misma escala, asi que ahora vamos a normalizarlos y veamos un nuevo boxplot:
@@ -78,9 +79,10 @@ Visualmente podemos ver que el atributo de ``longitudResenaPromedio`` es mucho m
 ```{r}
 metricas <- scale(metricas)
 
-boxplot(metricas,
-        main = "Dispersión de los atributos normalizados"
-        )
+boxplot(
+  metricas,
+  main = "Dispersión de los atributos normalizados"
+)
 ```
 
 ### Scree Plot
@@ -108,11 +110,12 @@ Al observar que únicamente los dos primeros autovalores superan el umbral de 1,
 ```{r}
 pca$rotation
 
-fviz_pca_var(pca, 
-             col.var = "contrib",
-             gradient.cols = c("gray20", "green", "blue"),
-             repel = TRUE, 
-             title = "Variables y sus contribuciones")
+fviz_pca_var(
+  pca, 
+  col.var = "contrib",
+  gradient.cols = c("gray20", "green", "blue"),
+  repel = TRUE, 
+  title = "Variables y sus contribuciones")
 ```
 
 Analicemos cada PC:
@@ -125,15 +128,16 @@ Analicemos cada PC:
 Finalmente, para validar la distribución espacial de las muestras y contrastarlo con las nuevas componentes, recurrimos a la proyección del Biplot:
 
 ```{r}
-fviz_pca_biplot(pca,
-                geom.ind = "point",
-                repel = TRUE,
-                col.var = "red", 
-                col.ind = "skyblue",
-                title = "Biplot",
-                pointsize = 0.5,
-                alpha.ind = 0.1
-                )
+fviz_pca_biplot(
+  pca,
+  geom.ind = "point",
+  repel = TRUE,
+  col.var = "red", 
+  col.ind = "skyblue",
+  title = "Biplot",
+  pointsize = 0.5,
+  alpha.ind = 0.1
+)
 ```
 
 En el Biplot enseñaremos la distribución de los productos en este nuevo espacio dimensional. Se observa cómo los productos se dispersan siguiendo las direcciones de las flechas: los productos situados en el cuadrante de ``longitudResenaPromedio`` coinciden con aquellos de menor ``ratingPromedio``, confirmando la tendencia de quejas detalladas identificada en el PC1.
