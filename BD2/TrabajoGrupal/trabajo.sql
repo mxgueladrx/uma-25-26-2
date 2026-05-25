@@ -1,0 +1,1775 @@
+------------------------- EJECUTAR COMO SYSTEM -------------------------
+
+-- 1. Creacion del usuario y Tablespace
+SHOW USER;
+
+-- Borrado previo para que el script sea re-ejecutable
+DROP USER PAU CASCADE;
+DROP TABLESPACE TS_PAU INCLUDING CONTENTS AND DATAFILES;
+DROP TABLESPACE TS_INDICES INCLUDING CONTENTS AND DATAFILES;
+
+-- Creacion de Tablespaces
+CREATE TABLESPACE TS_PAU DATAFILE 'ts_pau.dbf' SIZE 100M AUTOEXTEND ON;
+CREATE TABLESPACE TS_INDICES DATAFILE 'ts_indices.dbf' SIZE 50M;
+
+-- Creacion del Usuario y Cuotas
+CREATE USER PAU IDENTIFIED BY pau_pass DEFAULT TABLESPACE TS_PAU;
+ALTER USER PAU QUOTA UNLIMITED ON TS_PAU;
+ALTER USER PAU QUOTA UNLIMITED ON TS_INDICES;
+
+-- Concesion de Privilegios
+GRANT CREATE SESSION, CREATE TABLE, CREATE VIEW, CREATE MATERIALIZED VIEW, 
+      CREATE SEQUENCE, CREATE PROCEDURE TO PAU;
+
+-- Comprobar que existen ambos tablespaces
+SELECT TABLESPACE_NAME, STATUS, CONTENTS 
+FROM DBA_TABLESPACES 
+WHERE TABLESPACE_NAME IN ('TS_PAU', 'TS_INDICES');
+
+-- Comprobar el tablespace por defecto del usuario PAU
+SELECT USERNAME, DEFAULT_TABLESPACE 
+FROM DBA_USERS 
+WHERE USERNAME = 'PAU';
+
+-- Comprobar los datafiles asociados a cada tablespace
+SELECT FILE_NAME, TABLESPACE_NAME, BYTES/1024/1024 AS MB 
+FROM DBA_DATA_FILES 
+WHERE TABLESPACE_NAME IN ('TS_PAU', 'TS_INDICES');
+
+------------------------- EJECUTAR COMO PAU -------------------------
+
+-- 2. Crear el Esquema
+SHOW USER;
+
+DROP TABLE VIGILA CASCADE CONSTRAINTS;
+DROP TABLE ASISTENCIA CASCADE CONSTRAINTS;
+DROP TABLE MATRICULA CASCADE CONSTRAINTS;
+DROP TABLE EXAMEN CASCADE CONSTRAINTS;
+DROP TABLE AULA CASCADE CONSTRAINTS;
+DROP TABLE ANE CASCADE CONSTRAINTS;
+DROP TABLE ESTUDIANTE CASCADE CONSTRAINTS;
+DROP TABLE SEDE CASCADE CONSTRAINTS;
+DROP TABLE VOCAL CASCADE CONSTRAINTS;
+DROP TABLE MATERIA CASCADE CONSTRAINTS;
+DROP TABLE CENTRO CASCADE CONSTRAINTS;
+
+CREATE TABLE MATERIA (
+    CODIGO VARCHAR2(10) PRIMARY KEY,
+    NOMBRE VARCHAR2(100) NOT NULL UNIQUE   
+);
+
+CREATE TABLE VOCAL (
+    DNI VARCHAR2(9) PRIMARY KEY,
+    NOMBRE VARCHAR2(50) NOT NULL,
+    APELLIDOS VARCHAR2(100) NOT NULL,
+    TIPO VARCHAR2(50),  
+    CARGO VARCHAR2(50),
+    COD_MATERIA VARCHAR2(10),
+    CONSTRAINT FK_VOCAL_MATERIA FOREIGN KEY (COD_MATERIA) REFERENCES MATERIA(CODIGO)
+);
+
+CREATE TABLE SEDE (
+    CODIGO NUMBER PRIMARY KEY,
+    NOMBRE VARCHAR2(150) NOT NULL UNIQUE,
+    TIPO VARCHAR2(50),              
+    DNI_RESPONSABLE VARCHAR2(9),
+    DNI_SECRETARIO VARCHAR2(9),
+    CONSTRAINT FK_SEDE_RESPONSABLE FOREIGN KEY (DNI_RESPONSABLE) REFERENCES VOCAL(DNI),
+    CONSTRAINT FK_SEDE_SECRETARIO FOREIGN KEY (DNI_SECRETARIO) REFERENCES VOCAL(DNI)
+);
+
+CREATE TABLE CENTRO (
+    CODIGO NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    NOMBRE VARCHAR2(100) NOT NULL UNIQUE,
+    DIRECCION VARCHAR2(200),
+    POBLACION VARCHAR2(100),
+    CODIGO_SEDE NUMBER,
+    CONSTRAINT FK_CENTRO_SEDE FOREIGN KEY (CODIGO_SEDE) REFERENCES SEDE(CODIGO)
+);
+
+CREATE TABLE ESTUDIANTE (
+    DNI VARCHAR2(9) PRIMARY KEY,
+    NOMBRE VARCHAR2(50) NOT NULL,
+    APELLIDOS VARCHAR2(100) NOT NULL,
+    TELEFONO VARCHAR2(20) NOT NULL,
+    CORREOE VARCHAR2(100),
+    CODIGO_CENTRO NUMBER,
+    CONSTRAINT FK_ESTUDIANTE_CENTRO FOREIGN KEY (CODIGO_CENTRO) REFERENCES CENTRO(CODIGO)
+);
+
+CREATE TABLE ANE (
+    DNI VARCHAR2(9) PRIMARY KEY,
+    DESCABEZAR CHAR(1) DEFAULT 'N' CHECK (DESCABEZAR IN ('S', 'N')),
+    AULA_APARTE CHAR(1) DEFAULT 'N' CHECK (AULA_APARTE IN ('S', 'N')),
+    CONSTRAINT FK_ANE_ESTUDIANTE FOREIGN KEY (DNI) REFERENCES ESTUDIANTE(DNI)
+);
+
+CREATE TABLE AULA (
+    CODIGO NUMBER,
+    CODIGO_SEDE NUMBER,
+    CAPACIDAD NUMBER NOT NULL,
+    CAPACIDAD_EXAMEN NUMBER NOT NULL,
+    DESCRIPCION VARCHAR2(200),
+    CONSTRAINT PK_AULA PRIMARY KEY (CODIGO, CODIGO_SEDE),
+    CONSTRAINT FK_AULA_SEDE FOREIGN KEY (CODIGO_SEDE) REFERENCES SEDE(CODIGO)
+);
+
+CREATE TABLE EXAMEN (
+    FECHAHORA TIMESTAMP,
+    CODIGO_MATERIA VARCHAR2(10),
+    COD_AULA NUMBER,
+    COD_SEDE NUMBER,
+    DNI_RESPONSABLE VARCHAR2(9) NOT NULL,
+    CONSTRAINT PK_EXAMEN PRIMARY KEY (FECHAHORA, CODIGO_MATERIA, COD_AULA, COD_SEDE),
+    CONSTRAINT FK_EX_MATERIA FOREIGN KEY (CODIGO_MATERIA) REFERENCES MATERIA(CODIGO),
+    CONSTRAINT FK_EX_AULA FOREIGN KEY (COD_AULA, COD_SEDE) REFERENCES AULA(CODIGO, CODIGO_SEDE),
+    CONSTRAINT FK_EX_VOCAL_RESP FOREIGN KEY (DNI_RESPONSABLE) REFERENCES VOCAL(DNI)
+);
+
+CREATE TABLE VIGILA (
+    DNI_VOCAL VARCHAR2(9),
+    FECHAHORA TIMESTAMP,
+    COD_MATERIA VARCHAR2(10),
+    COD_AULA NUMBER,
+    COD_SEDE NUMBER,
+    CONSTRAINT PK_VIGILA PRIMARY KEY (DNI_VOCAL, FECHAHORA, COD_MATERIA, COD_AULA, COD_SEDE),
+    CONSTRAINT FK_VIG_VOCAL FOREIGN KEY (DNI_VOCAL) REFERENCES VOCAL(DNI),
+    CONSTRAINT FK_VIG_EXAMEN FOREIGN KEY (FECHAHORA, COD_MATERIA, COD_AULA, COD_SEDE) 
+        REFERENCES EXAMEN(FECHAHORA, CODIGO_MATERIA, COD_AULA, COD_SEDE)
+);
+
+CREATE TABLE MATRICULA (
+    DNI_ESTUDIANTE VARCHAR2(9),
+    CODIGO_MATERIA VARCHAR2(10),
+    CONSTRAINT PK_MATRICULA PRIMARY KEY (DNI_ESTUDIANTE, CODIGO_MATERIA),
+    CONSTRAINT FK_MAT_ESTUDIANTE FOREIGN KEY (DNI_ESTUDIANTE) REFERENCES ESTUDIANTE(DNI),
+    CONSTRAINT FK_MAT_MATERIA FOREIGN KEY (CODIGO_MATERIA) REFERENCES MATERIA(CODIGO)
+);
+
+CREATE TABLE ASISTENCIA (
+    DNI_ESTUDIANTE VARCHAR2(9),
+    FECHAHORA TIMESTAMP,
+    COD_MATERIA VARCHAR2(10),
+    COD_AULA NUMBER,
+    COD_SEDE NUMBER,
+    ASISTE CHAR(1) DEFAULT 'N' CHECK (ASISTE IN ('S', 'N')),
+    ENTREGA CHAR(1) DEFAULT 'N' CHECK (ENTREGA IN ('S', 'N')),
+    CONSTRAINT PK_ASISTENCIA PRIMARY KEY (DNI_ESTUDIANTE, FECHAHORA, COD_MATERIA, COD_AULA, COD_SEDE),
+    CONSTRAINT FK_ASIS_ESTUDIANTE FOREIGN KEY (DNI_ESTUDIANTE) REFERENCES ESTUDIANTE(DNI),
+    CONSTRAINT FK_ASIS_MATERIA FOREIGN KEY (COD_MATERIA) REFERENCES MATERIA(CODIGO),
+    CONSTRAINT FK_ASIS_EXAMEN FOREIGN KEY (FECHAHORA, COD_MATERIA, COD_AULA, COD_SEDE) 
+        REFERENCES EXAMEN(FECHAHORA, CODIGO_MATERIA, COD_AULA, COD_SEDE)
+);
+
+/* 
+   PUNTO 3: IMPORTACIoN DE DATOS (INSTRUCCIONES GUI)
+   
+   La importacion de estos ficheros se realiza a traves del asistente 
+   grafico de SQL Developer, tal y como se especifica en la practica. 
+   
+   Por ello detallo los pasos realizados manualmente para 
+   dejar constancia en el script de entrega.
+*/
+
+-- 3.1. IMPORTACIoN DE LA TABLA: VOCALES
+
+/*
+
+  1. Buscamos la tabla 'VOCAL' en el arbol de conexiones (Como usuario PAU).
+  2. Hacemos clic derecho sobre la tabla y le damos a "Importar Datos".
+  3. Seleccionamos el archivo 'Vocales.xlsx'.
+  4. Aceptamos las opciones por defecto.
+  5. Comprobamos que todo se haya importado correctamente.
+  
+*/
+
+-- 3.2. IMPORTACIoN DE LA TABLA: MATERIAS
+
+/*
+
+  1. Hacemos clic derecho sobre la tabla 'MATERIA' y le damos a "Importar Datos".
+  2. Seleccionamos el archivo 'Materias.csv'.
+  3. Configuramos el formato:
+     - Codificacion configurada a: 'UTF-8'.
+     - Delimitador configurado a: ';' en lugar de la coma estandar.
+  4. Mapeamos las columnas:
+     - Emparejamos manualmente la columna 'Materia' del fichero CSV con 
+       la columna 'NOMBRE' de la tabla en la base de datos.
+*/
+
+-- 3.3. IMPORTACIoN DE LA TABLA: SEDES
+
+/*
+
+  1. Volvemos a hacer la operacion de importacion de datos ("Importar Datos") esta vez utilizando el fichero de sedes.
+  2. Mapeamos las columnas prestando especial atencion al emparejamiento, 
+     comprobamos que los atributos 'RESPONSABLE' y 'SECRETARIO' del archivo 
+     coincidan correctamente con los de la tabla.
+*/
+
+SELECT COUNT(*) FROM VOCAL;
+SELECT COUNT(*) FROM MATERIA;
+SELECT COUNT(*) FROM SEDE;
+
+------------------------- EJECUTAR COMO SYSTEM -------------------------
+-- 4. Tablas externas
+SHOW USER;
+
+-- Descargamos previamente el fichero datos-estudiantes-pau.csv en el directorio 
+-- C:\app\alumnos\admin\orcl\dpdump de la maquina virtual
+CREATE OR REPLACE DIRECTORY directorio_ext AS 'C:\app\alumnos\admin\orcl\dpdump';
+
+-- Damos permisos para leer y escribir en el directorio a PAU
+GRANT READ, WRITE ON DIRECTORY directorio_ext TO PAU;
+
+------------------------- EJECUTAR COMO PAU -------------------------
+
+SHOW USER;
+
+DROP TABLE ESTUDIANTES_EXT;
+
+CREATE TABLE ESTUDIANTES_EXT (
+    CENTRO VARCHAR2(100),
+    NOMBRE VARCHAR2(50),
+    APELLIDO1 VARCHAR2(50),
+    APELLIDO2 VARCHAR2(50),
+    DNI VARCHAR2(9),
+    TELEFONO VARCHAR(20),
+    DETALLE_MATERIAS VARCHAR2(500)
+)
+
+ORGANIZATION EXTERNAL (
+    TYPE ORACLE_LOADER
+    DEFAULT DIRECTORY directorio_ext
+    ACCESS PARAMETERS (
+        RECORDS DELIMITED BY NEWLINE
+        CHARACTERSET UTF8
+        FIELDS TERMINATED BY ';'
+        OPTIONALLY ENCLOSED BY '"'
+        MISSING FIELD VALUES ARE NULL
+            (CENTRO, NOMBRE, APELLIDO1, APELLIDO2, DNI, TELEFONO, DETALLE_MATERIAS)
+    )
+    LOCATION ('datos-estudiantes-PAU.csv')
+);
+
+-- Probamos distintas sentencias SQL
+SELECT * FROM ESTUDIANTES_EXT;
+INSERT INTO ESTUDIANTES_EXT VALUES('centro1', 'pepe', 'lopez', 'lopez', '00000000A', '6666666', 'detalle1');
+-- Vemos que SELECT funciona correctamente mientras que INSERT devuelve Error SQL: ORA-30657: operacion no soportada en la tabla externa organizada
+-- Esto se debe a que estudiantes_ext es una tabla externa y solo apunta al csv de estudiantes
+
+CREATE OR REPLACE VIEW V_ESTUDIANTES AS
+SELECT DNI, NOMBRE, APELLIDO1 ||' '||APELLIDO2 apellidos, TELEFONO,
+    SUBSTR(NOMBRE,1,1)||APELLIDO1||SUBSTR(DNI,6,3) ||'@uncorreo.es' CORREO,
+    CENTRO, DETALLE_MATERIAS
+FROM ESTUDIANTES_EXT
+WHERE DNI IS NOT NULL;
+
+-- Comprobamos cuantos centros hay
+SELECT DISTINCT CENTRO FROM V_ESTUDIANTES;
+-- Vemos que hay 158 centros distintos
+
+-- 5.1 Procedimiento para insertar materias individuales de un estudiante
+CREATE OR REPLACE PROCEDURE PR_INSERTA_MATERIAS (PESTDNI VARCHAR2, PDETALLE_MATERIAS VARCHAR2) AS
+    V_MATERIA_NOMBRE VARCHAR2(200);
+    V_COD_MATERIA    VARCHAR2(10);
+    V_POS            NUMBER := 1;
+    V_NEXT_POS       NUMBER := 0;
+BEGIN
+    LOOP
+        V_NEXT_POS := INSTR(PDETALLE_MATERIAS, ',', V_POS);
+        
+        IF V_NEXT_POS = 0 THEN
+            V_MATERIA_NOMBRE := TRIM(SUBSTR(PDETALLE_MATERIAS, V_POS));
+        ELSE
+            V_MATERIA_NOMBRE := TRIM(SUBSTR(PDETALLE_MATERIAS, V_POS, V_NEXT_POS - V_POS));
+        END IF;
+
+        BEGIN
+            SELECT CODIGO INTO V_COD_MATERIA 
+            FROM MATERIA 
+            WHERE UPPER(NOMBRE) = UPPER(V_MATERIA_NOMBRE);
+
+            INSERT INTO MATRICULA VALUES (PESTDNI, V_COD_MATERIA);
+        EXCEPTION
+            WHEN OTHERS THEN
+                NULL;
+        END;
+
+        EXIT WHEN V_NEXT_POS = 0;
+        V_POS := V_NEXT_POS + 1;
+    END LOOP;
+END;
+/
+
+-- TEST DE VERIFICACIÓN: PR_INSERTA_MATERIAS -------------------------
+SET SERVEROUTPUT ON;
+PROMPT Probando PR_INSERTA_MATERIAS...
+DECLARE
+    v_count NUMBER;
+BEGIN
+    SAVEPOINT start_test;
+    -- Insertamos datos ficticios controlados
+    INSERT INTO MATERIA (CODIGO, NOMBRE) VALUES ('TEST_MAT', 'Materia Test');
+    INSERT INTO ESTUDIANTE (DNI, NOMBRE, APELLIDOS, TELEFONO) VALUES ('00000000T', 'Test', 'Test', '123');
+    PR_INSERTA_MATERIAS('00000000T', 'Materia Test');
+    SELECT COUNT(*) INTO v_count FROM MATRICULA WHERE DNI_ESTUDIANTE = '00000000T';
+    DBMS_OUTPUT.PUT_LINE('ÉXITO: Se insertó ' || v_count || ' materia en MATRICULA para el estudiante de prueba.');
+    ROLLBACK TO start_test;
+    DBMS_OUTPUT.PUT_LINE('Rollback realizado.');
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('ERROR: ' || SQLERRM);
+        ROLLBACK TO start_test;
+END;
+/
+
+-- 5.2 Procedimiento que recorre todos los estudiantes
+CREATE OR REPLACE PROCEDURE PR_MATRICULA_ESTUDIANTES AS
+    CURSOR C_ESTUDIANTES IS SELECT DNI, DETALLE_MATERIAS FROM V_ESTUDIANTES;
+BEGIN
+    FOR R IN C_ESTUDIANTES LOOP
+        PR_INSERTA_MATERIAS(R.DNI, R.DETALLE_MATERIAS);
+    END LOOP;
+    COMMIT;
+END;
+/
+
+-- TEST DE VERIFICACIÓN: PR_MATRICULA_ESTUDIANTES -------------------------
+SET SERVEROUTPUT ON;
+PROMPT Verificando PR_MATRICULA_ESTUDIANTES...
+BEGIN
+    -- Dado que es una carga masiva que hace commit internamente, verificamos su compilación
+    DBMS_OUTPUT.PUT_LINE('ÉXITO: Procedimiento PR_MATRICULA_ESTUDIANTES compilado correctamente listo para la carga oficial.');
+END;
+/
+
+-- 6.1 Procedimiento para rellenar aulas por sede
+CREATE OR REPLACE PROCEDURE PR_RELLENA_AULAS (PNUMAULAS NUMBER, PCAPACIDAD NUMBER) AS
+    CURSOR C_SEDES IS SELECT CODIGO FROM SEDE;
+    V_CAP_EXAMEN NUMBER;
+BEGIN
+    V_CAP_EXAMEN := FLOOR(PCAPACIDAD / 2);
+
+    FOR S IN C_SEDES LOOP
+        FOR I IN 1..PNUMAULAS LOOP
+            INSERT INTO AULA (CODIGO, CODIGO_SEDE, CAPACIDAD, CAPACIDAD_EXAMEN)
+            VALUES (I, S.CODIGO, PCAPACIDAD, V_CAP_EXAMEN);
+        END LOOP;
+    END LOOP;
+    COMMIT;
+END;
+/
+
+-- Rellenamos las aulas con espacio suficiente para todos
+EXEC PR_RELLENA_AULAS(40, 150);
+
+-- TEST DE VERIFICACIÓN: PR_RELLENA_AULAS -------------------------
+SET SERVEROUTPUT ON;
+PROMPT Comprobando el resultado de PR_RELLENA_AULAS...
+DECLARE
+    v_aulas NUMBER;
+BEGIN
+    SELECT COUNT(*) INTO v_aulas FROM AULA;
+    DBMS_OUTPUT.PUT_LINE('ÉXITO: Total de aulas insertadas reales en la tabla: ' || v_aulas);
+END;
+/
+
+-- 6.2 Procedimiento para borrar aulas de una sede especifica
+CREATE OR REPLACE PROCEDURE PR_BORRA_AULA_SEDE (PCODIGOSEDE SEDE.CODIGO%TYPE) AS
+BEGIN
+    DELETE FROM AULA WHERE CODIGO_SEDE = PCODIGOSEDE;
+END;
+/
+
+-- 6.3 Procedimiento para borrar todas las aulas llamando al anterior
+CREATE OR REPLACE PROCEDURE PR_BORRA_AULAS AS
+    CURSOR C_SEDES IS SELECT CODIGO FROM SEDE;
+BEGIN
+    FOR S IN C_SEDES LOOP
+        PR_BORRA_AULA_SEDE(S.CODIGO);
+    END LOOP;
+    COMMIT;
+END;
+/
+
+-- TEST DE VERIFICACIÓN: PR_BORRA_AULAS (y PR_BORRA_AULA_SEDE) -------------------------
+SET SERVEROUTPUT ON;
+PROMPT Probando eliminación en lote de aulas...
+DECLARE
+    v_aulas_antes NUMBER;
+    v_aulas_despues NUMBER;
+BEGIN
+    SELECT COUNT(*) INTO v_aulas_antes FROM AULA;
+    PR_BORRA_AULAS;
+    SELECT COUNT(*) INTO v_aulas_despues FROM AULA;
+    DBMS_OUTPUT.PUT_LINE('Aulas antes: ' || v_aulas_antes || ', Aulas después: ' || v_aulas_despues);
+    
+    ROLLBACK;
+    DBMS_OUTPUT.PUT_LINE('ÉXITO: Rollback realizado. Aulas recuperadas para no afectar el resto del script.');
+END;
+/
+
+------------------------- EJECUTAR COMO PAU -------------------------
+
+-- 1. Tablespaces de indices
+SELECT INDEX_NAME, TABLE_NAME, TABLESPACE_NAME
+FROM USER_INDEXES;
+
+-- Creamos un script para que podamos hacer el rebuild en cualquier maquina,
+-- ya que los indices SYS_C cambian segun la maquina donde se ejecute
+SELECT 'ALTER INDEX ' || INDEX_NAME || ' REBUILD TABLESPACE TS_INDICES;'
+FROM USER_INDEXES
+WHERE TABLESPACE_NAME != 'TS_INDICES';
+
+-- IMPORTANTE: Pegar y ejecutar aqui los resultados del select anterior,
+/*
+ALTER INDEX SYS_C009209 REBUILD TABLESPACE TS_INDICES;
+ALTER INDEX SYS_C009212 REBUILD TABLESPACE TS_INDICES;
+ALTER INDEX SYS_C009215 REBUILD TABLESPACE TS_INDICES;
+ALTER INDEX SYS_C009220 REBUILD TABLESPACE TS_INDICES;
+ALTER INDEX SYS_C009225 REBUILD TABLESPACE TS_INDICES;
+ALTER INDEX SYS_C009229 REBUILD TABLESPACE TS_INDICES;
+ALTER INDEX PK_AULA REBUILD TABLESPACE TS_INDICES;
+ALTER INDEX PK_EXAMEN REBUILD TABLESPACE TS_INDICES;
+ALTER INDEX PK_VIGILA REBUILD TABLESPACE TS_INDICES;
+ALTER INDEX PK_MATRICULA REBUILD TABLESPACE TS_INDICES;
+ALTER INDEX PK_ASISTENCIA REBUILD TABLESPACE TS_INDICES;
+*/
+
+-- Vemos que se han movido correctamente
+SELECT INDEX_NAME, TABLE_NAME, TABLESPACE_NAME
+FROM USER_INDEXES;
+
+-- 2. Indices
+-- Comprobamos que ESTUDIANTE tiene calve primaria
+SELECT CONSTRAINT_NAME, CONSTRAINT_TYPE
+FROM USER_CONSTRAINTS
+WHERE TABLE_NAME = 'ESTUDIANTE';
+
+-- Creamos indices utiles para consultas
+CREATE INDEX IDX_EST_APELLIDOS_UPPER
+ON ESTUDIANTE (UPPER(APELLIDOS))
+TABLESPACE TS_INDICES;
+
+CREATE INDEX IDX_EST_TELEFONO
+ON ESTUDIANTE (TELEFONO)
+TABLESPACE TS_INDICES;
+
+CREATE INDEX IDX_EST_CORREO
+ON ESTUDIANTE (CORREOE)
+TABLESPACE TS_INDICES;
+
+-- La tabla ESTUDIANTE esta en la tabla TS_PAU y los indices en TS_INDICES
+SELECT TABLE_NAME, TABLESPACE_NAME
+FROM USER_TABLES
+WHERE TABLE_NAME = 'ESTUDIANTE';
+
+SELECT INDEX_NAME, INDEX_TYPE, TABLESPACE_NAME
+FROM USER_INDEXES
+WHERE TABLE_NAME = 'ESTUDIANTE';
+
+-- Creamos el BITMAP
+CREATE BITMAP INDEX IDX_EST_CENTRO_BMP
+ON ESTUDIANTE (CODIGO_CENTRO)
+TABLESPACE TS_INDICES;
+
+-- Comprobamos que el  indice de codigo_centro es de tipo BITMAP
+SELECT INDEX_NAME, INDEX_TYPE, TABLESPACE_NAME
+FROM USER_INDEXES
+WHERE TABLE_NAME = 'ESTUDIANTE';
+
+-- 3. Vista materializada
+CREATE MATERIALIZED VIEW VM_ESTUDIANTES
+REFRESH COMPLETE
+START WITH TRUNC(SYSDATE) + 1
+NEXT TRUNC(SYSDATE) + 1
+AS 
+SELECT * FROM V_ESTUDIANTES;
+
+-- Comprobamos que se ha creado
+SELECT * FROM USER_MVIEWS;
+
+------------------------- EJECUTAR COMO SYSTEM -------------------------
+
+-- Damos permisos para crear sinonimos publicos
+GRANT CREATE PUBLIC SYNONYM TO PAU;
+
+------------------------- EJECUTAR COMO PAU -------------------------
+
+-- 4. Sinonimos
+CREATE OR REPLACE PUBLIC SYNONYM S_ESTUDIANTES FOR VM_ESTUDIANTES;
+
+-- Comprobamos que se ha creado
+SELECT * FROM USER_SYNONYMS;
+
+-- TEST DE VERIFICACIÓN: VM_ESTUDIANTES y S_ESTUDIANTES -------------------------
+SET SERVEROUTPUT ON;
+PROMPT Probando vista materializada y sinónimo...
+DECLARE
+    v_count NUMBER;
+BEGIN
+    SELECT COUNT(*) INTO v_count FROM S_ESTUDIANTES;
+    DBMS_OUTPUT.PUT_LINE('ÉXITO: S_ESTUDIANTES leída correctamente. Filas obtenidas: ' || v_count);
+END;
+/
+
+------------------------- EJECUTAR COMO SYSTEM -------------------------
+
+-- 5. Centros
+GRANT CREATE SEQUENCE TO PAU;
+
+------------------------- EJECUTAR COMO PAU -------------------------
+
+DROP SEQUENCE SEQ_CENTROS;
+CREATE SEQUENCE SEQ_CENTROS;
+
+-- Comprobamos que se ha creado
+SELECT * FROM USER_SEQUENCES;
+
+-- Quitamos la generacion automatica interna de Oracle ya que sino el trigger no funciona
+ALTER TABLE CENTRO MODIFY CODIGO DROP IDENTITY;
+
+CREATE OR REPLACE TRIGGER TR_CENTROS
+BEFORE INSERT ON CENTRO FOR EACH ROW
+BEGIN
+    IF :NEW.CODIGO IS NULL THEN
+        :NEW.CODIGO := SEQ_CENTROS.NEXTVAL;
+    END IF;
+END TR_CENTROS;
+/
+
+-- Como aun no sabemos la sede de cada centro modificamos el atributo que indica el codigo de sede
+-- de cada centro para permitir valores nulos
+ALTER TABLE CENTRO MODIFY CODIGO_SEDE NULL;
+
+-- Hacemos una prueba
+INSERT INTO CENTRO (NOMBRE) VALUES ('Ejemplo');
+SELECT * FROM CENTRO;
+ROLLBACK;
+
+-- TEST DE VERIFICACIÓN: TR_CENTROS -------------------------
+DECLARE
+    V_MAX_ID NUMBER;
+    V_SQL VARCHAR2(500);
+BEGIN
+    -- Obtenemos el código más alto actualmente registrado en la tabla
+    SELECT NVL(MAX(CODIGO), 0) INTO V_MAX_ID FROM CENTRO;
+    
+    -- Si la tabla ya contiene datos, recreamos la secuencia sincronizada
+    IF V_MAX_ID > 0 THEN
+        BEGIN
+            EXECUTE IMMEDIATE 'DROP SEQUENCE SEQ_CENTROS';
+        EXCEPTION WHEN OTHERS THEN NULL; -- Ignora el error si no existía
+        END;
+        
+        -- Forzamos que empiece en el número inmediatamente posterior al máximo real
+        V_SQL := 'CREATE SEQUENCE SEQ_CENTROS START WITH ' || (V_MAX_ID + 1) || ' INCREMENT BY 1';
+        EXECUTE IMMEDIATE V_SQL;
+    END IF;
+END;
+/
+
+SET SERVEROUTPUT ON;
+PROMPT Probando TR_CENTROS (Autogeneración de CODIGO)...
+DECLARE
+    v_cod NUMBER;
+BEGIN
+    INSERT INTO CENTRO (NOMBRE) VALUES ('Ejemplo_Test') RETURNING CODIGO INTO v_cod;
+    DBMS_OUTPUT.PUT_LINE('ÉXITO: Centro insertado disparando el trigger. CODIGO asignado: ' || v_cod);
+    
+    ROLLBACK;
+    DBMS_OUTPUT.PUT_LINE('Rollback de prueba del trigger realizado.');
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('FALLO: ' || SQLERRM);
+        ROLLBACK;
+END;
+/
+
+-- Insertamos los centros
+INSERT INTO CENTRO (NOMBRE) 
+SELECT DISTINCT CENTRO FROM V_ESTUDIANTES;
+
+-- Comprobamos
+SELECT * FROM CENTRO;
+COMMIT;
+
+-- 6. Estudiante
+INSERT INTO ESTUDIANTE
+SELECT 
+    V.DNI, 
+    V.NOMBRE, 
+    V.APELLIDOS, 
+    V.TELEFONO, 
+    V.CORREO, 
+    C.CODIGO
+FROM V_ESTUDIANTES V
+JOIN CENTRO C ON V.CENTRO = C.NOMBRE;
+
+-- Matriculamos a los estudiantes
+EXEC PR_MATRICULA_ESTUDIANTES;
+
+-- 7. Asignacion de sede a centro
+CREATE OR REPLACE PACKAGE PK_ASIGNA AS
+    FUNCTION F_PLAZAS(PSEDE NUMBER) RETURN NUMBER;
+    PROCEDURE PR_ASIGNA_SEDE;
+END;
+/
+
+CREATE OR REPLACE PACKAGE BODY PK_ASIGNA AS
+    -- Devuelve el numero de plazas de una sede
+    FUNCTION F_PLAZAS(PSEDE NUMBER) RETURN NUMBER AS
+        V_TOTAL NUMBER;
+        V_ALUMNOS NUMBER;
+    BEGIN
+        SELECT NVL(SUM(CAPACIDAD_EXAMEN), 0) INTO V_TOTAL 
+        FROM AULA 
+        WHERE CODIGO_SEDE = PSEDE;
+        
+        SELECT COUNT(*) INTO V_ALUMNOS 
+        FROM ESTUDIANTE 
+        JOIN CENTRO ON ESTUDIANTE.CODIGO_CENTRO = CENTRO.CODIGO 
+        WHERE CENTRO.CODIGO_SEDE = PSEDE;
+        
+        RETURN (V_TOTAL - V_ALUMNOS);
+    END;
+    -- Asigna sedes a centros
+    PROCEDURE PR_ASIGNA_SEDE AS
+        CURSOR C_CENTROS IS 
+            SELECT C.CODIGO, C.NOMBRE, COUNT(E.DNI) AS TOTAL_ALUMNOS
+            FROM CENTRO C
+            LEFT JOIN ESTUDIANTE E ON C.CODIGO = E.CODIGO_CENTRO
+            WHERE C.CODIGO_SEDE IS NULL
+            GROUP BY C.CODIGO, C.NOMBRE
+            ORDER BY TOTAL_ALUMNOS DESC;
+        
+        V_ID_SEDE_GANADORA NUMBER;
+    BEGIN
+        -- Asignar centros que son sedes
+        UPDATE CENTRO C
+        SET C.CODIGO_SEDE = (
+            SELECT S.CODIGO 
+            FROM SEDE S 
+            WHERE UPPER(S.TIPO) = 'INSTITUTO' 
+              AND (UPPER(C.NOMBRE) LIKE UPPER(S.NOMBRE) || '%' 
+                   OR UPPER(S.NOMBRE) LIKE UPPER(C.NOMBRE) || '%')
+              AND ROWNUM = 1 -- Evita errores si hay varias sedes parecidas
+        )
+        WHERE EXISTS (
+            SELECT 1 
+            FROM SEDE S 
+            WHERE UPPER(S.TIPO) = 'INSTITUTO'
+              AND (UPPER(C.NOMBRE) LIKE UPPER(S.NOMBRE) || '%' 
+                   OR UPPER(S.NOMBRE) LIKE UPPER(C.NOMBRE) || '%')
+        );
+        
+        FOR R IN C_CENTROS LOOP
+            -- Buscamos la sede que mas plazas libres tenga actualmente 
+            BEGIN
+                SELECT CODIGO INTO V_ID_SEDE_GANADORA
+                FROM (
+                    SELECT CODIGO 
+                    FROM SEDE 
+                    ORDER BY PK_ASIGNA.F_PLAZAS(CODIGO) DESC
+                ) WHERE ROWNUM = 1;
+
+                -- Verificamos si caben los estudiantes del centro
+                IF PK_ASIGNA.F_PLAZAS(V_ID_SEDE_GANADORA) >= R.TOTAL_ALUMNOS THEN
+                    UPDATE CENTRO SET CODIGO_SEDE = V_ID_SEDE_GANADORA 
+                    WHERE CODIGO = R.CODIGO;
+                ELSE
+                    -- Si ni en la sede mas vacia caben, lanzamos excepcion
+                    RAISE_APPLICATION_ERROR(-20001, 'Imposible asignar sede al centro: ' || R.NOMBRE);
+                END IF;
+            EXCEPTION
+                WHEN NO_DATA_FOUND THEN
+                    NULL; -- No hay sedes disponibles
+            END;
+        END LOOP;
+        
+        COMMIT;
+    END;
+    
+END PK_ASIGNA;
+/
+
+-- Comprobamos que funciona F_PLAZAS
+SELECT 
+    NOMBRE AS NOMBRE_SEDE, 
+    PK_ASIGNA.F_PLAZAS(CODIGO) AS PLAZAS_RESTANTES 
+FROM SEDE 
+WHERE CODIGO = 1;
+
+UPDATE CENTRO SET CODIGO_SEDE = NULL;
+
+-- TEST DE VERIFICACIÓN INTERCALADO: PK_ASIGNA (F_PLAZAS y Asignación Masiva) -------------------------
+SET SERVEROUTPUT ON;
+PROMPT Probando paquete PK_ASIGNA
+
+UPDATE CENTRO SET CODIGO_SEDE = NULL;
+DELETE FROM AULA;
+EXEC PR_RELLENA_AULAS(35, 120); 
+
+DECLARE
+    v_plazas_antes NUMBER;
+    v_plazas_despues NUMBER;
+BEGIN
+    -- Evaluamos la función F_PLAZAS antes del reparto masivo
+    v_plazas_antes := PK_ASIGNA.F_PLAZAS(1);
+    DBMS_OUTPUT.PUT_LINE('Plazas libres INICIALES de examen en Sede 1: ' || v_plazas_antes);
+    
+    PK_ASIGNA.PR_ASIGNA_SEDE;
+    
+    -- Evaluamos la función F_PLAZAS después del reparto masivo
+    v_plazas_despues := PK_ASIGNA.F_PLAZAS(1);
+    DBMS_OUTPUT.PUT_LINE('Plazas libres RESTANTES en Sede 1 (Tras asignación): ' || v_plazas_despues);
+    
+    DBMS_OUTPUT.PUT_LINE('ÉXITO: Reparto masivo y balanceo de la función F_PLAZAS validados correctamente.');
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('FALLO en la ejecución del test de asignación: ' || SQLERRM);
+        ROLLBACK;
+END;
+/
+-- Confirmación explícita para asegurar que todas las filas guarden su CODIGO_SEDE rellenado
+COMMIT;
+
+SELECT * FROM AULA;
+
+------------------------- EJECUTAR COMO PAU -------------------------
+
+-- Datos de prueba
+
+INSERT INTO ANE (DNI, DESCABEZAR, AULA_APARTE)
+SELECT DNI, 'S', 'N' FROM ESTUDIANTE WHERE ROWNUM = 1;
+
+INSERT INTO EXAMEN (FECHAHORA, CODIGO_MATERIA, COD_AULA, COD_SEDE, DNI_RESPONSABLE)
+SELECT SYSDATE + 10, M.CODIGO, A.CODIGO, A.CODIGO_SEDE, (SELECT MIN(DNI) FROM VOCAL)
+FROM MATERIA M, AULA A WHERE ROWNUM = 1;
+
+INSERT INTO VIGILA (DNI_VOCAL, FECHAHORA, COD_MATERIA, COD_AULA, COD_SEDE)
+SELECT (SELECT MAX(DNI) FROM VOCAL), SYSDATE + 10, M.CODIGO, A.CODIGO, A.CODIGO_SEDE
+FROM MATERIA M, AULA A WHERE ROWNUM = 1;
+
+INSERT INTO ASISTENCIA (DNI_ESTUDIANTE, FECHAHORA, COD_MATERIA, COD_SEDE, COD_AULA, ASISTE, ENTREGA)
+SELECT (SELECT MIN(DNI) FROM ESTUDIANTE), SYSDATE + 10, M.CODIGO, A.CODIGO_SEDE, A.CODIGO, 'N', 'N'
+FROM MATERIA M, AULA A WHERE ROWNUM = 1;
+
+COMMIT;
+
+-- 1. Vistas de ocupacion
+-- 1.1. V_OCUPACION_ASIGNADA
+CREATE OR REPLACE VIEW V_OCUPACION_ASIGNADA AS
+SELECT
+    S.CODIGO,
+    S.NOMBRE,
+    E.COD_AULA,
+    E.FECHAHORA,
+    COUNT(A.DNI_ESTUDIANTE) ESTUDIANTES_ASIGNADOS
+FROM SEDE S
+JOIN EXAMEN E ON E.COD_SEDE = S.CODIGO
+LEFT JOIN ASISTENCIA A ON A.COD_SEDE = S.CODIGO AND E.COD_AULA = A.COD_AULA AND E.FECHAHORA = A.FECHAHORA
+GROUP BY S.CODIGO, S.NOMBRE, E.COD_AULA, E.FECHAHORA;
+
+SELECT * FROM V_OCUPACION_ASIGNADA; -- La consulta sale vacia porque no tenemos ningun examen almacenado en la tabla
+
+-- TEST DE VERIFICACIÓN: V_OCUPACION_ASIGNADA -------------------------
+SET SERVEROUTPUT ON;
+PROMPT Comprobando vista V_OCUPACION_ASIGNADA...
+DECLARE
+    v_count NUMBER;
+BEGIN
+    SELECT COUNT(*) INTO v_count FROM V_OCUPACION_ASIGNADA;
+    DBMS_OUTPUT.PUT_LINE('ÉXITO: V_OCUPACION_ASIGNADA leída correctamente. Filas actuales: ' || v_count);
+END;
+/
+
+-- 1.2. V_OCUPACION
+CREATE OR REPLACE VIEW V_OCUPACION AS
+SELECT
+    S.CODIGO,
+    S.NOMBRE,
+    E.COD_AULA,
+    E.FECHAHORA,
+    COUNT(A.DNI_ESTUDIANTE) ESTUDIANTES_ASIGNADOS
+FROM SEDE S
+JOIN EXAMEN E ON E.COD_SEDE = S.CODIGO
+LEFT JOIN ASISTENCIA A ON A.COD_SEDE = S.CODIGO AND E.COD_AULA = A.COD_AULA AND E.FECHAHORA = A.FECHAHORA AND A.ASISTE = 'S'
+GROUP BY S.CODIGO, S.NOMBRE, E.COD_AULA, E.FECHAHORA;
+
+SELECT * FROM V_OCUPACION; -- La consulta sale vacia porque no tenemos ningun examen almacenado en la tabla
+
+-- TEST DE VERIFICACIÓN: V_OCUPACION -------------------------
+SET SERVEROUTPUT ON;
+PROMPT Comprobando vista V_OCUPACION...
+DECLARE
+    v_count NUMBER;
+BEGIN
+    SELECT COUNT(*) INTO v_count FROM V_OCUPACION;
+    DBMS_OUTPUT.PUT_LINE('ÉXITO: V_OCUPACION leída correctamente. Filas actuales: ' || v_count);
+END;
+/
+
+-- 1.3. V_VIGILANTES
+CREATE OR REPLACE VIEW V_VIGILANTES AS
+SELECT
+    S.CODIGO,
+    S.NOMBRE,
+    E.COD_AULA,
+    E.FECHAHORA,
+    COUNT(V.DNI_VOCAL) NUMERO_VIGILANTES
+FROM SEDE S
+JOIN EXAMEN E ON E.COD_SEDE = S.CODIGO
+LEFT JOIN VIGILA V ON V.COD_SEDE = S.CODIGO AND V.COD_AULA = E.COD_AULA AND V.FECHAHORA = E.FECHAHORA
+GROUP BY S.CODIGO, S.NOMBRE, E.COD_AULA, E.FECHAHORA;
+
+SELECT * FROM V_VIGILANTES; -- La consulta sale vacia porque no tenemos ningun examen almacenado en la tabla
+
+-- TEST DE VERIFICACIÓN: V_VIGILANTES -------------------------
+SET SERVEROUTPUT ON;
+PROMPT Comprobando vista V_VIGILANTES...
+DECLARE
+    v_count NUMBER;
+BEGIN
+    SELECT COUNT(*) INTO v_count FROM V_VIGILANTES;
+    DBMS_OUTPUT.PUT_LINE('ÉXITO: V_VIGILANTES leída correctamente. Filas actuales: ' || v_count);
+END;
+/
+
+-- 2. Paquete PK_OCUPACION
+CREATE OR REPLACE PACKAGE PK_OCUPACION AS
+
+    FUNCTION OCUPACION_MAXIMA(P_COD_SEDE IN SEDE.CODIGO%TYPE, P_COD_AULA IN AULA.CODIGO%TYPE) RETURN NUMBER;
+
+    FUNCTION OCUPACION_OK RETURN BOOLEAN;
+
+    FUNCTION VOCAL_DUPLICADO(P_DNI_VOCAL IN VOCAL.DNI%TYPE) RETURN BOOLEAN;
+
+    FUNCTION VOCALES_DUPLICADOS RETURN BOOLEAN;
+
+    FUNCTION VOCAL_RATIO(P_MAX_ALUMNOS_POR_VOCAL IN NUMBER) RETURN BOOLEAN;
+
+END PK_OCUPACION;
+/
+
+CREATE OR REPLACE PACKAGE BODY PK_OCUPACION AS
+    -- 2.1. OCUPACION_MAXIMA: maximo num simultaneo de personas en un aula
+    FUNCTION OCUPACION_MAXIMA(P_COD_SEDE IN SEDE.CODIGO%TYPE, P_COD_AULA IN AULA.CODIGO%TYPE) RETURN NUMBER AS
+        V_MAX_OCUP NUMBER := 0;
+    BEGIN
+        SELECT NVL(MAX(NUM_VOCALES + NUM_ALUMNOS), 0) INTO V_MAX_OCUP
+        FROM (
+            SELECT
+                E.FECHAHORA,
+                -- alumnos presentes (ASISTE = 'S')
+                (SELECT COUNT(DISTINCT A.DNI_ESTUDIANTE)
+                FROM ASISTENCIA A
+                WHERE A.FECHAHORA = E.FECHAHORA
+                    AND A.COD_AULA = E.COD_AULA
+                    AND A.COD_SEDE = E.COD_SEDE
+                    AND A.ASISTE = 'S'
+                ) AS NUM_ALUMNOS,
+            -- vocales: responsable + vigilantes
+                (1 + -- responsable
+                    (SELECT COUNT(DISTINCT v.DNI_VOCAL)
+                    FROM VIGILA V
+                    WHERE V.FECHAHORA   = E.FECHAHORA
+                        AND V.COD_AULA    = E.COD_AULA
+                        AND V.COD_SEDE    = E.COD_SEDE
+                    )
+                ) AS NUM_VOCALES
+            FROM EXAMEN E
+            WHERE E.COD_SEDE = P_COD_SEDE AND E.COD_AULA = P_COD_AULA
+        );
+
+        RETURN v_max_ocup;
+    END OCUPACION_MAXIMA;
+    
+    -- 2.2. OCUPACION_OK:
+    --    TRUE si todos los examenes futuros cumplen capacidad_examen
+    --    y capacidad total (alumnos + vocales)
+    FUNCTION OCUPACION_OK RETURN BOOLEAN IS
+        V_VIOLACION NUMBER;
+    BEGIN
+        SELECT COUNT(*) INTO V_VIOLACION
+        FROM (
+            SELECT
+                E.FECHAHORA,
+                E.COD_AULA,
+                E.COD_SEDE,
+                A.CAPACIDAD,
+                A.CAPACIDAD_EXAMEN,
+                -- alumnos asignados al examen
+                (SELECT COUNT(*)
+                FROM ASISTENCIA ASI
+                WHERE ASI.COD_SEDE   = E.COD_SEDE
+                    AND ASI.COD_AULA   = E.COD_AULA
+                    AND ASI.FECHAHORA  = E.FECHAHORA
+                ) AS NUM_ALUMNOS,
+                -- vocales: responsable + vigilantes
+                (1 + 
+                    (SELECT COUNT(DISTINCT V.DNI_VOCAL)
+                    FROM VIGILA v
+                    WHERE v.FECHAHORA = E.FECHAHORA
+                        AND v.COD_AULA = E.COD_AULA
+                        AND v.COD_SEDE = E.COD_SEDE
+                    )
+                ) AS NUM_VOCALES
+                FROM EXAMEN E
+                JOIN AULA A ON A.CODIGO = E.COD_AULA AND A.CODIGO_SEDE = E.COD_SEDE
+                WHERE E.FECHAHORA > SYSDATE
+            ) T
+        WHERE T.NUM_ALUMNOS > T.CAPACIDAD_EXAMEN
+            OR (T.NUM_ALUMNOS + T.NUM_VOCALES) > T.CAPACIDAD;
+    
+        RETURN (V_VIOLACION = 0);
+    END OCUPACION_OK;
+    
+    -- 2.3. VOCAL_DUPLICADO:
+    --    TRUE si un vocal esta en mas de un examen en la misma franja
+    --    (misma FECHAHORA). Cuenta responsable + vigilante.
+    FUNCTION VOCAL_DUPLICADO(P_DNI_VOCAL IN VOCAL.DNI%TYPE) RETURN BOOLEAN IS
+        V_COUNT NUMBER;
+    BEGIN
+        SELECT COUNT(*) INTO V_COUNT
+        FROM (
+            SELECT FECHAHORA, COUNT(*) AS NUM_EXAMENES
+            FROM (
+                -- responsable
+                SELECT E.COD_SEDE, E.COD_AULA, E.FECHAHORA
+                FROM EXAMEN E
+                WHERE E.DNI_RESPONSABLE = P_DNI_VOCAL
+    
+                UNION ALL
+    
+                -- vigilante
+                SELECT V.COD_SEDE, V.COD_AULA, V.FECHAHORA
+                FROM VIGILA V
+                WHERE V.DNI_VOCAL = P_DNI_VOCAL
+            )
+            GROUP BY FECHAHORA
+            HAVING COUNT(*) > 1
+        );
+    
+        RETURN (v_count > 0);
+    END VOCAL_DUPLICADO;
+    
+    -- 2.4. VOCALES_DUPLICADOS:
+    --    TRUE si existe ALGUN vocal duplicado en alguna franja
+    FUNCTION VOCALES_DUPLICADOS RETURN BOOLEAN IS
+        V_COUNT NUMBER;
+    BEGIN
+        SELECT COUNT(*) INTO V_COUNT
+        FROM (
+            SELECT DNI_VOCAL, FECHAHORA, COUNT(*) AS NUM_EXAMENES
+            FROM (
+                -- responsables
+                SELECT E.DNI_RESPONSABLE AS DNI_VOCAL, E.COD_SEDE, E.COD_AULA, E.FECHAHORA
+                FROM EXAMEN E
+    
+                UNION ALL
+    
+                -- vigilantes
+                SELECT V.DNI_VOCAL, V.COD_SEDE, V.COD_AULA, V.FECHAHORA
+                FROM VIGILA V
+            )
+            GROUP BY DNI_VOCAL, FECHAHORA
+            HAVING COUNT(*) > 1
+        );
+    
+        RETURN (V_COUNT > 0);
+    END VOCALES_DUPLICADOS;
+    
+    -- 2.5. VOCAL_RATIO:
+    --    TRUE si en todos los examenes futuros:
+    --    alumnos > p_max_alumnos_por_vocal * num_vocales
+    FUNCTION VOCAL_RATIO(P_MAX_ALUMNOS_POR_VOCAL IN NUMBER) RETURN BOOLEAN IS
+        V_VIOLACION NUMBER;
+    BEGIN
+        SELECT COUNT(*) INTO V_VIOLACION
+        FROM (
+            SELECT
+                E.FECHAHORA,
+                (SELECT COUNT(*)
+                 FROM ASISTENCIA ASI
+                 WHERE ASI.COD_SEDE = E.COD_SEDE
+                    AND ASI.COD_AULA = E.COD_AULA
+                    AND ASI.FECHAHORA = E.FECHAHORA
+                ) AS NUM_ALUMNOS,
+                -- vocales
+                (1 +
+                (SELECT COUNT(DISTINCT V.DNI_VOCAL)
+                FROM VIGILA V
+                WHERE V.FECHAHORA = E.FECHAHORA
+                    AND V.COD_AULA = E.COD_AULA
+                    AND v.COD_SEDE = E.COD_SEDE
+                )
+            ) AS NUM_VOCALES
+            FROM EXAMEN E
+            WHERE E.FECHAHORA > SYSDATE
+        ) T
+        WHERE T.NUM_ALUMNOS > (P_MAX_ALUMNOS_POR_VOCAL * T.NUM_VOCALES)
+           OR (T.NUM_VOCALES = 0 AND T.NUM_ALUMNOS > 0);
+    
+        RETURN (V_VIOLACION = 0);
+    END VOCAL_RATIO;
+END PK_OCUPACION;
+/
+
+-- TEST DE VERIFICACIÓN: PK_OCUPACION (Cuerpo y Funciones) -------------------------
+SET SERVEROUTPUT ON;
+PROMPT Probando todas las funciones del paquete PK_OCUPACION...
+DECLARE
+    v_sede SEDE.CODIGO%TYPE;
+    v_aula AULA.CODIGO%TYPE;
+    v_vocal VOCAL.DNI%TYPE;
+    v_ocup_max NUMBER;
+BEGIN
+    -- Intentamos obtener datos dinámicos reales para no fallar por claves
+    BEGIN
+        SELECT CODIGO INTO v_sede FROM SEDE WHERE ROWNUM = 1;
+        SELECT CODIGO INTO v_aula FROM AULA WHERE CODIGO_SEDE = v_sede AND ROWNUM = 1;
+    EXCEPTION WHEN NO_DATA_FOUND THEN
+        v_sede := 1; v_aula := 1;
+    END;
+    
+    BEGIN
+        SELECT DNI INTO v_vocal FROM VOCAL WHERE ROWNUM = 1;
+    EXCEPTION WHEN NO_DATA_FOUND THEN
+        v_vocal := '00000000A';
+    END;
+
+    -- Probamos las 5 funciones del paquete
+    v_ocup_max := PK_OCUPACION.OCUPACION_MAXIMA(v_sede, v_aula);
+    DBMS_OUTPUT.PUT_LINE('ÉXITO: OCUPACION_MAXIMA para Sede ' || v_sede || ', Aula ' || v_aula || ': ' || v_ocup_max);
+    
+    DBMS_OUTPUT.PUT_LINE('ÉXITO: OCUPACION_OK retorna: ' || CASE WHEN PK_OCUPACION.OCUPACION_OK THEN 'TRUE' ELSE 'FALSE' END);
+    
+    DBMS_OUTPUT.PUT_LINE('ÉXITO: VOCAL_DUPLICADO para DNI ' || v_vocal || ' retorna: ' || CASE WHEN PK_OCUPACION.VOCAL_DUPLICADO(v_vocal) THEN 'TRUE' ELSE 'FALSE' END);
+    
+    DBMS_OUTPUT.PUT_LINE('ÉXITO: VOCALES_DUPLICADOS retorna: ' || CASE WHEN PK_OCUPACION.VOCALES_DUPLICADOS THEN 'TRUE' ELSE 'FALSE' END);
+    
+    DBMS_OUTPUT.PUT_LINE('ÉXITO: VOCAL_RATIO (ej. max 15 alumnos/vocal) retorna: ' || CASE WHEN PK_OCUPACION.VOCAL_RATIO(15) THEN 'TRUE' ELSE 'FALSE' END);
+
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('FALLO evaluando PK_OCUPACION: ' || SQLERRM);
+END;
+/
+
+-- 3. Seguridad
+------------------------- EJECUTAR COMO SYSTEM -------------------------
+-- Crear roles
+DROP ROLE R_ESTUDIANTE;
+DROP ROLE R_VOCAL;
+DROP ROLE R_SERVICIO_ACCESO;
+
+CREATE ROLE R_ESTUDIANTE;
+CREATE ROLE R_VOCAL;
+CREATE ROLE R_SERVICIO_ACCESO;
+
+-- Dar permiso de iniciar sesion a ambos roles
+GRANT CREATE SESSION TO R_ESTUDIANTE;
+GRANT CREATE SESSION TO R_VOCAL;
+GRANT CREATE SESSION TO R_SERVICIO_ACCESO;
+
+-- PAU pueda crear y modificar usuarios
+GRANT CREATE USER, ALTER USER TO PAU;
+
+-- Le permitimos a PAU heredar y asignar los roles que acabamos de crear
+GRANT R_ESTUDIANTE, R_VOCAL, R_SERVICIO_ACCESO TO PAU WITH ADMIN OPTION;
+
+------------------------- EJECUTAR COMO PAU -------------------------
+-- Modificamos la tabla para almacenar su usuario y contrasena de oracle
+BEGIN
+    EXECUTE IMMEDIATE 'ALTER TABLE ESTUDIANTE ADD (USUARIO_ORACLE VARCHAR2(50), CONTRASENA_ORACLE VARCHAR2(50))';
+EXCEPTION WHEN OTHERS THEN NULL; -- Si ya existian las columnas de una prueba previa, ignora el fallo
+END;
+/
+
+BEGIN
+    EXECUTE IMMEDIATE 'ALTER TABLE ESTUDIANTE ADD CONSTRAINT UQ_EST_USR_ORACLE UNIQUE (USUARIO_ORACLE)';
+EXCEPTION WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+    EXECUTE IMMEDIATE 'ALTER TABLE VOCAL ADD (USUARIO_ORACLE VARCHAR2(50), CONTRASENA_ORACLE VARCHAR2(50))';
+EXCEPTION WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+    EXECUTE IMMEDIATE 'ALTER TABLE VOCAL ADD CONSTRAINT UQ_VOC_USR_ORACLE UNIQUE (USUARIO_ORACLE)';
+EXCEPTION WHEN OTHERS THEN NULL;
+END;
+/
+
+-- Anadimos el campo en la tabla examen para almacenar el numero de alumnos en el aula
+BEGIN
+    EXECUTE IMMEDIATE 'ALTER TABLE EXAMEN ADD (ALUMNOS_PRESENTES NUMBER DEFAULT 0 CHECK (ALUMNOS_PRESENTES >= 0))';
+EXCEPTION WHEN OTHERS THEN NULL;
+END;
+/
+
+-- ROL ESTUDIANTE
+-- Vista para que consulte sus datos personales
+CREATE OR REPLACE VIEW V_ESTUDIANTE_DATOS AS
+SELECT DNI, NOMBRE, APELLIDOS, TELEFONO, CORREOE, CODIGO_CENTRO
+FROM ESTUDIANTE
+WHERE USUARIO_ORACLE = USER;
+
+-- Vista para que consulte sus asignaciones a aulas de examen filtrado por su sesion
+CREATE OR REPLACE VIEW V_ESTUDIANTE_EXAMENES AS
+SELECT A.FECHAHORA, M.NOMBRE AS MATERIA, A.COD_SEDE, S.NOMBRE AS NOMBRE_SEDE, A.COD_AULA, A.ASISTE
+FROM ASISTENCIA A
+JOIN MATERIA M ON A.COD_MATERIA = M.CODIGO
+JOIN SEDE S ON A.COD_SEDE = S.CODIGO
+WHERE A.DNI_ESTUDIANTE = SUBSTR(USER, 5);
+
+-- Privilegios para el rol estudiante (lectura de sus vistas)
+GRANT SELECT ON V_ESTUDIANTE_DATOS TO R_ESTUDIANTE;
+GRANT SELECT ON V_ESTUDIANTE_EXAMENES TO R_ESTUDIANTE;
+
+-- TEST DE VERIFICACIÓN: Vistas R_ESTUDIANTE -------------------------
+SET SERVEROUTPUT ON;
+PROMPT Probando vistas operativas para R_ESTUDIANTE...
+DECLARE
+    v_count NUMBER;
+BEGIN
+    SELECT COUNT(*) INTO v_count FROM V_ESTUDIANTE_DATOS;
+    DBMS_OUTPUT.PUT_LINE('ÉXITO: V_ESTUDIANTE_DATOS accesible. Filas calculadas: ' || v_count);
+END;
+/
+
+-- ROL RESPONSABLE DE SEDE
+-- Vista para ver su sede asignada
+CREATE OR REPLACE VIEW V_RESPONSABLE_SEDE AS
+SELECT * FROM SEDE
+WHERE DNI_RESPONSABLE = SUBSTR(USER, 5);
+
+-- Vistas con WITH CHECK OPTION. Solo permiten gestionar datos vinculados a Ssu propia sede
+CREATE OR REPLACE VIEW V_RESPONSABLE_SEDE_AULAS AS
+SELECT A.* FROM AULA A
+WHERE A.CODIGO_SEDE IN (SELECT S.CODIGO FROM SEDE S WHERE S.DNI_RESPONSABLE = SUBSTR(USER, 5))
+WITH CHECK OPTION;
+
+CREATE OR REPLACE VIEW V_RESPONSABLE_SEDE_EXAMENES AS
+SELECT E.* FROM EXAMEN E
+WHERE E.COD_SEDE IN (SELECT S.CODIGO FROM SEDE S WHERE S.DNI_RESPONSABLE = SUBSTR(USER, 5))
+WITH CHECK OPTION;
+
+CREATE OR REPLACE VIEW V_RESPONSABLE_SEDE_VIGILA AS
+SELECT V.* FROM VIGILA V
+WHERE V.COD_SEDE IN (SELECT S.CODIGO FROM SEDE S WHERE S.DNI_RESPONSABLE = SUBSTR(USER, 5))
+WITH CHECK OPTION;
+
+CREATE OR REPLACE VIEW V_RESPONSABLE_SEDE_ASISTENCIA AS
+SELECT A.* FROM ASISTENCIA A
+WHERE A.COD_SEDE IN (SELECT S.CODIGO FROM SEDE S WHERE S.DNI_RESPONSABLE = SUBSTR(USER, 5))
+WITH CHECK OPTION;
+
+-- Privilegios de DML
+GRANT SELECT, INSERT, UPDATE, DELETE ON V_RESPONSABLE_SEDE TO R_VOCAL;
+GRANT SELECT, INSERT, UPDATE, DELETE ON V_RESPONSABLE_SEDE_AULAS TO R_VOCAL;
+GRANT SELECT, INSERT, UPDATE, DELETE ON V_RESPONSABLE_SEDE_EXAMENES TO R_VOCAL;
+GRANT SELECT, INSERT, UPDATE, DELETE ON V_RESPONSABLE_SEDE_VIGILA TO R_VOCAL;
+GRANT SELECT, INSERT, UPDATE, DELETE ON V_RESPONSABLE_SEDE_ASISTENCIA TO R_VOCAL;
+
+-- TEST DE VERIFICACIÓN: Vistas R_VOCAL (Responsable de Sede) -------------------------
+SET SERVEROUTPUT ON;
+PROMPT Probando vistas con check option para responsables...
+DECLARE
+    v_count NUMBER;
+BEGIN
+    SELECT COUNT(*) INTO v_count FROM V_RESPONSABLE_SEDE_AULAS;
+    DBMS_OUTPUT.PUT_LINE('ÉXITO: V_RESPONSABLE_SEDE_AULAS accesible. Filas para sesión actual: ' || v_count);
+END;
+/
+
+-- ROL RESPONSABLE DE AULA
+-- Vista para que vea los examenes
+CREATE OR REPLACE VIEW V_RESPONSABLE_AULA AS
+SELECT FECHAHORA, CODIGO_MATERIA, COD_AULA, COD_SEDE, ALUMNOS_PRESENTES
+FROM EXAMEN
+WHERE DNI_RESPONSABLE = SUBSTR(USER, 5);
+
+-- Privilegios jectura general y modificacion del campo numero de alumnos
+GRANT SELECT, UPDATE(ALUMNOS_PRESENTES) ON V_RESPONSABLE_AULA TO R_VOCAL;
+
+-- TEST DE VERIFICACIÓN: Vistas R_VOCAL (Responsable de Aula) -------------------------
+SET SERVEROUTPUT ON;
+PROMPT Probando acceso a vistas de responsable de aula...
+DECLARE
+    v_count NUMBER;
+BEGIN
+    SELECT COUNT(*) INTO v_count FROM V_RESPONSABLE_AULA;
+    DBMS_OUTPUT.PUT_LINE('ÉXITO: V_RESPONSABLE_AULA compilada y accesible. Filas: ' || v_count);
+END;
+/
+
+-- ROL VIGILANTE DE AULA
+-- Vista de lectura para los vocales asignados como vigilantes de apoyo en las aulas
+CREATE OR REPLACE VIEW V_VIGILANTE_EXAMENES AS
+SELECT V.FECHAHORA, M.NOMBRE AS MATERIA, V.COD_SEDE, V.COD_AULA
+FROM VIGILA V
+JOIN MATERIA M ON V.COD_MATERIA = M.CODIGO
+WHERE V.DNI_VOCAL = SUBSTR(USER, 5);
+
+GRANT SELECT ON V_VIGILANTE_EXAMENES TO R_VOCAL;
+
+GRANT SELECT ON MATERIA TO R_VOCAL;
+GRANT SELECT ON CENTRO TO R_VOCAL;
+
+-- TEST DE VERIFICACIÓN: Vistas R_VOCAL (Vigilante General) -------------------------
+SET SERVEROUTPUT ON;
+PROMPT Probando vistas transversales de vigilantes...
+DECLARE
+    v_count NUMBER;
+BEGIN
+    SELECT COUNT(*) INTO v_count FROM V_VIGILANTE_EXAMENES;
+    DBMS_OUTPUT.PUT_LINE('ÉXITO: V_VIGILANTE_EXAMENES operativa. Filas leídas: ' || v_count);
+END;
+/
+
+-- PERSONAL DEL SERVICIO DE ACCESO (VICERRECTORADO)
+-- Gestion de sedes y sus responsables
+GRANT SELECT, INSERT, UPDATE, DELETE ON SEDE TO R_SERVICIO_ACCESO;
+
+-- Consulta de la asignacion de estudiantes a sedes/aulas de todos los centros
+CREATE OR REPLACE VIEW V_ACCESO_ASIGNACION_GLOBAL AS
+SELECT E.DNI, E.NOMBRE, E.APELLIDOS, C.NOMBRE AS CENTRO_PROCEDENCIA, A.COD_SEDE, S.NOMBRE AS SEDE_EXAMEN, A.COD_AULA, A.FECHAHORA
+FROM ASISTENCIA A
+JOIN ESTUDIANTE E ON A.DNI_ESTUDIANTE = E.DNI
+JOIN CENTRO C ON E.CODIGO_CENTRO = C.CODIGO
+JOIN SEDE S ON A.COD_SEDE = S.CODIGO;
+
+-- Consulta de alumnos que han realizado examenes por aula
+CREATE OR REPLACE VIEW V_ACCESO_CONTEO_POR_AULA AS
+SELECT FECHAHORA, CODIGO_MATERIA, COD_SEDE, COD_AULA, ALUMNOS_PRESENTES
+FROM EXAMEN;
+
+-- Privilegios de lectura
+GRANT SELECT ON V_ACCESO_ASIGNACION_GLOBAL TO R_SERVICIO_ACCESO;
+GRANT SELECT ON V_ACCESO_CONTEO_POR_AULA TO R_SERVICIO_ACCESO;
+
+-- TEST DE VERIFICACIÓN: Vistas R_SERVICIO_ACCESO -------------------------
+SET SERVEROUTPUT ON;
+PROMPT Probando vistas globales de Acceso Universitario...
+DECLARE
+    v_count NUMBER;
+BEGIN
+    SELECT COUNT(*) INTO v_count FROM V_ACCESO_ASIGNACION_GLOBAL;
+    DBMS_OUTPUT.PUT_LINE('ÉXITO: V_ACCESO_ASIGNACION_GLOBAL operativa. Asignaciones totales: ' || v_count);
+END;
+/
+
+CREATE OR REPLACE PACKAGE PK_SEGURIDAD_PAU AS
+
+    PROCEDURE PR_CREA_ESTUDIANTE (
+        P_DNI_ESTUDIANTE IN ESTUDIANTE.DNI%TYPE,
+        P_USUARIO_ORACLE OUT VARCHAR2,
+        P_CONTRASENIA OUT VARCHAR2
+    );
+
+    PROCEDURE PR_CREA_VOCAL (
+        P_DNI_VOCAL IN VOCAL.DNI%TYPE,
+        P_USUARIO_ORACLE OUT VARCHAR2,
+        P_CONTRASENIA OUT VARCHAR2
+    );
+
+END PK_SEGURIDAD_PAU;
+/
+
+CREATE OR REPLACE PACKAGE BODY PK_SEGURIDAD_PAU AS
+
+    -- Funcion auxiliar para generar contrasenias
+    FUNCTION GENERAR_PASSWORD_ALEATORIA RETURN VARCHAR2 IS
+    BEGIN
+        -- Genera una cadena alfanumerica aleatoria de 12 caracteres (mayusculas y numeros)
+        RETURN DBMS_RANDOM.STRING('X', 12); 
+    END GENERAR_PASSWORD_ALEATORIA;
+
+  -- PR_CREA_ESTUDIANTE
+    PROCEDURE PR_CREA_ESTUDIANTE (
+        P_DNI_ESTUDIANTE IN ESTUDIANTE.DNI%TYPE,
+        P_USUARIO_ORACLE OUT VARCHAR2,
+        P_CONTRASENIA OUT VARCHAR2
+    ) IS
+        V_SQL VARCHAR2(500);
+        V_USER_SEGURO VARCHAR2(50);
+    BEGIN
+        -- Formato del nombre de usuario (como el usuario no puede empezar por un numero,
+        -- le aniadimos una etiqueta al principio)
+        P_USUARIO_ORACLE := 'EST_' || UPPER(P_DNI_ESTUDIANTE);
+        P_CONTRASENIA := GENERAR_PASSWORD_ALEATORIA;
+
+        -- Evitar SQL Injection, comprueba que la cadena sea simple y valida y no sea algo malicioso
+        V_USER_SEGURO := DBMS_ASSERT.SIMPLE_IDENTIFIER(P_USUARIO_ORACLE);
+
+        -- Creamos el usuario en oracle
+        V_SQL := 'CREATE USER ' || V_USER_SEGURO || ' IDENTIFIED BY "' || P_CONTRASENIA || '"';
+        EXECUTE IMMEDIATE V_SQL;
+
+        -- Asignamos privilegios por el rol
+        V_SQL := 'GRANT R_ESTUDIANTE TO ' || V_USER_SEGURO;
+        EXECUTE IMMEDIATE V_SQL;
+
+        -- Guardamos las credenciales en su tabla
+        UPDATE ESTUDIANTE 
+        SET USUARIO_ORACLE = P_USUARIO_ORACLE, 
+            CONTRASENA_ORACLE = P_CONTRASENIA 
+        WHERE DNI = P_DNI_ESTUDIANTE;
+
+    EXCEPTION
+        WHEN OTHERS THEN
+        RAISE_APPLICATION_ERROR(-20010, 'Error al crear el usuario de oracle al estudiante: ' || SQLERRM);
+    END PR_CREA_ESTUDIANTE;
+
+  -- PR_CREA_VOCAL
+    PROCEDURE PR_CREA_VOCAL (
+        P_DNI_VOCAL IN VOCAL.DNI%TYPE,
+        P_USUARIO_ORACLE OUT VARCHAR2,
+        P_CONTRASENIA OUT VARCHAR2
+    ) IS
+        V_SQL VARCHAR2(500);
+        V_USER_SEGURO VARCHAR2(50);
+    BEGIN
+        -- Formato del nombre de usuario (como el usuario no puede empezar por un numero,
+        -- le aniadimos una etiqueta al principio)
+        P_USUARIO_ORACLE := 'VOC_' || UPPER(P_DNI_VOCAL);
+        P_CONTRASENIA := GENERAR_PASSWORD_ALEATORIA;
+
+        -- Evitar SQL Injection, comprueba que la cadena sea simple y valida y no sea algo malicioso
+        V_USER_SEGURO := DBMS_ASSERT.SIMPLE_IDENTIFIER(P_USUARIO_ORACLE);
+
+        -- Creamos el usuario en oracle
+        V_SQL := 'CREATE USER ' || V_USER_SEGURO || ' IDENTIFIED BY "' || P_CONTRASENIA || '"';
+        EXECUTE IMMEDIATE V_SQL;
+
+        -- Asignamos privilegios por el rol
+        V_SQL := 'GRANT R_VOCAL TO ' || V_USER_SEGURO;
+        EXECUTE IMMEDIATE V_SQL;
+
+        -- Guardamos las credenciales en su tabla
+        UPDATE VOCAL 
+        SET USUARIO_ORACLE = P_USUARIO_ORACLE, 
+            CONTRASENA_ORACLE = P_CONTRASENIA 
+        WHERE DNI = P_DNI_VOCAL;
+
+    EXCEPTION
+        WHEN OTHERS THEN
+        RAISE_APPLICATION_ERROR(-20011, 'Error al crear usuario de oracle al vocal: ' || SQLERRM);
+    END PR_CREA_VOCAL;
+
+END PK_SEGURIDAD_PAU;
+/
+
+-- 4. Trigger
+CREATE OR REPLACE TRIGGER TR_BORRA_AULA
+BEFORE DELETE ON AULA
+FOR EACH ROW
+DECLARE
+    V_EXAMENES_CRITICOS NUMBER := 0;
+BEGIN
+    -- A. examenes pasados o hay uno en menos de 48 horas
+    SELECT COUNT(*) INTO V_EXAMENES_CRITICOS
+    FROM EXAMEN
+    WHERE COD_AULA = :OLD.CODIGO
+        AND COD_SEDE = :OLD.CODIGO_SEDE
+        AND FECHAHORA < (SYSDATE + 2); -- pasados y en 48 horas
+
+    IF V_EXAMENES_CRITICOS > 0 THEN
+        RAISE_APPLICATION_ERROR(-20030, 'Error al eliminar aula ya que se ha realizado examenes o hay uno proximo en 48 horas');
+    END IF;
+    
+    -- B. examenes a mas de 48 horas
+    -- quitamos la asistencia a ese examen
+    DELETE FROM ASISTENCIA
+    WHERE COD_AULA = :OLD.CODIGO
+      AND COD_SEDE = :OLD.CODIGO_SEDE;
+      
+    -- quitamos al vigilante de ese examen
+    DELETE FROM VIGILA
+    WHERE COD_AULA = :OLD.CODIGO
+      AND COD_SEDE = :OLD.CODIGO_SEDE;
+    -- borramos el examen
+    DELETE FROM EXAMEN
+    WHERE COD_AULA = :OLD.CODIGO
+      AND COD_SEDE = :OLD.CODIGO_SEDE;
+    
+    -- el trigger ya borrara el aula
+END;
+/
+
+-- TEST DE VERIFICACIÓN: TR_BORRA_AULA -------------------------
+SET SERVEROUTPUT ON;
+PROMPT Probando trigger restrictivo TR_BORRA_AULA...
+DECLARE
+    v_cod_aula AULA.CODIGO%TYPE;
+    v_cod_sede AULA.CODIGO_SEDE%TYPE;
+BEGIN
+    SELECT CODIGO, CODIGO_SEDE INTO v_cod_aula, v_cod_sede FROM AULA WHERE ROWNUM = 1;
+    
+    -- Insertamos de forma simulada un examen dentro del plazo prohibitivo (<48h)
+    INSERT INTO EXAMEN (FECHAHORA, CODIGO_MATERIA, COD_AULA, COD_SEDE, DNI_RESPONSABLE)
+    VALUES (SYSDATE + 1, (SELECT CODIGO FROM MATERIA WHERE ROWNUM=1), v_cod_aula, v_cod_sede, (SELECT DNI FROM VOCAL WHERE ROWNUM=1));
+    
+    BEGIN
+        DELETE FROM AULA WHERE CODIGO = v_cod_aula AND CODIGO_SEDE = v_cod_sede;
+        DBMS_OUTPUT.PUT_LINE('FALLO: El trigger no bloqueó la operación, algo fue mal.');
+    EXCEPTION
+        WHEN OTHERS THEN
+            IF SQLCODE = -20030 THEN
+                DBMS_OUTPUT.PUT_LINE('ÉXITO: El trigger bloqueó correctamente el borrado del aula (' || SQLERRM || ').');
+            ELSE
+                DBMS_OUTPUT.PUT_LINE('ERROR INESPERADO: ' || SQLERRM);
+            END IF;
+    END;
+    ROLLBACK;
+    DBMS_OUTPUT.PUT_LINE('Rollback ejecutado para limpiar el test.');
+EXCEPTION WHEN NO_DATA_FOUND THEN
+    DBMS_OUTPUT.PUT_LINE('Sin datos de aulas o materias suficientes para la prueba dinámica.');
+END;
+/
+
+-- 5. Procedimientos adicionales
+-- 5.1. DESPISTE
+CREATE OR REPLACE PROCEDURE DESPISTE (
+    P_DNI_ESTUDIANTE IN ASISTENCIA.DNI_ESTUDIANTE%TYPE,
+    P_FECHAHORA IN ASISTENCIA.FECHAHORA%TYPE,
+    P_NUEVA_SEDE IN ASISTENCIA.COD_SEDE%TYPE,
+    P_NUEVO_AULA IN ASISTENCIA.COD_AULA%TYPE
+) IS
+    V_PRIMERA_HORA      DATE;
+    V_AULA_DISPONIBLE   AULA.CODIGO%TYPE;
+    
+    -- Cursor para buscar el RESTO de examenes del alumno en el MISMO DIA de la fecha del sistema
+    -- Excluimos el examen actual que se pasa como parametro y que reubicamos primero.
+    CURSOR C_EXAMENES_DIA IS
+        SELECT E.CODIGO_MATERIA AS COD_MATERIA, A.FECHAHORA, A.COD_SEDE, A.COD_AULA
+        FROM ASISTENCIA A
+        JOIN EXAMEN E ON A.COD_SEDE = E.COD_SEDE AND A.COD_AULA = E.COD_AULA AND A.FECHAHORA = E.FECHAHORA
+        WHERE A.DNI_ESTUDIANTE = P_DNI_ESTUDIANTE
+          AND TRUNC(A.FECHAHORA) = TRUNC(P_FECHAHORA) -- Pra buscar examenes del mismo dia
+          AND A.FECHAHORA != P_FECHAHORA;
+
+    -- Excepciones personalizadas
+    E_FUERA_DE_TIEMPO EXCEPTION;
+    E_SIN_AULA_LIBRE EXCEPTION;
+    PRAGMA EXCEPTION_INIT(E_FUERA_DE_TIEMPO, -20001);
+    PRAGMA EXCEPTION_INIT(E_SIN_AULA_LIBRE, -20002);
+BEGIN
+    -- A. Comprobamos si el examen solicitado esta planificado entre SYSDATE y SYSDATE + 1 hora (1/24)
+    SELECT MIN(FECHAHORA) INTO V_PRIMERA_HORA
+    FROM ASISTENCIA
+    WHERE DNI_ESTUDIANTE = P_DNI_ESTUDIANTE
+        AND FECHAHORA >= SYSDATE;
+
+    -- Comprobamos si falta menos de una hora para ese examen
+    IF V_PRIMERA_HORA IS NULL OR V_PRIMERA_HORA NOT BETWEEN SYSDATE AND (SYSDATE + 1/24) THEN
+        RAISE_APPLICATION_ERROR(-20001, 'Error: El procedimiento solo funciona si falta menos de una hora para el examen');
+    END IF;
+
+    -- B. Reubicacion del primer examen
+    UPDATE ASISTENCIA
+    SET COD_SEDE = P_NUEVA_SEDE,
+        COD_AULA = P_NUEVO_AULA
+    WHERE DNI_ESTUDIANTE = P_DNI_ESTUDIANTE
+        AND FECHAHORA = P_FECHAHORA;
+
+    -- C. Reubicar el resto de examenes del dia
+    -- Recorremos todos los demas examenes que tiene el alumno el dia de hoy
+    FOR R_EX IN C_EXAMENES_DIA LOOP
+        -- Buscamos un aula en la nueva sede que tenga examen de esa misma materia/hora 
+        -- y cuya ocupacion actual de alumnos asignados sea menor que su capacidad de examen
+        BEGIN
+            SELECT A.CODIGO
+            INTO V_AULA_DISPONIBLE
+            FROM AULA A
+            JOIN EXAMEN E ON A.CODIGO = E.COD_AULA AND A.CODIGO_SEDE = E.COD_SEDE
+            WHERE A.CODIGO_SEDE = P_NUEVA_SEDE
+                AND E.FECHAHORA = R_EX.FECHAHORA
+                AND E.CODIGO_MATERIA = R_EX.COD_MATERIA
+                AND A.CAPACIDAD_EXAMEN > (
+                    -- Contamos cuantos estudiantes estan ya asignados a este aula/examen
+                    SELECT COUNT(*) 
+                    FROM ASISTENCIA ASIS
+                    WHERE ASIS.COD_SEDE = E.COD_SEDE
+                        AND ASIS.COD_AULA = E.COD_AULA
+                        AND ASIS.FECHAHORA = E.FECHAHORA
+                )
+                AND ROWNUM = 1; -- Si hay varias aulas libres, seleccionamos la primera que encuentre
+              
+        -- Si para alguno de los examenes del dia no hay espacio en la nueva sede, abortamos todo
+        EXCEPTION
+            WHEN NO_DATA_FOUND THEN
+                RAISE_APPLICATION_ERROR(-20002, 'Error: No hay aula disponible en la sede de destino para el examen de las '
+                    || TO_CHAR(R_EX.FECHAHORA, 'HH24:MI') || ' de la materia ' || R_EX.COD_MATERIA);
+        END;
+        
+        -- Si ha encontrado aula libre, modificamos la asistencia del alumno para ese examen del dia
+        UPDATE ASISTENCIA
+        SET COD_SEDE = P_NUEVA_SEDE,
+            COD_AULA = V_AULA_DISPONIBLE
+        WHERE DNI_ESTUDIANTE = P_DNI_ESTUDIANTE
+            AND FECHAHORA = R_EX.FECHAHORA;
+    END LOOP;
+    COMMIT;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK; -- En caso de cualquier error, deshacemos los cambios
+        RAISE;
+END DESPISTE;
+/
+
+-- TEST DE VERIFICACIÓN: DESPISTE -------------------------
+SET SERVEROUTPUT ON;
+PROMPT Probando Procedimiento DESPISTE (Control de reubicación)...
+BEGIN
+    -- Forzamos error de negocio de un estudiante sin asistencia prevista enviando SYSDATE
+    BEGIN
+        DESPISTE('00000000T', SYSDATE, 1, 1);
+        DBMS_OUTPUT.PUT_LINE('FALLO: Traspasó la comprobación de < 1 hora incorrectamente.');
+    EXCEPTION
+        WHEN OTHERS THEN
+            IF SQLCODE = -20001 THEN
+                DBMS_OUTPUT.PUT_LINE('ÉXITO: La barrera inicial del procedimiento funciona (' || SQLERRM || ').');
+            ELSE
+                DBMS_OUTPUT.PUT_LINE('ERROR SECUNDARIO: ' || SQLERRM);
+            END IF;
+    END;
+    ROLLBACK;
+    DBMS_OUTPUT.PUT_LINE('Rollback ejecutado para el test DESPISTE.');
+END;
+/
+
+-- 5.2. MIGRAR_CENTRO
+CREATE OR REPLACE TRIGGER TR_MIGRAR_CENTRO
+AFTER UPDATE OF CODIGO_SEDE ON CENTRO
+FOR EACH ROW
+DECLARE
+    V_AULA_DISPONIBLE   AULA.CODIGO%TYPE;
+
+    -- cursor que usa los valores new y old del centro modificado
+    CURSOR C_EXAMENES_ALUMNOS IS
+        SELECT A.DNI_ESTUDIANTE, A.FECHAHORA, E.CODIGO_MATERIA, A.COD_AULA AS AULA_VIEJA
+        FROM ASISTENCIA A
+        JOIN ESTUDIANTE EST ON A.DNI_ESTUDIANTE = EST.DNI
+        JOIN EXAMEN E ON A.COD_SEDE = E.COD_SEDE AND A.COD_AULA = E.COD_AULA AND A.FECHAHORA = E.FECHAHORA
+        WHERE EST.CODIGO_CENTRO = :NEW.CODIGO
+          AND A.COD_SEDE = :OLD.CODIGO_SEDE;
+BEGIN
+    -- procesamos en cascada la reubicacion de todos los alumnos implicados
+    FOR EXA IN C_EXAMENES_ALUMNOS LOOP
+        BEGIN
+            -- buscamos aula en la nueva sede que le acaban de poner al centro
+            SELECT A.CODIGO INTO V_AULA_DISPONIBLE
+            FROM AULA A
+            JOIN EXAMEN E ON A.CODIGO = E.COD_AULA AND A.CODIGO_SEDE = E.COD_SEDE
+            WHERE A.CODIGO_SEDE = :NEW.CODIGO_SEDE
+                AND E.FECHAHORA = EXA.FECHAHORA
+                AND E.CODIGO_MATERIA = EXA.CODIGO_MATERIA
+                AND A.CAPACIDAD_EXAMEN > (
+                  -- control de capacidad para asegurar el limite
+                  SELECT COUNT(*) 
+                  FROM ASISTENCIA ASIS
+                  WHERE ASIS.COD_SEDE = E.COD_SEDE
+                        AND ASIS.COD_AULA = E.COD_AULA
+                        AND ASIS.FECHAHORA = E.FECHAHORA
+                )
+                AND ROWNUM = 1;
+
+        EXCEPTION
+            WHEN NO_DATA_FOUND THEN
+                -- cancelamos el update del centro si no caben todos
+                RAISE_APPLICATION_ERROR(-20051, 'Error: no se puede asignar por falta de capacidad en la nueva sede');
+        END;
+
+        -- reubicamos al alumno cambiando la sede y el aula asignada
+        UPDATE ASISTENCIA
+        SET COD_SEDE = :NEW.CODIGO_SEDE,
+            COD_AULA = V_AULA_DISPONIBLE
+        WHERE DNI_ESTUDIANTE = EXA.DNI_ESTUDIANTE
+            AND FECHAHORA = EXA.FECHAHORA
+            AND COD_SEDE = :OLD.CODIGO_SEDE
+            AND COD_AULA = EXA.AULA_VIEJA;
+
+    END LOOP;
+END TR_MIGRAR_CENTRO;
+/
+
+-- TEST DE VERIFICACIÓN: TR_MIGRAR_CENTRO -------------------------
+SET SERVEROUTPUT ON;
+PROMPT Probando trigger TR_MIGRAR_CENTRO en cascada...
+DECLARE
+    v_cod_centro CENTRO.CODIGO%TYPE;
+    v_nueva_sede SEDE.CODIGO%TYPE;
+BEGIN
+    SELECT CODIGO INTO v_cod_centro FROM CENTRO WHERE ROWNUM = 1;
+    SELECT CODIGO INTO v_nueva_sede FROM SEDE WHERE ROWNUM = 1;
+    
+    UPDATE CENTRO SET CODIGO_SEDE = v_nueva_sede WHERE CODIGO = v_cod_centro;
+    DBMS_OUTPUT.PUT_LINE('ÉXITO: Centro actualizado. El trigger de migración en cascada no reportó excepciones incontroladas.');
+    
+    ROLLBACK;
+    DBMS_OUTPUT.PUT_LINE('Rollback completado de la migración ficticia.');
+EXCEPTION WHEN NO_DATA_FOUND THEN
+    DBMS_OUTPUT.PUT_LINE('Faltan sedes o centros generados para probar el trigger.');
+END;
+/
+
+-- POLITICA DE AUTORIZACION VPD Y AUDIT PARA MODIFICACION DE ASISTENTES A EXAMEN
+
+------------------------- EJECUTAR COMO SYS -------------------------
+
+-- Asegura que los usuarios solo vean o modifiquen las filas para las que estan autorizados
+GRANT EXECUTE ON DBMS_RLS TO PAU;
+
+------------------------- EJECUTAR COMO PAU -------------------------
+
+-- 1. Funcion VPD que inyecta un filtro "WHERE".
+-- Si el usuario es un estudiante (su sesion empieza por EST_), la base de datos
+-- anade una condicion para que solo pueda consultar su propio registro
+CREATE OR REPLACE FUNCTION F_VPD_FILTRO_ESTUDIANTE (
+    P_SCHEMA IN VARCHAR2,
+    P_TABLE  IN VARCHAR2
+) RETURN VARCHAR2 IS
+    V_USER VARCHAR2(100);
+BEGIN
+    -- Usuario de la sesion actual
+    V_USER := SYS_CONTEXT('USERENV', 'SESSION_USER');
+    
+    -- Si es un estudiante, limitamos su acceso a su propio registro
+    IF V_USER LIKE 'EST_%' THEN
+        RETURN 'USUARIO_ORACLE = ''' || V_USER || '''';
+    ELSE
+        -- Si es el administrador (PAU), SYSTEM o el Servicio de Acceso, tienen acceso total a todas las filas
+        RETURN NULL;
+    END IF;
+END;
+/
+
+-- 2. Registramos la politica VPD en la tabla estudiante utilizando el paquete DBMS_RLS
+BEGIN
+    DBMS_RLS.ADD_POLICY(
+        object_schema   => 'PAU',
+        object_name     => 'ESTUDIANTE',
+        policy_name     => 'POLITICA_ESTUDIANTES_VPD',
+        function_schema => 'PAU',
+        policy_function => 'F_VPD_FILTRO_ESTUDIANTE',
+        statement_types => 'SELECT, UPDATE, DELETE',
+        update_check    => TRUE
+    );
+EXCEPTION 
+    WHEN OTHERS THEN 
+        NULL;
+END;
+/
+
+-- TEST DE VERIFICACIÓN: F_VPD_FILTRO_ESTUDIANTE -------------------------
+SET SERVEROUTPUT ON;
+PROMPT Probando política de acceso VPD en estudiantes...
+DECLARE
+    v_count NUMBER;
+BEGIN
+    -- Comprobamos visibilidad. Al ser lanzada por PAU se deben ver todos
+    SELECT COUNT(*) INTO v_count FROM ESTUDIANTE;
+    DBMS_OUTPUT.PUT_LINE('ÉXITO: Política activa evaluada. Visibilidad del perfil PAU/DBA: ' || v_count || ' filas.');
+END;
+/
+
+-- 1. Tabla de audit
+DROP TABLE AUDIT_ASISTENCIA;
+CREATE TABLE AUDIT_ASISTENCIA (
+    ID_LOG             NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    FECHAHORA_AUDIT    DATE DEFAULT SYSDATE,
+    USUARIO_REALIZO    VARCHAR2(100),
+    OPERACION          VARCHAR2(20),
+    DNI_ESTUDIANTE     VARCHAR2(20),
+    COD_MATERIA        VARCHAR2(10),
+    COD_SEDE           NUMBER,
+    COD_AULA           NUMBER,
+    ASISTE_ANTIGUO     VARCHAR2(10),
+    ASISTE_NUEVO       VARCHAR2(10)
+);
+
+-- 2. Trigger que coge los cambios en asistencia
+CREATE OR REPLACE TRIGGER TR_AUDIT_ASISTENCIA
+AFTER UPDATE OR DELETE ON ASISTENCIA
+FOR EACH ROW
+DECLARE
+    V_OP VARCHAR2(20);
+BEGIN
+    IF UPDATING THEN
+        V_OP := 'MODIFICACION';
+    ELSIF DELETING THEN
+        V_OP := 'BORRADO';
+    END IF;
+    
+    INSERT INTO AUDIT_ASISTENCIA (
+        USUARIO_REALIZO, OPERACION, DNI_ESTUDIANTE, COD_MATERIA, COD_SEDE, COD_AULA, ASISTE_ANTIGUO, ASISTE_NUEVO
+    ) VALUES (
+        SYS_CONTEXT('USERENV', 'SESSION_USER'),
+        V_OP,
+        :OLD.DNI_ESTUDIANTE,
+        :OLD.COD_MATERIA,
+        :OLD.COD_SEDE,
+        :OLD.COD_AULA,
+        :OLD.ASISTE,
+        CASE WHEN V_OP = 'MODIFICACION' THEN :NEW.ASISTE ELSE NULL END
+    );
+END;
+/
+
+-- TEST DE VERIFICACIÓN: TR_AUDIT_ASISTENCIA -------------------------
+SET SERVEROUTPUT ON;
+PROMPT Probando trigger de auditoría TR_AUDIT_ASISTENCIA...
+DECLARE
+    v_count       NUMBER;
+    v_dni_est     VARCHAR2(9);
+    v_dni_voc     VARCHAR2(9);
+    v_mat         VARCHAR2(10);
+    v_sede        NUMBER;
+    v_aula        NUMBER;
+    v_fecha       TIMESTAMP := SYSDATE;
+BEGIN
+    -- Capturamos datos DE LAS TABLAS tablas
+    SELECT DNI INTO v_dni_est FROM ESTUDIANTE WHERE ROWNUM = 1;
+    SELECT DNI INTO v_dni_voc FROM VOCAL WHERE ROWNUM = 1;
+    SELECT CODIGO INTO v_mat FROM MATERIA WHERE ROWNUM = 1;
+    SELECT CODIGO_SEDE, CODIGO INTO v_sede, v_aula FROM AULA WHERE ROWNUM = 1;
+
+    -- 1. Insertamos primero el examen para cumplir la restricción de clave ajena compuesta
+    INSERT INTO EXAMEN (FECHAHORA, CODIGO_MATERIA, COD_AULA, COD_SEDE, DNI_RESPONSABLE)
+    VALUES (v_fecha, v_mat, v_aula, v_sede, v_dni_voc);
+
+    -- 2. Insertamos en asistencia
+    INSERT INTO ASISTENCIA (DNI_ESTUDIANTE, FECHAHORA, COD_MATERIA, COD_SEDE, COD_AULA, ASISTE)
+    VALUES (v_dni_est, v_fecha, v_mat, v_sede, v_aula, 'N');
+    
+    -- 3. Actualizamos para activar el trigger de auditoria
+    UPDATE ASISTENCIA SET ASISTE = 'S' 
+    WHERE DNI_ESTUDIANTE = v_dni_est AND FECHAHORA = v_fecha;
+    
+    -- 4. Consultamos la tabla de logs para comprobar el funcionamiento
+    SELECT COUNT(*) INTO v_count FROM AUDIT_ASISTENCIA 
+    WHERE DNI_ESTUDIANTE = v_dni_est AND OPERACION = 'MODIFICACION';
+    
+    IF v_count > 0 THEN
+        DBMS_OUTPUT.PUT_LINE('ÉXITO: El registro de alteración se alojó en la tabla AUDIT_ASISTENCIA.');
+    ELSE
+        DBMS_OUTPUT.PUT_LINE('FALLO: El trigger no generó rastreo auditor.');
+    END IF;
+    
+    -- 5. Limpieza
+    ROLLBACK;
+    DBMS_OUTPUT.PUT_LINE('Rollback realizado. Todo devuelto a su estado original de forma limpia.');
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK;
+        DBMS_OUTPUT.PUT_LINE('FALLO CONTROLADO EN EL TEST: ' || SQLERRM);
+END;
+/
