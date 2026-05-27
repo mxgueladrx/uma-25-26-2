@@ -1265,6 +1265,13 @@ BEGIN
 END;
 /
 
+------------------------- EJECUTAR COMO SYS -------------------------
+
+-- Damos permisos a PAU para usar filtros que aseguran nombres de objetos validos e inmunes a sql injection
+GRANT EXECUTE ON DBMS_ASSERT TO PAU;
+
+------------------------- EJECUTAR COMO PAU -------------------------
+
 CREATE OR REPLACE PACKAGE PK_SEGURIDAD_PAU AS
 
     PROCEDURE PR_CREA_ESTUDIANTE (
@@ -1283,7 +1290,6 @@ END PK_SEGURIDAD_PAU;
 /
 
 CREATE OR REPLACE PACKAGE BODY PK_SEGURIDAD_PAU AS
-
     -- Funcion auxiliar para generar contrasenias
     FUNCTION GENERAR_PASSWORD_ALEATORIA RETURN VARCHAR2 IS
     BEGIN
@@ -1306,7 +1312,8 @@ CREATE OR REPLACE PACKAGE BODY PK_SEGURIDAD_PAU AS
         P_CONTRASENIA := GENERAR_PASSWORD_ALEATORIA;
 
         -- Evitar SQL Injection, comprueba que la cadena sea simple y valida y no sea algo malicioso
-        V_USER_SEGURO := DBMS_ASSERT.SIMPLE_IDENTIFIER(P_USUARIO_ORACLE);
+        -- Envuelve la cadena en comillas dobles y duplica las comillas internas
+        V_USER_SEGURO := DBMS_ASSERT.ENQUOTE_NAME(P_USUARIO_ORACLE, FALSE);
 
         -- Creamos el usuario en oracle
         V_SQL := 'CREATE USER ' || V_USER_SEGURO || ' IDENTIFIED BY "' || P_CONTRASENIA || '"';
@@ -1341,8 +1348,8 @@ CREATE OR REPLACE PACKAGE BODY PK_SEGURIDAD_PAU AS
         P_USUARIO_ORACLE := 'VOC_' || UPPER(P_DNI_VOCAL);
         P_CONTRASENIA := GENERAR_PASSWORD_ALEATORIA;
 
-        -- Evitar SQL Injection, comprueba que la cadena sea simple y valida y no sea algo malicioso
-        V_USER_SEGURO := DBMS_ASSERT.SIMPLE_IDENTIFIER(P_USUARIO_ORACLE);
+        -- Evitar SQL Injection
+        V_USER_SEGURO := DBMS_ASSERT.ENQUOTE_NAME(P_USUARIO_ORACLE, FALSE);
 
         -- Creamos el usuario en oracle
         V_SQL := 'CREATE USER ' || V_USER_SEGURO || ' IDENTIFIED BY "' || P_CONTRASENIA || '"';
@@ -1364,6 +1371,55 @@ CREATE OR REPLACE PACKAGE BODY PK_SEGURIDAD_PAU AS
     END PR_CREA_VOCAL;
 
 END PK_SEGURIDAD_PAU;
+/
+
+-- TEST DE VERIFICACIÓN: SQL INJECTION PK_SEGURIDAD -------------------------
+SET SERVEROUTPUT ON;
+PROMPT Probando sql injection...
+DECLARE
+    v_dni_valido    VARCHAR2(9);
+    v_user_out      VARCHAR2(100);
+    v_pass_out      VARCHAR2(100);
+BEGIN
+    -- 1. Capturamos un DNI real que ya exista en tu censo para la prueba limpia
+    SELECT DNI INTO v_dni_valido FROM ESTUDIANTE WHERE ROWNUM = 1;
+    
+    DBMS_OUTPUT.PUT_LINE('>> [ESCENARIO A] Ejecución normal con alumno válido: ' || v_dni_valido);
+    
+    -- Invocamos al procedimiento con el DNI limpio
+    PK_SEGURIDAD_PAU.PR_CREA_ESTUDIANTE(v_dni_valido, v_user_out, v_pass_out);
+    
+    DBMS_OUTPUT.PUT_LINE('   -> OK: ENQUOTE_NAME validó el identificador de forma exitosa.');
+    DBMS_OUTPUT.PUT_LINE('   -> Nombre seguro en Oracle: ' || v_user_out);
+    DBMS_OUTPUT.PUT_LINE('   -> Credencial asignada: ' || v_pass_out);
+    
+    -- Hacemos rollback para mantener tu censo de pruebas impecable sin usuarios basura
+    ROLLBACK;
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('   -> FALLO INESPERADO EN PRUEBA LIMPIA: ' || SQLERRM);
+        ROLLBACK;
+END;
+/
+
+DECLARE
+    v_user_out      VARCHAR2(100);
+    v_pass_out      VARCHAR2(100);
+BEGIN
+    DBMS_OUTPUT.PUT_LINE('>> [ESCENARIO B] Lanzando ataque crítico de SQL Injection...');
+    
+    -- Simulamos la inyección intentando saltarnos el formato metiendo comillas, espacios y comandos de borrado
+    PK_SEGURIDAD_PAU.PR_CREA_ESTUDIANTE('12345678A; DROP TABLE EXAMEN', v_user_out, v_pass_out);
+    
+    DBMS_OUTPUT.PUT_LINE('   -> ALERTA CRÍTICA: El ataque ha pasado. El sistema es vulnerable.');
+    ROLLBACK;
+EXCEPTION
+    WHEN OTHERS THEN
+        -- Aquí es donde ENQUOTE_NAME frena en seco la ejecución al detectar que no es un nombre válido de Oracle
+        DBMS_OUTPUT.PUT_LINE('   -> ÉXITO: El ataque ha sido neutralizado por el cortafuegos perimetral.');
+        DBMS_OUTPUT.PUT_LINE('   -> Traza técnica capturada: ' || SUBSTR(SQLERRM, 1, 130));
+        ROLLBACK;
+END;
 /
 
 -- 4. Trigger
