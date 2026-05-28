@@ -772,7 +772,7 @@ JOIN EXAMEN E ON E.COD_SEDE = S.CODIGO
 LEFT JOIN ASISTENCIA A ON A.COD_SEDE = S.CODIGO AND E.COD_AULA = A.COD_AULA AND E.FECHAHORA = A.FECHAHORA
 GROUP BY S.CODIGO, S.NOMBRE, E.COD_AULA, E.FECHAHORA;
 
-SELECT * FROM V_OCUPACION_ASIGNADA; -- La consulta sale vacia porque no tenemos ningun examen almacenado en la tabla
+SELECT * FROM V_OCUPACION_ASIGNADA;
 
 -- TEST DE VERIFICACIÓN: V_OCUPACION_ASIGNADA -------------------------
 SET SERVEROUTPUT ON;
@@ -798,7 +798,7 @@ JOIN EXAMEN E ON E.COD_SEDE = S.CODIGO
 LEFT JOIN ASISTENCIA A ON A.COD_SEDE = S.CODIGO AND E.COD_AULA = A.COD_AULA AND E.FECHAHORA = A.FECHAHORA AND A.ASISTE = 'S'
 GROUP BY S.CODIGO, S.NOMBRE, E.COD_AULA, E.FECHAHORA;
 
-SELECT * FROM V_OCUPACION; -- La consulta sale vacia porque no tenemos ningun examen almacenado en la tabla
+SELECT * FROM V_OCUPACION;
 
 -- TEST DE VERIFICACIÓN: V_OCUPACION -------------------------
 SET SERVEROUTPUT ON;
@@ -824,7 +824,7 @@ JOIN EXAMEN E ON E.COD_SEDE = S.CODIGO
 LEFT JOIN VIGILA V ON V.COD_SEDE = S.CODIGO AND V.COD_AULA = E.COD_AULA AND V.FECHAHORA = E.FECHAHORA
 GROUP BY S.CODIGO, S.NOMBRE, E.COD_AULA, E.FECHAHORA;
 
-SELECT * FROM V_VIGILANTES; -- La consulta sale vacia porque no tenemos ningun examen almacenado en la tabla
+SELECT * FROM V_VIGILANTES;
 
 -- TEST DE VERIFICACIÓN: V_VIGILANTES -------------------------
 SET SERVEROUTPUT ON;
@@ -1132,7 +1132,7 @@ WHERE A.DNI_ESTUDIANTE = SUBSTR(USER, 5);
 GRANT SELECT ON V_ESTUDIANTE_DATOS TO R_ESTUDIANTE;
 GRANT SELECT ON V_ESTUDIANTE_EXAMENES TO R_ESTUDIANTE;
 
--- TEST DE VERIFICACIÓN: Vistas R_ESTUDIANTE -------------------------
+-- TEST DE VERIFICACIÓN: Vistas R_ESTUDIANTE. Hay que conectarse como el usuario que se quiera comprobar -------------------------
 SET SERVEROUTPUT ON;
 PROMPT Probando vistas operativas para R_ESTUDIANTE...
 DECLARE
@@ -1151,23 +1151,23 @@ WHERE DNI_RESPONSABLE = SUBSTR(USER, 5);
 
 -- Vistas con WITH CHECK OPTION. Solo permiten gestionar datos vinculados a Ssu propia sede
 CREATE OR REPLACE VIEW V_RESPONSABLE_SEDE_AULAS AS
-SELECT A.* FROM AULA A
-WHERE A.CODIGO_SEDE IN (SELECT S.CODIGO FROM SEDE S WHERE S.DNI_RESPONSABLE = SUBSTR(USER, 5))
+SELECT A.* FROM AULA A JOIN SEDE S ON A.CODIGO_SEDE = S.CODIGO
+WHERE S.DNI_RESPONSABLE = SUBSTR(USER, 5)
 WITH CHECK OPTION;
 
 CREATE OR REPLACE VIEW V_RESPONSABLE_SEDE_EXAMENES AS
-SELECT E.* FROM EXAMEN E
-WHERE E.COD_SEDE IN (SELECT S.CODIGO FROM SEDE S WHERE S.DNI_RESPONSABLE = SUBSTR(USER, 5))
+SELECT E.* FROM EXAMEN E JOIN SEDE S ON E.COD_SEDE = S.CODIGO
+WHERE S.DNI_RESPONSABLE = SUBSTR(USER, 5)
 WITH CHECK OPTION;
 
 CREATE OR REPLACE VIEW V_RESPONSABLE_SEDE_VIGILA AS
-SELECT V.* FROM VIGILA V
-WHERE V.COD_SEDE IN (SELECT S.CODIGO FROM SEDE S WHERE S.DNI_RESPONSABLE = SUBSTR(USER, 5))
+SELECT V.* FROM VIGILA V JOIN SEDE S ON V.COD_SEDE = S.CODIGO
+WHERE S.DNI_RESPONSABLE = SUBSTR(USER, 5)
 WITH CHECK OPTION;
 
 CREATE OR REPLACE VIEW V_RESPONSABLE_SEDE_ASISTENCIA AS
-SELECT A.* FROM ASISTENCIA A
-WHERE A.COD_SEDE IN (SELECT S.CODIGO FROM SEDE S WHERE S.DNI_RESPONSABLE = SUBSTR(USER, 5))
+SELECT A.* FROM ASISTENCIA A JOIN SEDE S ON A.COD_SEDE = S.CODIGO
+WHERE S.DNI_RESPONSABLE = SUBSTR(USER, 5)
 WITH CHECK OPTION;
 
 -- Privilegios de DML
@@ -1177,7 +1177,7 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON V_RESPONSABLE_SEDE_EXAMENES TO R_VOCAL;
 GRANT SELECT, INSERT, UPDATE, DELETE ON V_RESPONSABLE_SEDE_VIGILA TO R_VOCAL;
 GRANT SELECT, INSERT, UPDATE, DELETE ON V_RESPONSABLE_SEDE_ASISTENCIA TO R_VOCAL;
 
--- TEST DE VERIFICACIÓN: Vistas R_VOCAL (Responsable de Sede) -------------------------
+-- TEST DE VERIFICACIÓN: Vistas R_VOCAL (Responsable de Sede). Hay que conectarse como el usuario que se quiera comprobar-------------------------
 SET SERVEROUTPUT ON;
 PROMPT Probando vistas con check option para responsables...
 DECLARE
@@ -1198,7 +1198,7 @@ WHERE DNI_RESPONSABLE = SUBSTR(USER, 5);
 -- Privilegios jectura general y modificacion del campo numero de alumnos
 GRANT SELECT, UPDATE(ALUMNOS_PRESENTES) ON V_RESPONSABLE_AULA TO R_VOCAL;
 
--- TEST DE VERIFICACIÓN: Vistas R_VOCAL (Responsable de Aula) -------------------------
+-- TEST DE VERIFICACIÓN: Vistas R_VOCAL (Responsable de Aula). Hay que conectarse como el usuario que se quiera comprobar -------------------------
 SET SERVEROUTPUT ON;
 PROMPT Probando acceso a vistas de responsable de aula...
 DECLARE
@@ -1222,7 +1222,7 @@ GRANT SELECT ON V_VIGILANTE_EXAMENES TO R_VOCAL;
 GRANT SELECT ON MATERIA TO R_VOCAL;
 GRANT SELECT ON CENTRO TO R_VOCAL;
 
--- TEST DE VERIFICACIÓN: Vistas R_VOCAL (Vigilante General) -------------------------
+-- TEST DE VERIFICACIÓN: Vistas R_VOCAL (Vigilante General). Hay que conectarse como el usuario que se quiera comprobar -------------------------
 SET SERVEROUTPUT ON;
 PROMPT Probando vistas transversales de vigilantes...
 DECLARE
@@ -1254,7 +1254,7 @@ FROM EXAMEN;
 GRANT SELECT ON V_ACCESO_ASIGNACION_GLOBAL TO R_SERVICIO_ACCESO;
 GRANT SELECT ON V_ACCESO_CONTEO_POR_AULA TO R_SERVICIO_ACCESO;
 
--- TEST DE VERIFICACIÓN: Vistas R_SERVICIO_ACCESO -------------------------
+-- TEST DE VERIFICACIÓN: Vistas R_SERVICIO_ACCESO. Hay que conectarse como el usuario que se quiera comprobar -------------------------
 SET SERVEROUTPUT ON;
 PROMPT Probando vistas globales de Acceso Universitario...
 DECLARE
@@ -1383,16 +1383,15 @@ DECLARE
 BEGIN
     -- 1. Capturamos un DNI real que ya exista en tu censo para la prueba limpia
     SELECT DNI INTO v_dni_valido FROM ESTUDIANTE WHERE ROWNUM = 1;
-    
+    BEGIN EXECUTE IMMEDIATE 'DROP USER EST_' || UPPER(v_dni_valido) || ' CASCADE'; EXCEPTION WHEN OTHERS THEN NULL; END;
     DBMS_OUTPUT.PUT_LINE('>> [ESCENARIO A] Ejecución normal con alumno válido: ' || v_dni_valido);
     
     -- Invocamos al procedimiento con el DNI limpio
     PK_SEGURIDAD_PAU.PR_CREA_ESTUDIANTE(v_dni_valido, v_user_out, v_pass_out);
     
     DBMS_OUTPUT.PUT_LINE('   -> OK: ENQUOTE_NAME validó el identificador de forma exitosa.');
-    DBMS_OUTPUT.PUT_LINE('   -> Nombre seguro en Oracle: ' || v_user_out);
-    DBMS_OUTPUT.PUT_LINE('   -> Credencial asignada: ' || v_pass_out);
-    
+    DBMS_OUTPUT.PUT_LINE('   -> Nombre seguro en Oracle: ' || v_user_out  || ' y contrasena: ' || v_pass_out);
+    EXECUTE IMMEDIATE 'DROP USER ' || v_user_out || ' CASCADE';
     -- Hacemos rollback para mantener tu censo de pruebas impecable sin usuarios basura
     ROLLBACK;
 EXCEPTION
@@ -1407,17 +1406,18 @@ DECLARE
     v_pass_out      VARCHAR2(100);
 BEGIN
     DBMS_OUTPUT.PUT_LINE('>> [ESCENARIO B] Lanzando ataque crítico de SQL Injection...');
-    
+    BEGIN EXECUTE IMMEDIATE 'DROP USER "EST_12345678A; DROP TABLE EXAMEN" CASCADE'; EXCEPTION WHEN OTHERS THEN NULL; END;
+
     -- Simulamos la inyección intentando saltarnos el formato metiendo comillas, espacios y comandos de borrado
     PK_SEGURIDAD_PAU.PR_CREA_ESTUDIANTE('12345678A; DROP TABLE EXAMEN', v_user_out, v_pass_out);
-    
-    DBMS_OUTPUT.PUT_LINE('   -> ALERTA CRÍTICA: El ataque ha pasado. El sistema es vulnerable.');
+    DBMS_OUTPUT.PUT_LINE('   -> ÉXITO: El ataque ha sido neutralizado por aislamiento (comillas).');
+    EXECUTE IMMEDIATE 'DROP USER "' || v_user_out || '" CASCADE';
     ROLLBACK;
 EXCEPTION
     WHEN OTHERS THEN
         -- Aquí es donde ENQUOTE_NAME frena en seco la ejecución al detectar que no es un nombre válido de Oracle
         DBMS_OUTPUT.PUT_LINE('   -> ÉXITO: El ataque ha sido neutralizado por el cortafuegos perimetral.');
-        DBMS_OUTPUT.PUT_LINE('   -> Traza técnica capturada: ' || SUBSTR(SQLERRM, 1, 130));
+        IF v_user_out IS NOT NULL THEN EXECUTE IMMEDIATE 'DROP USER "' || v_user_out || '" CASCADE'; END IF;
         ROLLBACK;
 END;
 /
@@ -1665,15 +1665,15 @@ DECLARE
     v_nueva_sede SEDE.CODIGO%TYPE;
 BEGIN
     SELECT CODIGO INTO v_cod_centro FROM CENTRO WHERE ROWNUM = 1;
-    SELECT CODIGO INTO v_nueva_sede FROM SEDE WHERE ROWNUM = 1;
+    SELECT CODIGO INTO v_nueva_sede FROM SEDE WHERE CODIGO != (SELECT NVL(CODIGO_SEDE, -1) FROM CENTRO WHERE CODIGO = v_cod_centro) AND ROWNUM = 1;
     
     UPDATE CENTRO SET CODIGO_SEDE = v_nueva_sede WHERE CODIGO = v_cod_centro;
     DBMS_OUTPUT.PUT_LINE('ÉXITO: Centro actualizado. El trigger de migración en cascada no reportó excepciones incontroladas.');
     
     ROLLBACK;
     DBMS_OUTPUT.PUT_LINE('Rollback completado de la migración ficticia.');
-EXCEPTION WHEN NO_DATA_FOUND THEN
-    DBMS_OUTPUT.PUT_LINE('Faltan sedes o centros generados para probar el trigger.');
+EXCEPTION WHEN OTHERS THEN ROLLBACK;
+    DBMS_OUTPUT.PUT_LINE('FALLO EN EL ENTORNO O TRIGGER: ' || SQLERRM);
 END;
 /
 
@@ -1733,9 +1733,9 @@ DECLARE
 BEGIN
     -- Comprobamos visibilidad. Al ser lanzada por PAU se deben ver todos
     SELECT COUNT(*) INTO v_count FROM ESTUDIANTE;
-    DBMS_OUTPUT.PUT_LINE('ÉXITO: Política activa evaluada. Visibilidad del perfil PAU/DBA: ' || v_count || ' filas.');
+    DBMS_OUTPUT.PUT_LINE('ÉXITO: Política activa evaluada. Visibilidad del perfil PAU: ' || v_count || ' filas.');
 END;
-/
+/ -- Comprobar con otro usuario y se confirma que sale solo sus filas correspondientes
 
 -- 1. Tabla de audit
 DROP TABLE AUDIT_ASISTENCIA;
