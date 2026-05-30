@@ -15,7 +15,7 @@ Desacopla la lógica de negocio del resto de componentes (permite probar dicha l
 
 **Descomposición subdominio**: se crea un modelo de dominio reflejando las entidades del problema completo, se identifican subdominios (entidades relacionadas) y se asigna un servicio a cada subdominio (<u>agrupar mirando cómo se relacionan los datos</u>).
 
-### Patrones para consistencia de datos (como mantenemos los datos correctos si cada uno tiene su propia base de datos)
+### Patrones para consistencia de datos (como compartimos información)
 **Agregado**: es un conjunto de entidades del modelo de dominio que se puede tratar como una unidad (<u>agrupar datos que siempre deben ir juntos</u>).
 - Las entidades relacionadas se manipulan solo invocando métodos del agregado.
 - Las referencias entre agregados se hacen mediante claves primarias. 
@@ -30,7 +30,7 @@ Desacopla la lógica de negocio del resto de componentes (permite probar dicha l
 
 **Composición de APIs**: combina los resultados de varios servicios para dar la respuesta.
 
-**Command Query Responsability Seggregation (CQRS)**: mantiene una base de datos solo para consultas, construida con eventos de dominio.
+**Command Query Responsability Seggregation (CQRS)**: mantiene una base de datos solo para consultas, construida con eventos de dominio. Lectura/Escritura.
 
 ### Patrones de apertura de circuitos (que pasa si un servicio se rompe)
 Cuando se detecta que un servicio no está disponible, se rechazan las llamadas a dicho servicio de forma inmediata. No está disponible si en llamadas recientes el servicio no responde en un tiempo determinado o devuelve un error. Para la recuperación: si la respuesta es crítica, devolver error, pero si no lo es, se puede devolver un valor por defecto u obtenido en llamadas anteriores.
