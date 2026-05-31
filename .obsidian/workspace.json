@@ -4,21 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "98c984841faf4c7e",
+        "id": "9bde5193505b9578",
         "type": "tabs",
         "children": [
           {
-            "id": "9c2305761dae2f45",
+            "id": "a10e2a65d62a99fc",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "DAW/TEMA 5.md",
+                "file": "DAW/TEMA 4.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "TEMA 5"
+              "title": "TEMA 4"
             }
           }
         ]
@@ -183,16 +183,17 @@
       "bases:Crear nueva base": false
     }
   },
-  "active": "9c2305761dae2f45",
+  "active": "a10e2a65d62a99fc",
   "lastOpenFiles": [
-    "DAW/TEMA 4.md",
     "DAW/TEMA 5.md",
+    "DAW/TEMA 4.md",
     "DAW/TEMA DOCKER.md",
     "DAW/TEMA 3.2.md",
+    "DAW/KAHOOT BLOQUE 1.pdf",
+    "DAW/KAHOOT BLOQUE 2.pdf",
     "DAW/TEMA 3.1.md",
     "Sin título.md",
     "Imagenes/Pasted image 20260521203426.png",
-    "DAW/Preguntas Kahoot.pdf",
     "AC1/CLASE 7, 8, 9, 10.md",
     "AC1/CLASE 11, 12.md",
     "Imagenes/Pasted image 20260519173019.png",
@@ -227,7 +228,6 @@
     "Ink/Drawing/2026.2.19 - 11.21am.drawing",
     "RC1/UnProblemaHorticolaSolucion.xopp",
     "RC1/Lenguajes Sistemas y Teorias Formales.pdf",
-    "RC1/Introduccion.pdf",
     "DAW/jpa-demo-master/README.md",
     "DAW/jpa-demo/README.md",
     "RC1/Sin título.canvas",
