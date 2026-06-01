@@ -1,0 +1,397 @@
+---
+title: "Control Práctico 2: SNA y Análisis de Sentimiento en Poniente Tecnológico"
+subtitle: "El Debate sobre la Inteligencia Artificial, Empleo y Educación"
+author: "xxxx"
+format: 
+  html:
+    toc: true
+    toc-depth: 3
+    theme: flatly
+    embed-resources: true
+    code-fold: show
+---
+
+## Introducción y Contexto del Examen
+
+>> Simulación del **Control Práctico 2**. En este ejercicio, actuaremos como analistas de datos de opinión pública para auditar el debate en redes sociales sobre un tema de máxima actualidad: **el impacto de la Inteligencia Artificial (IA) en el empleo y la educación**.
+
+La comunidad se encuentra fuertemente polarizada en dos sectores declarados:
+
+1. **`Tecno-Optimistas`**: Ven la IA como una herramienta de progreso, innovación y eficiencia.
+
+2. **`Tecno-Críticos`**: Expresan preocupación por el desempleo masivo, el plagio y la deshumanización.
+
+
+Disponemos de dos datasets generados por la Ciudadela:
+
+* `nodos_ia.csv`: Contiene el identificador del usuario (`Id`), su nombre público (`Label`), su `sector`, su puntuación declarada sobre felicidad con la IA (`puntuacion_usuario` de 1 a 5) y el `texto` de su última publicación.
+* `aristas_ia.csv`: Registra interacciones en forma de menciones en redes sociales (`Source` y `Target`) y la frecuencia de mención (`weight`).
+
+---
+
+### Instrucciones:
+* El control tiene una duración de **1 hora y 15 minutos (75 minutos)**.
+* Consiste en **10 preguntas**, cada una valorada en **1 punto**.
+* Puedes utilizar el material de clase y apuntes personales.
+* **Justifica tus respuestas en texto** cuando se te solicite; el análisis conceptual es tan importante como el código R.
+
+---
+
+## 0. Configuración del Entorno y Carga del Dataset
+
+Cargamos las librerías necesarias del ecosistema de R para redes y minería de texto.
+
+```{r}
+#| label: setup
+#| message: false
+#| warning: false
+
+# Cargamos las librerías necesarias
+library(igraph)
+library(tidygraph)
+library(ggraph)
+library(tidytext)
+library(quanteda)
+library(stm)
+library(tidyverse)
+```
+
+---
+
+## 1. Carga de la Red y Estructura Inicial (1 punto)
+
+**Pregunta 1:** Carga los ficheros `nodos_ia.csv` y `aristas_ia.csv` en tu entorno de R. Construye un grafo de `tidygraph` llamado `g_ia` que sea **dirigido** (las menciones tienen un emisor y un receptor). 
+
+Asegúrate de:
+
+1. Renombrar las columnas de aristas de modo que las dos primeras sean `from` y `to` (mapeando `Source` y `Target`).
+
+2. Indicar el número de nodos y de aristas original de la red cargada.
+
+```{r}
+# Escribe aquí tu código para la Pregunta 1
+nodos <- read.csv("nodos_ia.csv")
+aristas <- read.csv("aristas_ia.csv")
+
+aristas_clean <- aristas |>
+  select(from = Source, to = Target, everything())
+
+g_ia <- tbl_graph(nodos, aristas_clean, directed = TRUE)
+
+vcount(g_ia)
+ecount(g_ia)
+```
+
+**[Escribe tu interpretación analítica aquí]**
+
+---
+
+## 2. Limpieza y Consolidación de Menciones (1 punto)
+
+**Pregunta 2:** En la red de menciones existen redundancias y bucles (usuarios que se mencionan a sí mismos). 
+
+Escribe una secuencia de comandos utilizando `dplyr`/`tidyverse` (no uses la función `igraph::simplify()`) que limpie el grafo de la siguiente manera:
+
+1. **Elimine todos los bucles** (aristas donde `from == to`).
+
+2. **Consolide las aristas paralelas (duplicadas)**: si un usuario ha mencionado varias veces a otro, agrupa esa pareja y suma sus pesos (`weight`) en una única arista consolidada.
+
+3. Guarda el grafo limpio en la variable `g_limpio` y reporta cuántas aristas se consolidaron o eliminaron en total.
+
+*Pista: Puedes convertir las aristas temporalmente a un tibble y agruparlas de forma muy sencilla.*
+
+```{r}
+# Escribe aquí tu código para la Pregunta 2
+g_limpio <- g_ia |>
+  activate(edges) |>
+  filter(from != to) |>
+  as.igraph() |>
+  igraph::simplify(
+    remove.multiple = TRUE, 
+    remove.loops = TRUE, 
+    edge.attr.comb = list(weight = "sum", "ignore")
+  ) |>
+  as_tbl_graph()
+```
+
+**[Escribe tu interpretación analítica aquí]**
+
+---
+
+## 3. NLP: Tokenización y Cálculo del Clima de Sentimiento (1 punto)
+
+**Pregunta 3:** Vamos a medir la carga emocional del debate utilizando un diccionario de sentimientos.
+
+1. Diseña un diccionario manual llamado `lexicon_ia` en formato `tibble` con al menos las siguientes palabras clave y sus valores emocionales asociados:
+
+   * **Positivas (+):** "oportunidad" (+3), "innovación" (+3), "eficiencia" (+2), "crecimiento" (+2), "progreso" (+2), "solución" (+2), "creatividad" (+2), "esperanza" (+3).
+   
+   * **Negativas (-):** "amenaza" (-3), "desempleo" (-4), "reemplazo" (-3), "crisis" (-3), "riesgo" (-3), "desigualdad" (-3), "plagio" (-2), "descontrol" (-3), "fracaso" (-3), "deshumaniza" (-3).
+
+2. Tokeniza los textos de los usuarios en `nodos_ia.csv` usando la función `unnest_tokens()` de `tidytext`.
+
+3. Calcula el **sentimiento neto calculado** para cada usuario (la suma de los valores de las palabras coincidentes). Si un usuario no usa ninguna palabra del diccionario, su sentimiento debe ser `0` (usa `replace_na()`).
+
+4. Añade este sentimiento calculado al grafo `g_limpio` como un atributo de nodo llamado `sentimiento`.
+
+```{r}
+# Escribe aquí tu código para la Pregunta 3
+lexicon_ia <- tibble(
+  word = c("oportunidad", "innovación", "eficiencia", "crecimiento", "progreso", 
+           "solución", "creatividad", "esperanza", "amenaza", "desempleo",
+           "reemplazo", "crisis", "riesgo", "desigualdad", "plagio", "descontrol",
+           "fracaso", "deshumaniza"),
+  valor = c(3, 3, 2, 2, 2, 2, 2, 3, -1, -4, -3, -3, -3, -3, -2, -3, -3, -3)
+)
+
+
+tokens <- g_limpio |>
+  activate(nodes) |>
+  as_tibble() |>
+  unnest_tokens(word, texto)
+
+
+sentimiento <- tokens |>
+  inner_join(lexicon_ia) |>
+  group_by(Id) |>
+  summarise(Sentimiento = sum(valor))
+
+
+g_limpio <- g_limpio |>
+  left_join(sentimiento, by = "Id") |>
+  mutate(Sentimiento = replace_na(Sentimiento, 0))
+```
+
+**[Escribe tu interpretación analítica aquí]**
+
+---
+
+## 4. Validación del Modelo NLP de Sentimiento (1 punto)
+
+**Pregunta 4:** ¿Es fiable nuestro diccionario manual? 
+
+1. Calcula la **Correlación de Pearson** entre la columna `sentimiento` (calculada automáticamente) y `puntuacion_usuario` (la calificación que el usuario dio manualmente).
+
+2. Interpreta el valor numérico obtenido y justifica matemáticamente qué significa que esta correlación sea positiva/negativa y su intensidad.
+
+```{r}
+# Escribe aquí tu código para la Pregunta 4
+pearson <- cor(g_limpio$Sentimiento, g_limpio$puntuacion_usuario)
+
+# Al ser positiva cercana a 1, estan fuertemente correlacionados
+```
+
+**[Escribe tu interpretación analítica aquí]**
+
+---
+
+## 5. Detección de Facciones Político-Discursivas (Louvain) (1 punto)
+
+**Pregunta 5:** Queremos ver si la red de menciones se divide en burbujas o comunidades discursivas.
+
+1. Aplica el algoritmo de **Louvain** (`group_louvain`) sobre el grafo `g_limpio` (trata el grafo como no dirigido para la detección de comunidades) y guarda el resultado como un factor en los nodos bajo el nombre `comunidad`.
+
+2. ¿Cuántas comunidades distintas detecta el algoritmo?
+
+3. Convierte el grafo temporalmente a `igraph` y calcula el valor exacto de la **modularidad**. ¿Es una buena segmentación? Justifica tu respuesta en base a la teoría vista en clase.
+
+```{r}
+# Escribe aquí tu código para la Pregunta 5
+louvain <- g_limpio |>
+  to_undirected() |>
+  activate(nodes) |>
+  mutate(Comunidad = as.factor(group_louvain()))
+
+
+n_distinct(as_tibble(louvain)$Comunidad)
+
+
+louvain_ig <- cluster_louvain(as.igraph(g_limpio) |> as_undirected())
+modularity(louvain_ig)
+```
+
+**[Escribe tu interpretación analítica aquí]**
+
+---
+
+## 6. El Cruce NLP-SNA: El Clima Emocional de las Comunidades (1 punto)
+
+**Pregunta 6:** Crucemos la estructura social de la red con el contenido de sus mensajes.
+
+1. Agrupa los nodos del grafo por su atributo `comunidad` y calcula:
+   * El número total de usuarios en cada comunidad.
+   * El **sentimiento promedio** de cada comunidad.
+
+2. Identifica cuál es la comunidad más **Tecno-Optimista** y cuál la más **Tecno-Crítica** de la red. ¿Coinciden estas comunidades con los bandos reales (`sector`) de los usuarios?
+
+```{r}
+# Escribe aquí tu código para la Pregunta 6
+agrupados <- louvain |>
+  activate(nodes) |>
+  as_tibble() |>
+  group_by(Comunidad) |>
+  summarise(
+    total = n(),
+    sentimiento_promedio = mean(Sentimiento)
+  )
+
+
+# L mas tecno-optimista es la comunidad 1 ya que tiene un sentimiento promedio de 3.75
+# mientras que la 2 es la crítica, con un -5.27
+
+
+```
+
+**[Escribe tu interpretación analítica aquí]**
+
+---
+
+## 7. El Broker del Debate y su Rol Emocional (1 punto)
+
+**Pregunta 7:** A veces, el nodo clave no es el que habla con más gente (Grado), sino el que controla el flujo de comunicación entre comunidades distantes.
+
+1. Calcula la centralidad de intermediación (`betweenness`) para cada nodo de la red.
+
+2. Identifica al **máximo Broker** de la red (excluyendo a usuarios aislados). Imprime su nombre, su valor de intermediación y su puntuación individual de sentimiento.
+
+3. Analiza cualitativamente: ¿este broker pertenece a una de las facciones extremas, o tiene un discurso neutral/moderado? Explica por qué esto es estratégicamente relevante en una red de polarización.
+
+```{r}
+# Escribe aquí tu código para la Pregunta 7
+centralidad <- g_limpio |>
+  activate(nodes) |>
+  mutate(centralidad = centrality_betweenness())
+
+
+maximo_broker <- centralidad |>
+  activate(nodes) |>
+  as_tibble() |>
+  arrange(desc(centralidad)) |>
+  head(1)
+```
+
+**[Escribe tu interpretación analítica aquí]**
+
+## 8. Caminos de Influencia y Conexión en el Debate (1 punto)
+
+**Pregunta 8:** En debates polarizados, es vital encontrar la cadena de comunicación más corta que conecta a dos personas de bandos opuestos. 
+
+Utilizando las funciones `morph()` y `unmorph()` de `tidygraph`:
+1. Encuentra el camino más corto (*shortest path*) en el grafo `g_limpio` que conecta al usuario **`User_10`** (del bando Tecno-Optimista) con el usuario **`User_90`** (del bando Tecno-Crítico).
+
+2. Marca los nodos del camino creando un atributo lógico llamado `en_camino = TRUE`.
+
+3. Filtra y muestra la lista ordenada de usuarios que forman esta cadena de comunicación, incluyendo sus atributos de `sector` y `sentimiento` (calculado en la Pregunta 3). ¿La comunicación debe pasar por algún "broker" moderado?
+
+```{r}
+# Escribe aquí tu código para la Pregunta 8
+camino_corto <- g_limpio |>
+  activate(nodes) |>
+  morph(to_shortest_path, from = (Id == "User_10"), to = (Id == "User_90")) |>
+  mutate(en_camino = TRUE) |>
+  unmorph()
+
+
+camino_corto |>
+  activate(nodes) |>
+  as_tibble() |>
+  filter(en_camino == TRUE) |>
+  select(Id, sector, Sentimiento)
+```
+
+**[Escribe tu interpretación analítica aquí]**
+
+---
+
+## 9. Structural Topic Modeling (STM): Descubriendo Frames Latentes (1 punto)
+
+**Pregunta 9:** Si tuviéramos miles de mensajes, no podríamos leerlos uno a uno. Utilizaremos el modelo **STM** para clasificar los discursos ocultos.
+
+1. Utiliza el paquete `quanteda` para crear un corpus con los textos de los usuarios, limpia los signos de puntuación, números y elimina las *stopwords* en español.
+
+2. Convierte el resultado al formato de `stm` y entrena un modelo buscando **$K = 2$ tópicos** condicionado al metadato `sector` (`prevalence =~ sector`).
+
+3. Estima el efecto del `sector` sobre los tópicos (`estimateEffect`) y representa gráficamente el contraste discursivo de los dos bandos. Explica brevemente qué "frames" o preocupaciones dominan en cada sector según las palabras clave de cada tópico.
+
+```{r}
+# Escribe aquí tu código para la Pregunta 9
+corp <- quanteda::corpus(g_limpio |> activate(nodes) |> as_tibble(), text_field = "texto")
+toks <- tokens(corp, remove_punct = TRUE, remove_number = TRUE) |>
+  tokens_remove(stopwords("spanish"))
+
+dfm_g <- dfm(toks)
+
+
+out <- quanteda::convert(dfm_g, to = "stm")
+
+modelo <- stm(documents = out$documents, 
+                       vocab = out$vocab, 
+                       K = 2, 
+                       prevalence =~ sector, 
+                       data = g_limpio |> activate(nodes) |> as_tibble(), 
+                       max.em.its = 30, 
+                       verbose = FALSE) 
+
+
+efecto <- estimateEffect(1:2 ~ sector, modelo, meta = g_limpio |> activate(nodes) |> as_tibble())
+
+plot(efecto, covariate = "sector", topics = c(1, 2),
+     model = modelo, method = "difference",
+     cov.value1 = "Tecno-Optimista", cov.value2 = "Tecno-Crítico",
+     xlab = "Tecno-Optimista <------------> Tecno-Crítico")
+```
+
+**[Escribe tu interpretación analítica aquí]**
+
+---
+
+## 10. Visualización Estratégica del Mapa del Debate (1 punto)
+
+**Pregunta 10:** Diseña un mapa visual estratégico de la red de debate utilizando `ggraph` para presentárselo a los decanos de la Ciudadela. 
+
+El gráfico debe cumplir con las siguientes especificaciones:
+
+1. El **tamaño de los nodos** debe ser proporcional a su centralidad de **PageRank** (prestigio).
+
+2. El **color de los nodos** debe representar su **comunidad de Louvain** calculada en la Pregunta 5.
+
+3. El **grosor de las aristas** debe ser proporcional al peso (`weight`) consolidado de la relación.
+
+4. El **layout** debe ser de fuerzas estéticas (ej: "stress" o "nicely").
+
+5. Incluye etiquetas repelentes legibles (`repel = TRUE`) solo para aquellos nodos que tengan un PageRank superior a la media global de la red, para evitar saturar el gráfico.
+
+6. Añade título descriptivo, subtítulo explicativo y una paleta de colores coherente y premium.
+
+```{r}
+# Escribe aquí tu código para la Pregunta 10
+g_plot <- louvain |>
+  activate(nodes) |>
+  mutate(pagerank = centrality_pagerank())
+
+ggraph(g_plot, layout = "stress") +
+  # Pintamos aristas con transparencia según el peso
+  geom_edge_link(aes(width = weight), alpha = 0.2, color = "grey60") +
+  # Nodos coloreados por comunidad política y tamaño por PageRank
+  geom_node_point(aes(color = Comunidad, size = pagerank)) +
+  # Etiquetas de texto repelentes
+  geom_node_text(aes(label = Id), repel = TRUE, size = 3.2, fontface = "bold") +
+  # Escalas y leyendas
+  scale_size_continuous(range = c(2, 9), name = "Prestigio (PageRank)") +
+  scale_edge_width_continuous(range = c(0.4, 2.5), name = "Peso de Relación") +
+  scale_color_viridis_d(option = "turbo", name = "Alianza Política (Louvain)") +
+  # Etiquetas informativas
+  labs(
+    title = "Mapa de Élite de Poniente: Red de Co-ocurrencias",
+    subtitle = "Auditoría de personajes altamente conectados (Grado > 10) en Tormenta de Espadas",
+    caption = "Análisis realizado por la Ciudadela de Poniente en R con tidygraph & ggraph"
+  ) +
+  theme_graph() +
+  theme(
+    plot.title = element_text(size = 16, face = "bold"),
+    plot.subtitle = element_text(size = 11, face = "italic")
+  )
+  
+```
+
+**[Escribe tu interpretación analítica aquí]**
