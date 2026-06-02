@@ -4,17 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "0173b586adc18441",
+        "id": "9bde5193505b9578",
         "type": "tabs",
         "children": [
           {
-            "id": "7cef128f8947e693",
+            "id": "a10e2a65d62a99fc",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "DAW/TEMA 4.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "Nueva pestaña"
+              "title": "TEMA 4"
             }
           }
         ]
@@ -74,8 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200,
-    "collapsed": true
+    "width": 200
   },
   "right": {
     "id": "583ee4ac444531f5",
@@ -180,19 +183,32 @@
       "bases:Crear nueva base": false
     }
   },
-  "active": "7cef128f8947e693",
+  "active": "a10e2a65d62a99fc",
   "lastOpenFiles": [
-    "DAW/TEMA 5.md",
-    "Imagenes/Pasted image 20260521203426.png",
+    "Sin título.md",
+    "MCP/ProyectoAmazon/docs/bloque1.rmarkdown",
+    "MCP/ProyectoAmazon/site_libs/bootstrap/bootstrap.min.js",
+    "MCP/ProyectoAmazon/site_libs/bootstrap/bootstrap-icons.css",
+    "MCP/ProyectoAmazon/site_libs/bootstrap/bootstrap-icons.woff",
+    "MCP/ProyectoAmazon/site_libs/bootstrap/bootstrap-b29f53597728eb8d5bc9247032823cdf.min.css",
+    "MCP/ProyectoAmazon/site_libs/bootstrap",
+    "MCP/ProyectoAmazon/site_libs/quarto-html/tabsets/tabsets.js",
+    "MCP/ProyectoAmazon/site_libs/quarto-html/axe/axe-check.js",
+    "MCP/ProyectoAmazon/site_libs/quarto-html/tippy.umd.min.js",
+    "MCP/ProyectoAmazon/site_libs/quarto-html/tippy.css",
+    "MCP/ProyectoAmazon/index.knit.md",
     "DAW/TEMA 4.md",
-    "DAW/Preguntas Kahoot.pdf",
+    "DAW/TEMA DOCKER.md",
+    "DAW/TEMA 5.md",
+    "DAW/TEMA 3.2.md",
+    "DAW/TEMA 3.1.md",
+    "Imagenes/Pasted image 20260521203426.png",
     "AC1/CLASE 7, 8, 9, 10.md",
     "AC1/CLASE 11, 12.md",
     "Imagenes/Pasted image 20260519173019.png",
     "Imagenes/Pasted image 20260519172943.png",
     "Imagenes/Pasted image 20260519172933.png",
     "Imagenes/Pasted image 20260519170010.png",
-    "Sin título.md",
     "Imagenes/Pasted image 20260518213410.png",
     "Imagenes/Pasted image 20260518213350.png",
     "Imagenes/Pasted image 20260518204354.png",
@@ -202,30 +218,19 @@
     "AC1/CLASE 2.md",
     "AC1/EJERCICIOS TEMA 2.md",
     "AC1/CLASE 3, 4, 5, 6.md",
-    "DAW/TEMA 3.md",
     "DAW/TEMA 2.md",
     "DAW/TEMA 1.md",
     "DAW/Kahoot.md",
-    "RC1/TEMA4.xopp~",
     "DAW/t2.md",
     "Pasted image 20260220091618.md",
     "DAW/t.md",
     "AC1/FORMULARIO PREPROCESAMIENTO.md",
-    "AC1/a.py",
     "bv.md",
     "Sin título.canvas",
     "BD2/Tema2.md",
-    "RC1/UnProblemaHorticolaSolucion.pdf",
-    "RC1/UnProblemaHorticola.pdf",
-    "RC1/LSTF.xopp~",
     "RC1/Lenguajes Sistemas y Teorias Formales.md",
-    "Ink/Drawing/2026.2.19 - 11.21am.drawing",
-    "RC1/UnProblemaHorticolaSolucion.xopp",
-    "RC1/Lenguajes Sistemas y Teorias Formales.pdf",
-    "RC1/Introduccion.pdf",
     "DAW/jpa-demo-master/README.md",
     "DAW/jpa-demo/README.md",
-    "RC1/Sin título.canvas",
-    "2026-02-17.md"
+    "RC1/Sin título.canvas"
   ]
 }

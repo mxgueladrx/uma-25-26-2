@@ -77,10 +77,10 @@ boxplot(
 Visualmente podemos ver que el atributo de ``longitudResenaPromedio`` es mucho más disperso a los demás. Como comentamos antes, estos atributos no están en la misma escala, asi que ahora vamos a normalizarlos y veamos un nuevo boxplot:
 
 ```{r}
-metricas <- scale(metricas)
+metricas_escaladas <- scale(metricas)
 
 boxplot(
-  metricas,
+  metricas_escaladas,
   main = "Dispersión de los atributos normalizados"
 )
 ```
@@ -90,7 +90,7 @@ boxplot(
 Aunque ahora tampoco veamos mucha diferencia, el eje $Y$ se mueve ahora en un rango de hasta 50, cuando antes era hasta 15000. Aunque sigan existiendo muchos outliers, las métricas están ahora en un rango mucho más manejable para PCA. Apliquemos PCA:
 
 ```{r}
-pca <- prcomp(metricas)
+pca <- prcomp(metricas_escaladas)
 
 summary(pca)
 
@@ -119,6 +119,7 @@ fviz_pca_var(
 ```
 
 Analicemos cada PC:
+
 - **PC1**: Existe una correlación inversa entre la longitud de la reseña y la valoración del producto. Productos con reseñas más largas tienden a tener una valoración mucho menor, ya que los clientes detallan las quejas y críticas. Esta componente muestra la relación entre cantidad y calidad.
 - **PC2**: Existe una correlación directa entre el número de reseñas de un producto y su valoración. Productos con mayor número de reseñas, mayor valoración llegan a tener. Esta componente muestra la relación que a mayor consumo, mayor satisfacción.
 - **PC3**: Existe una correlación directa entre la valoración del producto y la longitud de su reseña, contrastadas con el número de ventas. Productos con peores valoraciones tienen reseñas más cortas pero con muchas ventas. Esta componente muestra la relación que hay en artículos malos que se compran mucho pero hacen que el cliente no escriba una reseña elaborada.
@@ -142,6 +143,8 @@ fviz_pca_biplot(
 
 En el Biplot enseñaremos la distribución de los productos en este nuevo espacio dimensional. Se observa cómo los productos se dispersan siguiendo las direcciones de las flechas: los productos situados en el cuadrante de ``longitudResenaPromedio`` coinciden con aquellos de menor ``ratingPromedio``, confirmando la tendencia de quejas detalladas identificada en el PC1.
 
+Además, se aprecia que la inmensa mayoría de los productos se centran densamente en el centro del plano. También podemos ver que la presencia de outliers distorsionan la escala de los ejes.
+
 ## Interacción con IA
 
 A continuación, se presenta un registro de los hitos más relevantes de la interacción con la IA, omitiendo las consultas redundantes y priorizando aquellos puntos donde la intervención humana fue crítica para el diseño del proyecto:
@@ -150,15 +153,15 @@ A continuación, se presenta un registro de los hitos más relevantes de la inte
 
 1. **Prompt**:
 
-*"El último apartado del 2.1 menciona: 'Justificad la retención de varianza mediante el criterio de Kaiser o el gráfico de sedimentación...'. ¿Qué es el criterio de Kaiser y el gráfico de sedimentación? No lo he dado en teoría y se debe de buscar información y hacerlo."*
+> El último apartado del 2.1 menciona: 'Justificad la retención de varianza mediante el criterio de Kaiser o el > gráfico de sedimentación...'. ¿Qué es el criterio de Kaiser y el gráfico de sedimentación? No lo he dado en teoría y se debe de buscar información y hacerlo.
 
 2. **Respuesta errónea o ineficiente de la IA**:
 
-*Si ves que del PC1 al PC2 hay una caída enorme, pero del PC2 al PC3 la línea se vuelve casi plana (como si fuera "sedimento" o escombros en la base de una montaña)*
+> Si ves que del PC1 al PC2 hay una caída enorme, pero del PC2 al PC3 la línea se vuelve casi plana (como si fuera "sedimento" o escombros en la base de una montaña)
 
-*Bajo esta lógica, ¿cuál crees que es el valor mínimo de varianza (autovalor) que debería tener un componente para que merezca la pena conservarlo?*
+> Bajo esta lógica, ¿cuál crees que es el valor mínimo de varianza (autovalor) que debería tener un componente para que merezca la pena conservarlo?
 
-*Antes de buscar la fórmula matemática, justifícame: ¿Por qué crees que es preferible perder un poco de información (varianza) a cambio de trabajar con solo 2 ejes en lugar de los 4 originales?.*
+> Antes de buscar la fórmula matemática, justifícame: ¿Por qué crees que es preferible perder un poco de información (varianza) a cambio de trabajar con solo 2 ejes en lugar de los 4 originales?.
 
 3. **Crítica**:
 
@@ -176,13 +179,13 @@ Tuve que frenar a la IA y exigirle la respuesta directa con un segundo prompt (c
 
 1. **Prompt**:
 
-*"No te he preguntado eso, te he dicho que me expliques que es el criterio de Kaiser y qué es un gráfico de sedimentación"*
+> No te he preguntado eso, te he dicho que me expliques que es el criterio de Kaiser y qué es un gráfico de sedimentación
 
 2. **Respuesta errónea o ineficiente de la IA**:
 
 Para plantearme un caso imaginario, la IA redactó el siguiente ejemplo:
 
-*"Si tu gráfico de sedimentación muestra un 'codo' muy claro en el segundo componente, pero el tercer componente tiene un valor de varianza de 1.1, ¿a qué criterio le darías más peso...?"*
+> Si tu gráfico de sedimentación muestra un 'codo' muy claro en el segundo componente, pero el tercer componente tiene un valor de varianza de 1.1, ¿a qué criterio le darías más peso...?
 
 3. **Crítica**:
 
@@ -193,3 +196,10 @@ Si el componente 2 marca el "codo" (lo que significa que la información ya ha c
 4. **Solución**:
 
 Detecté este fallo lógico de la IA, ignoré su caso inventado y preferí guiarme por los resultados reales que me devolvía R. Al ejecutar el comando ``pca$sdev^2``, comprobé que mis números iban en orden decreciente perfecto ($35.1\% \rightarrow 33.5\% \rightarrow 31.4\%$) y que el tercer valor caía por debajo de 1. Así demostré que en los datos reales de nuestro proyecto el método del codo y el de Kaiser se complementan perfectamente sin dar ningún error.
+
+```{r}
+#| include: false
+# Guardamos el entorno de trabajo para usarlo en en Bloque 2
+save.image("variables_bloque1.RData")
+```
+
