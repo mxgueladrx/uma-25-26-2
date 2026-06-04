@@ -3,3 +3,45 @@ title: "Untitled"
 format: html
 ---
 
+```
+> library(dplyr)
+library(tibble)
+library(ggplot2)
+>
+# 1. Creamos la tabla con los productos individuales (sin colapsar con summarise)
+# Aquí unimos las métricas físicas/PCA con la información del grafo
+productos_individuales_completo <- metricas |>
+  rownames_to_column(var = "ProductId") |>
+  inner_join(as_tibble(grafo), by = c("ProductId" = "name"))
+>
+># 2. Identificamos cuáles son los IDs de las 3 comunidades más grandes 
+# (Reutilizamos la lógica de tu tabla resumida anterior)
+top_3_comunidades <- metricas_comunidades |>
+  arrange(desc(productosDistintos)) |>
+  head(3) |>
+  pull(Louvain)
+>
+># 3. Filtramos el dataset de productos individuales para quedarnos SOLO con esas 3
+datos_grafico_validacion <- productos_individuales_completo |>
+  filter(Louvain %in% top_3_comunidades)
+>
+># 4. Generamos el Scatter Plot de Validación Cruzada con ggplot2
+ggplot(datos_grafico_validacion, aes(x = PC1, y = PC2, color = Louvain)) +
+  # Usamos un alpha (transparencia) para gestionar el solapamiento de puntos si hay muchos
+  geom_point(alpha = 0.6, size = 1.8) + 
+  # Paleta de colores cualitativa y limpia
+  scale_color_brewer(palette = "Set1") + 
+  theme_minimal() +
+  labs(
+    title = "Validación Cruzada: Proyección de Comunidades SNA en el Espacio PCA",
+    subtitle = "Análisis de consistencia entre el comportamiento de red y las variables físicas",
+    x = "Componente Principal 1 (PC1)",
+    y = "Componente Principal 2 (PC2)",
+    color = "Comunidad Louvain"
+  ) +
+  theme(
+    legend.position = "bottom",
+    plot.title = element_text(face = "bold", size = 14),
+    panel.grid.minor = element_blank() # Limpiamos líneas secundarias para que quede más elegante
+  )
+```

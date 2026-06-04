@@ -1,0 +1,335 @@
+---
+title: "Control Práctico 2"
+subtitle: "Recomendadores y Series Temporales"
+author: "XXXX (Escribe tu nombre)"
+format: 
+  html:
+    toc: true
+    toc-depth: 3
+    theme: flatly
+    embed-resources: true
+    code-fold: show
+---
+
+## Introducción  
+
+Simulación del **Control Práctico 2**. En este ejercicio técnico, actuarás como analista de datos de la Ciudadela y del Banco de Hierro para resolver dos desafíos fundamentales en el modelado de datos de la sociedad de Poniente:
+
+1. **Parte 1: Sistemas Recomendadores (6 Puntos):** Implementarás un motor de recomendaciones para los grimorios de la Gran Biblioteca basándote en la teoría de *Long Tail*, el *Filtrado Colaborativo*, *SVD (Factorización)* y el enfoque alternativo de los *Grafos Bipartitos*.
+
+2. **Parte 2: Series Temporales (4 Puntos):** Analizarás e imputarás el tráfico mensual de barcos en el Puerto de Braavos durante los últimos 10 años, modelando sus componentes y pronosticando el comercio futuro.
+
+***
+
+### Instrucciones del Examen:
+* El control tiene una duración de **1 hora y 15 minutos (75 minutos)**.
+* Consta de **10 preguntas** de desarrollo práctico (R + Interpretación), cada una valorada en **1 punto**.
+* Puedes consultar tu material de clase y apuntes personales.
+* **Justifica conceptual y analíticamente tus respuestas** en las secciones reservadas para texto. El análisis e interpretación son tan importantes como el código de R.
+
+***
+
+## 0. Configuración del Entorno y Carga de Datos
+
+Cargamos las librerías oficiales del ecosistema de R.
+
+```{r}
+#| label: setup
+#| message: false
+#| warning: false
+
+# Cargamos las librerías necesarias
+library(tidyverse)
+library(igraph)
+library(tidygraph)
+library(ggraph)
+library(forecast)
+library(tseries)
+library(zoo)
+library(knitr)
+```
+
+***
+
+# BLOQUE 1: Sistemas Recomendadores (6 Puntos)
+
+## 1. El Concepto del Long Tail (1 punto)
+
+**Pregunta 1:** Carga el fichero `recomendaciones_libros.csv` en tu entorno de R. 
+
+* Calcula la popularidad (número total de valoraciones recibidas) de cada libro del catálogo.
+
+* Calcula la popularidad media de cada libro del catálogo.
+
+* Genera un gráfico de barras ordenado de mayor a menor y analiza: ¿existen libros de cabecera (*Head*) y libros de nicho (*Long Tail*)? Justifícalo cuantitativamente analizando la distribución de las lecturas.
+
+```{r}
+# Escribe aquí tu código para la Pregunta 1
+df <- read_csv("recomendaciones_libros.csv")
+
+
+popularidad <- df |> 
+  group_by(Libro) |>
+  summarise(
+    n_ratings = n(),
+    rating_medio = mean(Rating)
+  )
+
+
+popularidad |>
+  ggplot() +
+  geom_col(aes(x = reorder(Libro, -n_ratings), y = n_ratings))
+```
+
+**[Escribe tu interpretación analítica aquí]**
+
+***
+
+## 2. Matriz de Valoraciones y Similitud entre Usuarios (1 punto)
+
+**Pregunta 2:** Transforma la tabla de valoraciones en formato largo a una matriz ancha $U \times I$ llamada `M` donde las filas representen a los usuarios (maestres) y las columnas representen los grimorios. Calcula la **Matriz de Similitud de Pearson** entre los usuarios de la biblioteca. Identifica de forma exacta qué dos maestres tienen la mayor afinidad o similitud de lectura en el catálogo (excluyendo el 1 de la diagonal).
+
+> **Tip (Pistas de Pivotaje):** Para transformar una tabla en formato largo a una matriz ancha, se utiliza la función `pivot_wider()` de `tidyverse`. Sus argumentos principales son `names_from` (columna origen de los nombres de columnas) y `values_from` (columna origen de los valores). Luego, puedes usar `column_to_rownames("NombreDeColumna")` para convertir una columna en los identificadores de fila, y finalmente envolver todo en `as.matrix()`.
+>
+> Ejemplo de uso:
+> ```r
+> M <- mi_tabla %>%
+>   pivot_wider(names_from = ColumnaNombre, values_from = ColumnaValor) %>%
+>   column_to_rownames("ColumnaID") %>%
+>   as.matrix()
+> ```
+
+```{r}
+# Escribe aquí tu código para la Pregunta 2
+M <- df |>
+  pivot_wider(names_from = Libro, values_from = Rating) |>
+  column_to_rownames("Usuario") |>
+  as.matrix()
+
+
+similitud_usuarios <- function(M) {
+  sim <- cor(t(M), use = "pairwise.complete.obs")
+  sim[is.na(sim)] <- 0
+  return(sim)
+}
+
+M_sim <- similitud_usuarios(M)
+```
+
+**[Escribe tu interpretación analítica aquí]**
+
+***
+
+## 3. Predicción con Filtrado Colaborativo Basado en Usuarios (1 punto)
+
+**Pregunta 3:** El maestre **Tyrion** no ha valorado el grimorio prohibido **`L7_Grimorio_Necromantico`**. Calcula la predicción matemática exacta del rating que daría Tyrion a este libro utilizando un **Filtrado Colaborativo basado en Usuarios** con un vecindario de los **$k=2$ vecinos más similares** que sí hayan valorado el libro.
+
+*Pista: Puedes calcular las medias de lectura de cada usuario y centrar las puntuaciones de los dos vecinos sobre sus respectivas medias personales antes de multiplicarlas por su similitud.*
+
+```{r}
+# Escribe aquí tu código para la Pregunta 3
+predecir_voto <- function(M, S, usuario, item) {
+  idx_u <- which(rownames(M) == usuario)
+  idx_i <- which(colnames(M) == item)
+  
+  if (!is.na(M[idx_u, idx_i])) return(M[idx_u, idx_i])
+  
+  # Medias de votación de cada usuario (ignorando NAs)
+  medias   <- rowMeans(M, na.rm = TRUE)
+  media_u  <- medias[idx_u]
+  
+  otros_votos  <- M[, idx_i]
+  similitudes  <- S[idx_u, ]
+  validos      <- !is.na(otros_votos) & (rownames(M) != usuario)
+  
+  if (sum(validos) == 0) return(NA)
+  
+  # Centramos los votos de los vecinos respecto a sus propias medias
+  votos_centrados <- otros_votos[validos] - medias[validos]
+  
+  numerador   <- sum(similitudes[validos] * votos_centrados)
+  denominador <- sum(abs(similitudes[validos]))
+  
+  if (denominador == 0) return(media_u)
+  
+  # Predicción final centrada en la media del usuario objetivo
+  prediccion <- media_u + (numerador / denominador)
+  
+  # Acotamos los resultados al rango real de valoraciones [1, 5]
+  return(max(1, min(5, prediccion)))
+}
+
+pred <- predecir_voto(M, M_sim, "Tyrion", "L7_Grimorio_Necromantico"); pred
+```
+
+**[Escribe tu interpretación analítica aquí]**
+
+***
+
+## 4. Factorización de Matrices: Descomposición SVD (1 punto)
+
+**Pregunta 4:** Los modelos basados en factores latentes comprimen la información de interacciones en características ocultas.
+1. Imputa los valores vacíos (`NA`) de tu matriz `M` utilizando la media de su columna respectiva. Guarda el resultado en la variable `M_filled`.
+2. Realiza la descomposición en valores singulares **SVD** nativa de R (`svd()`) sobre la matriz imputada.
+3. Extrae las componentes correspondientes para truncar la descomposición a **$k = 2$ factores latentes** y reconstruye la matriz aproximada en la variable `M_pred` ($R \approx U_k \Sigma_k V_k^T$).
+
+> **Tip (Concepto de Reconstrucción y Predicción SVD):** En la descomposición SVD nativa de R (`svd(M_filled)`), la matriz se descompone en $M = U \cdot D \cdot V^T$.
+>
+> * **$U$ (Usuarios - Factores):** Relación de cada maestre con los factores latentes.
+> * **$d$ (Valores Singulares):** Vector con la fuerza de cada factor. Se convierte a matriz diagonal usando `diag(svd_result$d[1:k])`.
+> * **$V$ (Ítems - Factores):** Relación de cada grimorio con los factores latentes.
+>
+> Al truncar la descomposición a $k=2$ factores latentes, filtramos el ruido y proyectamos usuarios y libros en un espacio conceptual de dos dimensiones (ej. "Interés Histórico" y "Poder Mágico"). La multiplicación matricial truncada se calcula como `M_pred <- U_k %*% D_k %*% t(V_k)`.
+>
+> **¿Cómo predice SVD?** Cada celda `M_pred[u, i]` de la matriz reconstruida es, por definición, la predicción del rating del usuario `u` para el ítem `i`. Para estimar la nota que daría cualquier usuario a cualquier libro no leído, **basta con consultar la coordenada correspondiente en `M_pred`**. ¡La matriz reconstruida ya tiene precalculados todos los ratings del catálogo!
+
+```{r}
+# Escribe aquí tu código para la Pregunta 4
+M_filled <- M 
+for(i in 1:ncol(M)) {
+  M_filled[is.na(M_filled[,i]), i] <- mean(M_filled[,i], na.rm = TRUE)
+}
+
+svd_result <- svd(M_filled)
+k    <- 2
+U_k  <- svd_result$u[, 1:k]
+D_k  <- diag(svd_result$d[1:k])
+V_k  <- svd_result$v[, 1:k]
+
+# 3. Reconstrucción de la Matriz (Predicción)
+M_pred <- U_k %*% D_k %*% t(V_k)
+rownames(M_pred) <- rownames(M)
+colnames(M_pred) <- colnames(M)
+```
+
+**[Escribe tu interpretación analítica aquí]**
+
+***
+
+## 5. Predicción SVD y Contraste Metodológico (1 punto)
+
+**Pregunta 5:** 
+1. Extrae de tu matriz reconstruida `M_pred` la predicción de rating obtenida para **Tyrion** y el libro **`L7_Grimorio_Necromantico`**. Compárala con el resultado del filtrado colaborativo de la Pregunta 3. Argumenta teóricamente: ¿cuáles son las diferencias conceptuales, ventajas y desventajas de un enfoque basado en memoria (CF) frente a uno basado en modelo (SVD)?
+2. Si llega un nuevo maestre a la Ciudadela (por ejemplo, **Samwell**) y para conocer sus gustos le pedimos que valore 3 libros populares, obteniendo: `L1_Historia_Poniente` = 5, `L2_Alquimia_Elemental` = 4, y `L3_Fuego_Sangre` = 3. Escribe un script en R que agregue a Samwell como una nueva fila a tu matriz `M` (llamada `M_extended`), calcula su **similitud de Pearson** con los demás maestres de la biblioteca, e identifica a su **vecino más afín** (con mayor similitud, excluyendo a Samwell). ¿Quién es y qué similitud comparte?
+
+```{r}
+# Escribe aquí tu código para la Pregunta 5
+M_pred["Tyrion", "L7_Grimorio_Necromantico"]
+
+
+ratings <- c(5, 4, 3, NA, NA, NA, NA, NA)
+names(ratings) <- colnames(M)
+M_extended <- rbind()
+```
+
+**[Escribe tu interpretación analítica aquí]**
+
+***
+
+## 6. La Perspectiva de Grafos: Grafo Bipartito (1 punto)
+
+**Pregunta 6:** Construye un grafo de recomendación llamado `g_bip` utilizando los enlaces altamente valorados (donde la valoración sea $\ge 4$). 
+1. Demuestra programáticamente en R que el grafo resultante es efectivamente **bipartito**.
+2. Grafica este mapa de recomendación usando `ggraph`, distinguiendo los nodos de usuarios (maestres) de los grimorios mediante formas y colores diferenciados.
+3. Explica conceptualmente por qué modelar la recomendación con grafos bipartitos representa un cambio de paradigma y cómo los algoritmos de **Paseos Aleatorios (Random Walks)** resuelven las limitaciones de los métodos matriciales.
+
+```{r}
+# Escribe aquí tu código para la Pregunta 6
+recom_high <- recom |> filter
+```
+
+**[Escribe tu interpretación analítica aquí]**
+
+***
+***
+
+# BLOQUE 2: Series Temporales (4 Puntos)
+
+## 7. Preparación de la Serie Temporal e Imputación de Valores Perdidos (1 punto)
+
+**Pregunta 7:** Carga el fichero `trafico_braavos.csv` en tu entorno de R.
+1. Localiza e **imputa los valores perdidos (`NA`)** que existen en la columna `Arribos` utilizando la técnica de interpolación lineal (`zoo::na.approx`).
+2. Transforma el dataset limpio en un objeto de serie temporal de R llamado `ts_braavos` de frecuencia mensual (frecuencia = 12) que comience en enero de 2016.
+3. Dibuja la evolución temporal de la serie limpia y describe qué patrones (tendencia y estacionalidad) se observan a simple vista.
+
+> **Tip (Métodos de Imputación en Series Temporales):** En series temporales, nunca se debe imputar usando la media o mediana global, ya que destruiríamos la estructura temporal y la tendencia. Existen métodos especializados para rellenar vacíos (`NA`):
+>
+> 1. **LOCF (Last Observation Carried Forward):** Copia el último valor conocido antes del vacío hacia adelante. R: `zoo::na.locf()`. Útil si el valor tiende a mantenerse constante.
+> 2. **Interpolación Lineal:** Traza una línea recta recta entre el punto anterior y el posterior al vacío. R: `zoo::na.approx()`. Es el método por defecto más balanceado para tendencias lineales locales.
+> 3. **Interpolación por Splines:** Traza una curva polinomial suave entre los puntos vecinos. R: `zoo::na.spline()`. Adecuado si hay cambios de curvatura y oscilaciones dinámicas.
+> 4. **Imputación Estacional (Modelada):** Descompone la serie y rellena el hueco combinando la tendencia local con el ciclo del mes correspondiente de otros años. R: `forecast::na.interp()`. Es el más avanzado para series con una estacionalidad anual sumamente fuerte.
+> 5. **Imputación Predictiva con dlookr:** El paquete `dlookr` es una herramienta excelente para diagnóstico e imputación avanzada mediante modelos predictivos (árboles de decisión `rpart`, K-Nearest Neighbors `knn`, o ecuaciones de imputación múltiple `mice`). R: `imputate_na(datos, variable, method = "rpart")` o `imputate_na(datos, variable, method = "knn")`. Es ideal para conjuntos de datos tabulares donde tenemos múltiples variables predictoras disponibles.
+
+```{r}
+# Escribe aquí tu código para la Pregunta 7
+st <- read_csv("trafico_braavos.csv")
+arribos_limpio <- na.interp(st$Arribos)
+
+
+ts_braavos <- ts(
+  arribos_limpio,
+  start = c(2016, 1),
+  frequency = 12
+)
+
+
+decomp_stl <- stl(ts_braavos, s.window = "periodic")
+
+autoplot(decomp_stl) +
+  labs(title = "Descomposición STL — Tráfico de barcos") +
+  theme_minimal(base_size = 12) +
+  theme(plot.title = element_text(face = "bold"))
+```
+
+**[Escribe tu interpretación analítica aquí]**
+
+***
+
+## 8. Descomposición Multiplicativa Clásica (1 punto)
+
+**Pregunta 8:** Aplica una **descomposición clásica multiplicativa** sobre la serie `ts_braavos` utilizando la función `stats::decompose()`.
+1. Grafica de forma completa los cuatro paneles de la descomposición (Observed, Trend, Seasonal, Random).
+2. Analiza e interpreta la componente estacional resultante: ¿en qué mes del año se produce el mayor tráfico mercantil y qué porcentaje representa este incremento estacional respecto a la tendencia central de la serie?
+
+```{r}
+# Escribe aquí tu código para la Pregunta 8
+descomp_braavos <- stats::descompose(ts_braavos, type = "multiplicative")
+
+plot(descomp_braavos)
+
+
+```
+
+**[Escribe tu interpretación analítica aquí]**
+
+***
+
+## 9. Suavizado Exponencial de Holt-Winters (1 punto)
+
+**Pregunta 9:** Evalúa la capacidad predictiva del suavizado exponencial sobre la serie de arribos:
+1. Divide la serie temporal `ts_braavos` en dos partes: **Entrenamiento** (desde enero de 2016 hasta diciembre de 2024, 108 meses) y **Test** (los 12 meses del año 2025).
+2. Ajusta un modelo de **Holt-Winters** con estacionalidad sobre los datos de entrenamiento.
+3. Predice el tráfico para los 12 meses del año 2025.
+4. Grafica la predicción junto a la serie real del conjunto de test y calcula el **RMSE (Root Mean Squared Error)** sobre el año 2025 para cuantificar el margen de error promedio del modelo.
+
+```{r}
+# Escribe aquí tu código para la Pregunta 9
+
+```
+
+**[Escribe tu interpretación analítica aquí]**
+
+***
+
+## 10. Estacionariedad y Modelización ARIMA Avanzada (1 punto)
+
+**Pregunta 10:** El Banco de Hierro requiere un pronóstico estadístico avanzado.
+1. Realiza el test de Dickey-Fuller aumentado (`adf.test()`) sobre `ts_braavos` y evalúa si la serie es estacionaria. Comprueba mediante `forecast::ndiffs()` cuántas diferenciaciones ordinarias requiere la serie para eliminar la tendencia.
+2. Utiliza `forecast::auto.arima()` para encontrar el modelo ARIMA automático óptimo, reportando los parámetros $p, d, q$ del modelo obtenido.
+3. Genera un pronóstico para todo el año 2026. Analiza e interpreta gráficamente: ¿por qué los intervalos de confianza del pronóstico se ensanchan a medida que el horizonte temporal se aleja más en el futuro?
+
+```{r}
+# Escribe aquí tu código para la Pregunta 10
+```
+
+**[Escribe tu interpretación analítica aquí]**

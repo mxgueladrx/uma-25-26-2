@@ -200,6 +200,6 @@ Detecté este fallo lógico de la IA, ignoré su caso inventado y preferí guiar
 ```{r}
 #| include: false
 # Guardamos el entorno de trabajo para usarlo en en Bloque 2
-save.image("variables_bloque1.RData")
+save.image("..data/variables_bloque1.RData")
 ```
 
