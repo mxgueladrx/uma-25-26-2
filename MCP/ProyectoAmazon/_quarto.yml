@@ -4,11 +4,23 @@ project:
 book:
   title: "Proyecto: Arquitectura de Influencia en Ecosistemas de Consumo. Dataset Amazon"
   author: "Miguel Adrián Gheorghe"
-  date: "4/13/2026"
+  date: today
+  downloads: [pdf]
   chapters:
     - index.qmd
     - docs/bloque1.qmd
     - docs/bloque2.qmd
+    - docs/bloque3.qmd
+
+execute:
+  echo: true
+  warning: false
+  message: false
+
+knitr:
+  opts_chunk:
+    dev: "png"
+    dpi: 300
 
 format:
   html:
@@ -17,6 +29,4 @@ format:
       - brand
   pdf:
     documentclass: scrreprt
-
-
-
+    pdf-engine: xelatex

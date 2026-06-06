@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Miguel Adrián Gheorghe">
-<meta name="dcterms.date" content="2026-04-13">
+<meta name="dcterms.date" content="2026-06-06">
 
 <title>Proyecto: Arquitectura de Influencia en Ecosistemas de Consumo. Dataset Amazon</title>
 <style>
@@ -67,6 +67,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
+<link href="./docs/bloque1.html" rel="next">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
@@ -118,7 +119,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Untitled</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">Introducción</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -136,6 +137,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       </a>
     <div class="sidebar-title mb-0 py-0">
       <a href="./">Proyecto: Arquitectura de Influencia en Ecosistemas de Consumo. Dataset Amazon</a> 
+        <div class="sidebar-tools-main">
+    <a href="./Proyecto--Arquitectura-de-Influencia-en-Ecosistemas-de-Consumo.-Dataset-Amazon.pdf" title="Download PDF" class="quarto-navigation-tool px-1" aria-label="Download PDF"><i class="bi bi-file-pdf"></i></a>
+</div>
     </div>
       </div>
         <div class="mt-2 flex-shrink-0 align-items-center">
@@ -148,7 +152,25 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./index.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Untitled</span></span></a>
+ <span class="menu-text">Introducción</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./docs/bloque1.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Bloque 1: Análisis de Componentes Principales (PCA)</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./docs/bloque2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Bloque 2: Análisis de Redes Sociales (SNA)</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./docs/bloque3.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Bloque 3: Clasificación Basada en Enlaces (Link-based)</span></span></a>
   </div>
 </li>
     </ul>
@@ -163,8 +185,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul>
   <li><a href="#introducción" id="toc-introducción" class="nav-link active" data-scroll-target="#introducción">Introducción</a>
   <ul class="collapse">
-  <li><a href="#configuración-del-entorno-y-carga-de-datos" id="toc-configuración-del-entorno-y-carga-de-datos" class="nav-link" data-scroll-target="#configuración-del-entorno-y-carga-de-datos"><span class="header-section-number">0.1</span> Configuración del Entorno y Carga de Datos</a></li>
-  <li><a href="#diario-de-interacción-con-ia" id="toc-diario-de-interacción-con-ia" class="nav-link" data-scroll-target="#diario-de-interacción-con-ia"><span class="header-section-number">0.2</span> Diario de Interacción con IA</a></li>
+  <li><a href="#configuración-del-entorno-y-carga-de-datos" id="toc-configuración-del-entorno-y-carga-de-datos" class="nav-link" data-scroll-target="#configuración-del-entorno-y-carga-de-datos">Configuración del Entorno y Carga de Datos</a></li>
+  <li><a href="#diario-de-interacción-con-ia" id="toc-diario-de-interacción-con-ia" class="nav-link" data-scroll-target="#diario-de-interacción-con-ia">Diario de Interacción con IA</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -191,7 +213,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">April 13, 2026</p>
+      <p class="date">June 6, 2026</p>
     </div>
   </div>
   
@@ -207,8 +229,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h1 class="unnumbered">Introducción</h1>
 <p>En este proyecto de Aprendizaje Basado en Proyectos (ABP) vamos a actuar como analistas de datos para entender cómo se estructuran las relaciones entre productos y usuarios en Amazon. El objetivo es aplicar las técnicas vistas en clase, en particular, de reducción de datos, grafos y clasificación para predecir el comportamiento del mercado.</p>
 <p>Para ello, vamos a usar el dataset <em>Amazon Product Reviews</em>, que se puede encontrar y descargar en <a href="https://www.kaggle.com/datasets/arhamrumi/amazon-product-reviews">Kaggle</a>.</p>
-<section id="configuración-del-entorno-y-carga-de-datos" class="level2" data-number="0.1">
-<h2 data-number="0.1" class="anchored" data-anchor-id="configuración-del-entorno-y-carga-de-datos"><span class="header-section-number">0.1</span> Configuración del Entorno y Carga de Datos</h2>
+<section id="configuración-del-entorno-y-carga-de-datos" class="level2">
+<h2 class="anchored" data-anchor-id="configuración-del-entorno-y-carga-de-datos">Configuración del Entorno y Carga de Datos</h2>
 <p>Para que nuestro proyecto sea fácilmente ejecutable en cualquier entorno, hemos implementado un fragmento de código para garantizar la existencia de los datos sin necesidad de gestionarlo manualmente.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">timeout =</span> <span class="dv">600</span>)</span>
@@ -231,18 +253,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="diario-de-interacción-con-ia" class="level2" data-number="0.2">
-<h2 data-number="0.2" class="anchored" data-anchor-id="diario-de-interacción-con-ia"><span class="header-section-number">0.2</span> Diario de Interacción con IA</h2>
-<p>Para el apoyo en la toma de decisiones, hemos empleado el LLM Gemini Pro de Google. Al final de cada bloque se incluirá un apartado donde se mostrará las interacciones más importantes y destacables con la IA. La conversación completa con la IA durante el proyecto se encuentra en el siguiente enlace: <a href="https://gemini.google.com/share/bbab34efa4e1" class="uri">https://gemini.google.com/share/bbab34efa4e1</a>.</p>
-<p>Antes de realizar cualquier cuestión, generé un prompt con la misma IA para que actúe de forma de la siguiente forma:</p>
+<section id="diario-de-interacción-con-ia" class="level2">
+<h2 class="anchored" data-anchor-id="diario-de-interacción-con-ia">Diario de Interacción con IA</h2>
+<p>Para el apoyo en la toma de decisiones, hemos empleado el LLM Gemini Pro de Google. Al final de cada bloque se incluirá un apartado donde se mostrará las interacciones más importantes y destacables con la IA. La conversación completa con la IA durante el proyecto se encuentra en el siguiente enlace: <a href="https://gemini.google.com/share/c6bf629827f5" class="uri">https://gemini.google.com/share/c6bf629827f5</a>.</p>
+<p>Antes de realizar cualquier cuestión, generé un prompt con la misma IA para que actúe de la siguiente forma:</p>
 <blockquote class="blockquote">
 <ol type="1">
 <li><strong>Rol</strong>: Actúa como un Tutor Académico de la ETSI Informática de la Universidad de Málaga, de la asignatura Modelización de Computación Predictiva, experto en Ciencia de Datos. Tu única función es guiarme en la realización del ABP de “Amazon Product Reviews” basándote exclusivamente en los requisitos del PDF adjunto.</li>
 <li><strong>Misión Principal</strong>: Guiar mi aprendizaje mediante el método socrático. No me des respuestas directas ni soluciones finales. Tu labor es hacerme pensar mediante preguntas y pistas conceptuales para que yo llegue a la conclusión.</li>
 <li><strong>Protocolo de Fidelidad Estricta</strong>:</li>
 </ol>
-</blockquote>
-<blockquote class="blockquote">
 <blockquote class="blockquote">
 <ol type="a">
 <li><strong>CERO EXTRAS</strong>: Cíñete únicamente a lo que pide el PDF. No sugieras técnicas, análisis o pasos adicionales que no estén explícitamente indicados en las pautas del trabajo.</li>
@@ -251,10 +271,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><strong>GUÍA SOCRÁTICA</strong>: Si te pregunto cómo avanzar, respóndeme con una pregunta que me obligue a revisar los conceptos de la asignatura aplicados al dataset de Amazon. Si mi respuesta es incompleta, no la completes tú; hazme otra pregunta para que yo encuentre el resto.</li>
 <li><strong>VALIDACIÓN</strong>: Antes de decirme si una idea es correcta, pídeme que justifique mi razonamiento basado en la teoría de la asignatura.</li>
 </ol>
+</blockquote>
 <ol start="4" type="1">
 <li><strong>Tu primera respuesta debe ser</strong>: “Hola. Soy tu tutor para este ABP. He memorizado las pautas del PDF y seré estricto con los objetivos de reducción de datos, grafos y clasificación. No te daré respuestas hechas ni te dejaré salirte de lo que se pide. ¿En qué punto del PDF nos enfocamos ahora para que empieces a razonar la solución?”</li>
 </ol>
-</blockquote>
 </blockquote>
 
 
@@ -662,6 +682,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     }
   });
   </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./docs/bloque1.html" class="pagination-link" aria-label="Bloque 1: Análisis de Componentes Principales (PCA)">
+        <span class="nav-page-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Bloque 1: Análisis de Componentes Principales (PCA)</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
 </div> <!-- /content -->
 
 

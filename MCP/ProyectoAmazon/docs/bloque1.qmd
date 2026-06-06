@@ -19,7 +19,7 @@ set.seed(42)
 df <- fread("../data/Reviews.csv")
 ```
 
-### Análisis exploratorio de datos
+### Análisis Exploratorio de Datos
 
 Una vez cargados los datos en el entorno de trabajo, procedemos a realizar una inspección de los 10 atributos que componen el dataset. Según la documentación de [Kaggle](https://www.kaggle.com/datasets/arhamrumi/amazon-product-reviews), estas variables recogen la siguiente información:
 
@@ -199,7 +199,7 @@ Detecté este fallo lógico de la IA, ignoré su caso inventado y preferí guiar
 
 ```{r}
 #| include: false
-# Guardamos el entorno de trabajo para usarlo en en Bloque 2
-save.image("..data/variables_bloque1.RData")
+# Guardamos el entorno de trabajo para usarlo en otros bloques
+save.image("../data/variables_bloque1.RData")
 ```
 

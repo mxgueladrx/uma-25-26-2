@@ -1,0 +1,275 @@
+---
+title: "Proyecto 3: Análisis de la Red Aérea de EE.UU. - Parte 1"
+subtitle: "Fundamentos, Herramientas y Manipulación"
+author: "Tu Nombre"
+date: today
+format: 
+  html:
+    toc: true
+    toc-depth: 3
+    embed-resources: true
+---
+
+```{r}
+#| label: setup
+#| message: false
+#| warning: false
+library(igraph)
+library(igraphdata)
+library(tidygraph)
+library(ggraph)
+library(tidyverse)
+
+# Configuración de visualización
+theme_set(theme_minimal())
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, fig.width = 10, fig.height = 7)
+```
+
+## Introducción
+
+En esta primera parte del proyecto analizaremos el dataset `USairports`. Nos centraremos en la exploración de atributos, la manipulación de la estructura y el uso de herramientas modernas de visualización.
+
+---
+
+## 1. Carga y Exploración Inicial
+
+```{r}
+#| label: load-data
+# Carga los datos USairports
+data("USairports")
+US <- USairports
+US_tidy <- as_tbl_graph(US)
+```
+
+### Ejercicio 1: Identificación y Atributos Globales
+
+1.  Cambia el nombre del grafo (atributo de grafo `name`) a "Red de Aeropuertos de EE.UU.".
+2.  Muestra los nombres de los atributos de vértices y aristas.
+3.  Calcula el número de aeropuertos y vuelos totales.
+4.  Comprueba si la red es dirigida o no dirigida.
+
+```{r}
+#| label: ex-1
+vertex_attr(US_tidy)
+edge_attr(US_tidy)
+
+
+vcount(US_tidy)
+ecount(US_tidy)
+
+is_directed(US_tidy)
+```
+
+### Ejercicio 2: Análisis de Compañías (Carriers) y Tráfico
+
+1.  Identifica los nombres de las 5 primeras compañías aéreas (`Carrier`) únicas.
+2.  ¿Cuántos vuelos tiene cada una de estas 5 compañías?
+3.  Muestra los metadatos del arco número 5.
+4.  De los **20 primeros arcos**, identifica cuáles contienen en su atributo `Carrier` la cadena "Airlines".
+5.  Añade a los aeropuertos un nuevo atributo llamado `Group` ("A" o "B" aleatorio).
+6.  Encuentra el trayecto con mayor número de pasajeros.
+7.  **Reto - Ocupación**: Calcula el ratio de ocupación de los vuelos (`Passengers / Seats`). Añade este valor como un nuevo atributo de arista llamado `Occupancy` e identifica la ruta con la mejor ocupación promedio. (Asegúrate de filtrar aquellos vuelos con 0 asientos para evitar divisiones por cero).
+
+8.  **Reto - Dominio de Mercado**: Primero, identifica el aeropuerto (hub) que tiene el mayor número de vuelos de salida (out-degree). Una vez identificado, determina cuál es la compañía aérea (`Carrier`) que opera más vuelos desde ese aeropuerto específico.
+
+9.  **Reto - Perfil de Distancia**: Calcula la distancia media (`Distance`) de los vuelos operados por cada compañía aérea (`Carrier`). ¿Cuál es la compañía que realiza, en promedio, los trayectos más largos?
+
+```{r}
+#| label: ex-2
+companias <- US_tidy |>
+  activate(edges) |>
+  as_tibble() |>
+  distinct(Carrier) |>
+  head(5) |>
+  pull(Carrier)
+
+
+vuelos <- US_tidy |>
+  activate(edges) |>
+  as_tibble() |>
+  filter(Carrier %in% companias) |>
+  group_by(Carrier) |>
+  summarise(vuelos_totales = sum(Departures))
+
+
+edge_attr(US_tidy, index = 5)
+
+
+US_tidy |>
+  activate(edges) |>
+  as_tibble() |>
+  head(20) |>
+  filter(grepl("Airlines", Carrier))
+
+
+US_tidy <- US_tidy |>
+  activate(nodes) |>
+  mutate(Group = sample(c("A", "B"), vcount(US_tidy), replace = TRUE))
+
+
+US_tidy |>
+  activate(edges) |>
+  as_tibble() |>
+  arrange(desc(Passengers)) |>
+  head(1)
+
+
+US_tidy <- US_tidy |>
+  activate(edges) |>
+  mutate(Occupancy = Passengers / Seats)
+
+US_tidy |>
+  activate(edges) |>
+  as_tibble() |>
+  arrange(desc(Occupancy)) |>
+  head(1)
+
+
+hub <- US_tidy |>
+  activate(nodes) |>
+  mutate(
+    grado = centrality_degree(mode = "out"),
+    id_nodo = row_number(),
+  ) |>
+  as_tibble() |>
+  arrange(desc(grado)) |>
+  head(1)
+
+US_tidy |>
+  activate(edges) |>
+  as_tibble() |>
+  filter(from == hub$id_nodo) |>
+  count(Carrier) |>
+  arrange(desc(n)) |>
+  head(1)
+
+
+US_tidy |>
+  activate(edges) |>
+  as_tibble() |>
+  group_by(Carrier) |>
+  summarise(
+    distancia_media = mean(Distance)
+  ) |>
+  arrange(desc(distancia_media)) |>
+  head(5)
+```
+
+---
+
+## 2. Búsqueda y Selectores Avanzados
+
+### Ejercicio 3: Búsqueda por Patrones
+
+1.  De los **primeros 20 vértices**, identifica ciudades con "Angeles".
+2.  Busca ciudades que empiecen por "Wash".
+3.  Localiza el aeropuerto con "JF" en su nombre.
+4.  Calcula el grado (in/out/total) de "Kahului".
+
+```{r}
+#| label: ex-3
+US_tidy |>
+  activate(nodes) |>
+  as_tibble() |>
+  filter(grepl("Angeles", City))
+
+
+US_tidy |>
+  activate(nodes) |>
+  as_tibble() |>
+  filter(grepl("^Wash", City))
+
+
+US_tidy |>
+  activate(nodes) |>
+  as_tibble() |>
+  filter(grepl("JF", name))
+
+
+US_tidy |>
+  activate(nodes) |>
+  filter(grepl("Kahului", City)) |>
+  mutate(grado = centrality_degree(mode = "total")) |>
+  as_tibble()
+```
+
+### Ejercicio 4: Operadores de Selección y Edición
+
+1.  Muestra las conexiones entre "JFK" y "BOS" (ambos sentidos).
+2.  Identifica los carriers en la ruta directa "JFK" -> "BOS".
+3.  Calcula las salidas de "BOS".
+4.  **Elimina la conexión directa entre "BJC" y "MIA"**. Comprueba que ha desaparecido.
+
+```{r}
+#| label: ex-4
+US_tidy |>
+  activate(edges) |>
+  filter(.N()$name[from] %in% c("JFK", "BOS") & .N()$name[to] %in% c("JFK", "BOS")) |>
+  as_tibble()
+
+US_tidy |>
+  activate(edges) |>
+  filter(.N()$name[from]== "JFK" & .N()$name[to] == "BOS") |>
+  select(Carrier) |>
+  as_tibble()
+```
+
+### Ejercicio 5: Flujos entre Estados (California a Nueva York)
+
+1.  Identifica aeropuertos de California (CA) y Nueva York (NY).
+2.  ¿Cuántos vuelos directos existen de CA a NY?
+
+```{r}
+#| label: ex-5
+US_tidy |>
+  activate(nodes) |>
+  filter(grepl(", CA", City) | grepl(", NY", City)) |>
+  as_tibble()
+
+
+
+```
+
+---
+
+## 3. Subgrafos y Herramientas Avanzadas
+
+### Ejercicio 6: El Alcance de Vegas (1 Escala)
+
+1.  Identifica los aeropuertos alcanzables desde Las Vegas con exactamente **1 escala** (distancia 2).
+2.  Visualiza el subgrafo resultante resaltando los orígenes.
+
+```{r}
+#| label: ex-6
+```
+
+### Ejercicio 7: Morphing y Entornos locales
+
+1.  Identifica y marca los nodos del camino más corto entre Seattle (SEA) y Miami (MIA).
+2.  Analiza el entorno local de Chicago (ORD).
+
+```{r}
+#| label: ex-7
+```
+
+### Ejercicio 8: Visualización Temática con ggraph
+
+1.  Filtra la red para aeropuertos de grado > 50.
+2.  Colorea por **Estado** y varía el tamaño según el grado.
+3.  Ajusta las aristas según el número de pasajeros.
+
+```{r}
+#| label: ex-8
+US_filt <- US_tidy |>
+  activate(nodes) |>
+  mutate(grado = centrality_degree(mode = "total")) |>
+  filter(grado > 50)
+
+ggraph(US_filt) |>
+  geom_node_point(aes(colour = Estad))
+```
+
+---
+
+## Conclusión
+Hemos completado la fase de manipulación y filtrado avanzado, preparando el terreno para el análisis de métricas globales.

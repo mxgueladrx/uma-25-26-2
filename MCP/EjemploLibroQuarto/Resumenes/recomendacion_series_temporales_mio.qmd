@@ -61,6 +61,7 @@ library(knitr)
 
 * Calcula la popularidad media de cada libro del catálogo.
 
+
 * Genera un gráfico de barras ordenado de mayor a menor y analiza: ¿existen libros de cabecera (*Head*) y libros de nicho (*Long Tail*)? Justifícalo cuantitativamente analizando la distribución de las lecturas.
 
 ```{r}
@@ -68,17 +69,16 @@ library(knitr)
 df <- read_csv("recomendaciones_libros.csv")
 
 
-popularidad <- df |> 
+popularidad <- df |>
   group_by(Libro) |>
   summarise(
-    n_ratings = n(),
-    rating_medio = mean(Rating)
+    valoraciones_totales = n(),
+    media_rating = mean(Rating)
   )
 
 
-popularidad |>
-  ggplot() +
-  geom_col(aes(x = reorder(Libro, -n_ratings), y = n_ratings))
+ggplot(popularidad) +
+  geom_col(aes(x = reorder(Libro, -valoraciones_totales), y = valoraciones_totales))
 ```
 
 **[Escribe tu interpretación analítica aquí]**
@@ -114,6 +114,12 @@ similitud_usuarios <- function(M) {
 }
 
 M_sim <- similitud_usuarios(M)
+
+
+M_diag <- M_sim
+diag(M_diag) <- -Inf
+max_sim <- max(M_diag, na.rm = TRUE)
+pareja_max <- which(M_diag == max_sim, arr.ind = TRUE)
 ```
 
 **[Escribe tu interpretación analítica aquí]**
@@ -128,6 +134,22 @@ M_sim <- similitud_usuarios(M)
 
 ```{r}
 # Escribe aquí tu código para la Pregunta 3
+media_usuarios <- rowMeans(M, na.rm = TRUE)
+
+M[, "L7_Grimorio_Necromantico"]
+voto_ana <- M["Ana", "L7_Grimorio_Necromantico"]
+voto_bran <- M["Bran", "L7_Grimorio_Necromantico"]
+
+sim_tyrion_ana <- M_sim["Tyrion", "Ana"]
+sim_tyrion_bran <- M_sim["Tyrion", "Bran"]
+
+numerador <- (sim_tyrion_ana * (voto_ana - media_usuarios["Ana"])) + (sim_tyrion_bran * (voto_bran - media_usuarios["Bran"]))
+denominador <- abs(sim_tyrion_ana) + abs(sim_tyrion_bran)
+
+pred <- media_usuarios["Tyrion"] + (numerador / denominador)
+
+#------------------------------------------------------------------------------
+
 predecir_voto <- function(M, S, usuario, item) {
   idx_u <- which(rownames(M) == usuario)
   idx_i <- which(colnames(M) == item)
@@ -159,7 +181,7 @@ predecir_voto <- function(M, S, usuario, item) {
   return(max(1, min(5, prediccion)))
 }
 
-pred <- predecir_voto(M, M_sim, "Tyrion", "L7_Grimorio_Necromantico"); pred
+pred <- predecir_voto(M, M_sim, "Tyrion", "L7_Grimorio_Necromantico");
 ```
 
 **[Escribe tu interpretación analítica aquí]**
@@ -185,19 +207,17 @@ pred <- predecir_voto(M, M_sim, "Tyrion", "L7_Grimorio_Necromantico"); pred
 
 ```{r}
 # Escribe aquí tu código para la Pregunta 4
-M_filled <- M 
+M_filled <- M
 for(i in 1:ncol(M)) {
   M_filled[is.na(M_filled[,i]), i] <- mean(M_filled[,i], na.rm = TRUE)
 }
 
-svd_result <- svd(M_filled)
-k    <- 2
-U_k  <- svd_result$u[, 1:k]
-D_k  <- diag(svd_result$d[1:k])
-V_k  <- svd_result$v[, 1:k]
 
-# 3. Reconstrucción de la Matriz (Predicción)
-M_pred <- U_k %*% D_k %*% t(V_k)
+svd <- svd(M_filled)
+
+
+k <- 2
+M_pred <- svd$u[, 1:k] %*% diag(svd$d[1:k]) %*% t(svd$v[, 1:k])
 rownames(M_pred) <- rownames(M)
 colnames(M_pred) <- colnames(M)
 ```
@@ -214,12 +234,20 @@ colnames(M_pred) <- colnames(M)
 
 ```{r}
 # Escribe aquí tu código para la Pregunta 5
-M_pred["Tyrion", "L7_Grimorio_Necromantico"]
+rating_tyrion <- M_pred["Tyrion", "L7_Grimorio_Necromantico"]
 
 
-ratings <- c(5, 4, 3, NA, NA, NA, NA, NA)
-names(ratings) <- colnames(M)
-M_extended <- rbind()
+samwell_ratings <- c(5, 4, 3, NA, NA, NA, NA, NA)
+names(samwell_ratings) <- colnames(M)
+
+M_extended <- rbind(M, Samwell = samwell_ratings)
+M_sim_ext <- similitud_usuarios(M_extended)
+
+sim_samwell <- M_sim_ext["Samwell", ]
+sim_samwell["Samwell"] <- -Inf
+
+vecino_max <- names(which.max(sim_samwell))
+sim_max <- max(sim_samwell, na.rm = TRUE)
 ```
 
 **[Escribe tu interpretación analítica aquí]**
@@ -235,7 +263,22 @@ M_extended <- rbind()
 
 ```{r}
 # Escribe aquí tu código para la Pregunta 6
-recom_high <- recom |> filter
+g_bip <- graph_from_data_frame(df |> filter(Rating >= 4), directed = FALSE)
+V(g_bip)$type <- V(g_bip)$name %in% unique((df |> filter(Rating >= 4))$Libro)
+is_bipartite(g_bip)
+
+
+ggraph(g_bip, layout = "bipartite") +
+  geom_edge_link(alpha = 0.2, color = "grey50", width = 0.8) +
+  geom_node_point(aes(color = type, shape = type), size = 5) +
+  geom_node_text(aes(label = name), repel = TRUE, size = 3, fontface = "bold") +
+  scale_color_manual(values = c("skyblue", "orange"), labels = c("Maestre (Usuario)", "Grimorio (Ítem)"), name = "Tipo de Nodo") +
+  scale_shape_manual(values = c(15, 19), labels = c("Maestre (Usuario)", "Grimorio (Ítem)"), name = "Tipo de Nodo") +
+  labs(
+    title = "Grafo Bipartito de la Biblioteca de la Ciudadela",
+    subtitle = "Recomendaciones basadas en interacciones fuertes (Rating >= 4)"
+  ) +
+  theme_graph()
 ```
 
 **[Escribe tu interpretación analítica aquí]**
@@ -262,23 +305,20 @@ recom_high <- recom |> filter
 
 ```{r}
 # Escribe aquí tu código para la Pregunta 7
-st <- read_csv("trafico_braavos.csv")
-arribos_limpio <- na.interp(st$Arribos)
+datos <- read_csv("trafico_braavos.csv")
+
+
+arribos_clean <- na.interp(datos$Arribos)
 
 
 ts_braavos <- ts(
-  arribos_limpio,
+  arribos_clean,
   start = c(2016, 1),
   frequency = 12
 )
 
 
-decomp_stl <- stl(ts_braavos, s.window = "periodic")
-
-autoplot(decomp_stl) +
-  labs(title = "Descomposición STL — Tráfico de barcos") +
-  theme_minimal(base_size = 12) +
-  theme(plot.title = element_text(face = "bold"))
+autoplot(arribos_clean)
 ```
 
 **[Escribe tu interpretación analítica aquí]**
@@ -293,11 +333,18 @@ autoplot(decomp_stl) +
 
 ```{r}
 # Escribe aquí tu código para la Pregunta 8
-descomp_braavos <- stats::descompose(ts_braavos, type = "multiplicative")
+descomp <- stats::decompose(ts_braavos, type = "multiplicative")
 
-plot(descomp_braavos)
+# Tendencia: direccion a largo plazo
+# Estacionalidad: patron que se repite con periodo fijo
+# Ruido: variacion aleatoria no explicada por las anteriores
+autoplot(descomp)
 
 
+factores_estacionales <- descomp$figure
+meses_nombres <- c("Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic")
+tabla_estacional <- tibble(Mes = meses_nombres, Factor_Estacional = factores_estacionales)
+max_mes <- tabla_estacional %>% filter(Factor_Estacional == max(Factor_Estacional))
 ```
 
 **[Escribe tu interpretación analítica aquí]**
@@ -314,7 +361,17 @@ plot(descomp_braavos)
 
 ```{r}
 # Escribe aquí tu código para la Pregunta 9
+ts_train <- window(ts_braavos, end = c(2024, 12))
+ts_test <- window(ts_braavos, start = c(2025, 1))
 
+hw <- HoltWinters(ts_train)
+
+
+pred <- forecast(hw, h = 12)
+
+
+autoplot(pred)
+rmse <- sqrt(mean((pred$mean - ts_test)^2))
 ```
 
 **[Escribe tu interpretación analítica aquí]**
@@ -330,6 +387,17 @@ plot(descomp_braavos)
 
 ```{r}
 # Escribe aquí tu código para la Pregunta 10
+adf.test(ts_braavos)
+
+ndiffs(ts_braavos)
+
+
+arima <- auto.arima(ts_braavos)
+summary(arima)
+
+
+pred <- forecast(arima, h = 12)
+autoplot(pred)
 ```
 
 **[Escribe tu interpretación analítica aquí]**

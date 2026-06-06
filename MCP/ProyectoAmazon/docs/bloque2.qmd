@@ -2,14 +2,13 @@
 
 ```{r}
 #| include: false
-# Cargamos el entorno de trabajo del Bloque 1
+# Cargamos el entorno de trabajo de otros bloques
 load("../data/variables_bloque1.RData")
 ```
 
 ## Desarrollo del bloque
 
-Una vez reducida la dimensionalidad, pasaremos a modelar el ecosistema de consumo como una red
-compleja bidimensional.
+Una vez reducida la dimensionalidad, pasaremos a modelar el ecosistema de consumo como una red compleja bidimensional.
 
 ### Carga de librerías
 
@@ -70,7 +69,7 @@ tabla_densidad <- lapply(1:20, function(x) {
   bind_rows()
 ```
 
-Hemos generado una tabla donde almacenamos el valor de N, la densidad y el número de nodos para ese mismo valor. Veamos graficamente como evoluciona estos valores según el valor de N:
+Hemos generado una tabla donde almacenamos el valor de N, la densidad y el número de nodos para ese mismo valor. Veamos gráficamente como evoluciona estos valores según el valor de N:
 
 ```{r}
 ggplot(tabla_densidad, aes(N, Densidad)) +
@@ -93,7 +92,7 @@ N_usuarios <- 6
 grafo <- as_tbl_graph(parejas_unicas |> filter(weight >= N_usuarios), directed = FALSE)
 ```
 
-### Métricas de centralidad
+### Métricas de Centralidad
 
 Calculamos ahora las tres métricas más importantes para determinar el impacto de cada producto:
 
@@ -143,11 +142,11 @@ grafo |>
 
 Al analizar los ránkings obtenidos, podemos extraer información muy valiosa:
 
-- **El producto ``B002IEZJMA``**: Éste producto se encuentra en el top de las tres métricas. Además de un alto volumen de co-compras, posee una mayor influencia y puente principal entre categorías.
-- **Productos ``B0041NYV8E`` y ``B006MONQMC``**: Éstos productos se repiten en los tops de ``Degree`` y ``Betweenness``. Esto indica que los productos con mayor conexiones directas son, a su vez, los encargados de conectar categorías.
+- **El producto ``B002IEZJMA``**: Este producto se encuentra en el top de las tres métricas. Además de un alto volumen de co-compras, posee una mayor influencia y puente principal entre categorías.
+- **Productos ``B0041NYV8E`` y ``B006MONQMC``**: Estos productos se repiten en los tops de ``Degree`` y ``Betweenness``. Esto indica que los productos con mayores conexiones directas son, a su vez, los encargados de conectar categorías.
 - **Los tops de PageRank no aparecen en los demás tops**: Esto indica que estos productos no necesitan un alto número de interacciones para ser relevantes, su importancia radica en que están conectados a nodos importantes de la red.
 
-### Detección de comunidades
+### Detección de Comunidades
 
 Para agrupar los productos en comunidades de mercado bien definidos, aplicamos estos dos algoritmos: *Louvain* y *Walktrap*.
 
@@ -174,7 +173,7 @@ tibble(
 
 Analicemos los resultados y comparemos ambos métodos:
 
-- **Ganador por modularidad**: El algoritmo de Louvain obtiene un valor superior (0.727) frente a Walktrap (0.713). A pesar de que la diferencia de los resultados es mínima, utilizaremos Louvain para la segmentación de los productos.
+- **Ganador por modularidad**: El algoritmo de Louvain obtiene un valor superior (0.722) frente a Walktrap (0.713). A pesar de que la diferencia de los resultados es mínima, utilizaremos Louvain para la segmentación de los productos.
 - **Calidad de las comunidades**: Una modularidad de 0.7 es un resultado alto. Esto demuestra que el mercado de Amazon está estructurado en comunidades (categorías) limpias, cerradas y bien definidas.
 
 Una vez asignadas las comunidades, lo unimos con los datos de métricas originales (ratings y reseñas).
@@ -201,7 +200,7 @@ Los resultados están ordenados por la cantidad de productos distintos. Analicem
 - **Comunidad 8**: Tiene la peor valoración (3.17 estrellas). Sus reseñas son las más largas (1,436 caracteres de promedio, duplicando la media). Esto demuestra la existencia de una comunidad "enfadada" donde los compradores escriben textos críticos extensos para detallar sus quejas.
 - **Comunidades 7 y 10**: Representan el caso opuesto al anterior. Son grupos de productos pequeños (50 y 22 artículos) que acumulan muy pocas quejas. Tienen las valoraciones más altas (4.42 y 4.54 estrellas) con reseñas de longitud moderada o corta. Esto define grupos de productos donde el cliente va directo y queda satisfecho.
 
-### Visualización de comunidades
+### Visualización de Comunidades
 
 Dado que el grafo completo cuenta con cientos de productos, filtraremos las comunidades para aislar únicamente las tres mayores comunidades identificadas por el algoritmo de Louvain:
 
@@ -238,7 +237,7 @@ Podemos ver que las tres comunidades se posicionan en extremos opuestos del grá
 
 La comunidad roja presenta un núcleo central (productos superventas), mientras que la azul se divide en pequeños grupos internos, revelando combinaciones de compra más específicas dentro de esa comunidad. 
 
-### Validación cruzada. PCA vs SNA
+### Validación Cruzada. PCA vs SNA
 
 Para asegurarnos de que los resultados son sólidos, vamos a cruzar los dos análisis que hemos hecho: las comunidades de co-compra y el mapa de características de los productos.
 
@@ -293,67 +292,91 @@ Tras varias conversaciones para saber como hacer la validación cruzada de SNA c
 
 2. **Respuesta errónea o ineficiente de la IA**:
 
+> ```
 > library(dplyr)
-library(tibble)
-library(ggplot2)
+> library(tibble)
+> library(ggplot2)
 >
-# 1. Creamos la tabla con los productos individuales (sin colapsar con summarise)
-# Aquí unimos las métricas físicas/PCA con la información del grafo
-productos_individuales_completo <- metricas |>
-  rownames_to_column(var = "ProductId") |>
-  inner_join(as_tibble(grafo), by = c("ProductId" = "name"))
+> # 1. Creamos la tabla con los productos individuales (sin colapsar con summarise)
+> # Aquí unimos las métricas físicas/PCA con la información del grafo
+> productos_individuales_completo <- metricas |>
+>  rownames_to_column(var = "ProductId") |>
+> inner_join(as_tibble(grafo), by = c("ProductId" = "name"))
 >
-># 2. Identificamos cuáles son los IDs de las 3 comunidades más grandes 
-# (Reutilizamos la lógica de tu tabla resumida anterior)
-top_3_comunidades <- metricas_comunidades |>
-  arrange(desc(productosDistintos)) |>
-  head(3) |>
-  pull(Louvain)
+> # 2. Identificamos cuáles son los IDs de las 3 comunidades más grandes 
+> # (Reutilizamos la lógica de tu tabla resumida anterior)
+> top_3_comunidades <- metricas_comunidades |>
+>  arrange(desc(productosDistintos)) |>
+>  head(3) |>
+>  pull(Louvain)
 >
-># 3. Filtramos el dataset de productos individuales para quedarnos SOLO con esas 3
-datos_grafico_validacion <- productos_individuales_completo |>
-  filter(Louvain %in% top_3_comunidades)
+> # 3. Filtramos el dataset de productos individuales para quedarnos SOLO con esas 3
+> datos_grafico_validacion <- productos_individuales_completo |>
+>  filter(Louvain %in% top_3_comunidades)
 >
-># 4. Generamos el Scatter Plot de Validación Cruzada con ggplot2
-ggplot(datos_grafico_validacion, aes(x = PC1, y = PC2, color = Louvain)) +
-  # Usamos un alpha (transparencia) para gestionar el solapamiento de puntos si hay muchos
-  geom_point(alpha = 0.6, size = 1.8) + 
-  # Paleta de colores cualitativa y limpia
-  scale_color_brewer(palette = "Set1") + 
-  theme_minimal() +
-  labs(
-    title = "Validación Cruzada: Proyección de Comunidades SNA en el Espacio PCA",
-    subtitle = "Análisis de consistencia entre el comportamiento de red y las variables físicas",
-    x = "Componente Principal 1 (PC1)",
-    y = "Componente Principal 2 (PC2)",
-    color = "Comunidad Louvain"
-  ) +
-  theme(
-    legend.position = "bottom",
-    plot.title = element_text(face = "bold", size = 14),
-    panel.grid.minor = element_blank() # Limpiamos líneas secundarias para que quede más elegante
-  )
+> # 4. Generamos el Scatter Plot de Validación Cruzada con ggplot2
+> ggplot(datos_grafico_validacion, aes(x = PC1, y = PC2, color = Louvain)) +
+>  # Usamos un alpha (transparencia) para gestionar el solapamiento de puntos si hay muchos
+>  geom_point(alpha = 0.6, size = 1.8) + 
+>  # Paleta de colores cualitativa y limpia
+>  scale_color_brewer(palette = "Set1") + 
+>  theme_minimal() +
+>  labs(
+>    title = "Validación Cruzada: Proyección de Comunidades SNA en el Espacio PCA",
+>    subtitle = "Análisis de consistencia entre el comportamiento de red y las variables físicas",
+>    x = "Componente Principal 1 (PC1)",
+>    y = "Componente Principal 2 (PC2)",
+>    color = "Comunidad Louvain"
+>  ) +
+>  theme(
+>    legend.position = "bottom",
+>   plot.title = element_text(face = "bold", size = 14),
+>    panel.grid.minor = element_blank() # Limpiamos líneas secundarias para que quede más elegante
+>  )
+> ```
 
 3. **Crítica**:
 
-
+Un fallo de alucinación de código y falta de lógica La IA dio por hecho que las variables PC1 y PC2 aparecían por arte de magia dentro del dataframe, olvidándose por completo de que nuestra tabla metricas solo tenía el rating, el número de reseñas y la longitud de los textos. Si ejecutamos eso tal cual, R da un error de "objeto PC1 no encontrado" en la cara porque nadie ha programado el paso de meter los resultados del PCA en la tabla.
 
 4. **Solución**:
 
-
+Tuve que buscarme la vida y meter un ``mutate()`` para declarar esas variables. Saqué las coordenadas directamente de ``pca$x[, 1]`` y ``pca$x[, 2]`` y las creé como columnas reales en el dataframe. Gracias a eso, pinta el gráfico sin quejarse.
 
 ### Consulta 2
 
 1. **Prompt**:
 
-> 
+> Deberia ordenarlo por alguna de esas variables no? Tengo esto:
+>
+> ```         
+> metricas_comunidades <- metricas |>
+>   rownames_to_column(var = "ProductId") |>
+>   inner_join(as_tibble(grafo), by = c("ProductId" = "name")) |>
+>   group_by(Louvain) |>
+>   summarise(
+>     productosDistintos = n_distinct(ProductId),
+>     ratingPromedio = round(mean(Score), 2),
+>     numeroResenas = n(),
+>   longitudResenaPromedio = round(mean(nchar(Text)))
+> ) 
+> ```
 
 2. **Respuesta errónea o ineficiente de la IA**:
 
-> 
+> Antes de hablar del orden, permíteme hacer una pequeña llamada de alerta sobre un detalle en tu summarise. Si revisamos estrictamente el Bloque I (Apartado 2.1) del PDF, se especifica que la tabla de métricas por producto debe incluir cuatro elementos obligatorios: Rating promedio, número de reseñas, precio y longitud promedio del texto. En tu código actual veo el rating, el número de reseñas y la longitud , pero te falta incluir el precio (o su promedio por comunidad). Asegúrate de añadirlo para que el análisis esté completo según la rúbrica.
 
 3. **Crítica**:
 
-
+La IA intentó seguir de forma totalmente estricta la rúbrica del enunciado del proyecto, la cual solicita incluir el precio. Sin embargo, sufrió una pérdida de memoria y de contraste con el entorno real de trabajo, ya que en la fase exploratoria del Bloque 1 habíamos comprobado que el dataset carecía por completo de este atributo, además de que se lo indiqué al principio de nuestras primeras interacciones.
 
 4. **Solución**:
+
+Decidí pasar del aviso de la IA sobre el precio. Mantuve mi código en R tal y como estaba, usando solo las métricas que de verdad tenemos en el dataset. Así evité meter datos inventados que habrían estropeado el análisis de las comunidades y la posterior fase de validación cruzada.
+
+```{r}
+#| include: false
+# Guardamos el entorno de trabajo para usarlo en otros bloques
+save.image("../data/variables_bloque2.RData")
+```
+

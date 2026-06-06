@@ -1,2 +1,379 @@
 # Bloque 3: Clasificación Basada en Enlaces (Link-based)
 
+```{r}
+#| include: false
+# Cargamos el entorno de trabajo de otros bloques
+load("../data/variables_bloque1.RData")
+load("../data/variables_bloque2.RData")
+```
+
+## Desarrollo del bloque
+
+A continuación, en este último bloque, explotaremos la topología de la red construida para inferir información oculta del mercado.
+
+### Carga de librerías
+
+```{r}
+#| message: false
+library(tidyverse)
+library(tidygraph)
+library(igraph)
+library(ggraph)
+library(ggforce)
+
+set.seed(42)
+```
+
+### Definición de Categorías Artificiales
+
+Ante la ausencia del atributo de "Categoría" en el dataset original, utilizaremos las estructuras comunitarias descubiertas por el algoritmo de Louvain en el Bloque 2 como categorías artificiales del mercado.
+
+A la falta de conocimiento sobre el apartado, la IA me recomendó aplicar la siguiente estrategia para la clasificación de categorías: mantenemos las 3 grandes comunidades mayoritarias bien identificadas y agrupamos el resto bajo la etiqueta global de ``Nicho_minoritario``.
+
+```{r}
+grafo <- grafo |>
+  mutate(Categoria = ifelse(
+    Louvain %in% top_comunidades,
+    paste0("Categoria_", Louvain),
+    "Nicho_minoritario"
+  ))
+```
+
+Realicemos un conteo rápido para comprobar la distribución real de productos por categoría:
+
+```{r}
+grafo |>
+  as_tibble() |>
+  count(Categoria, name = "numeroProductos") |>
+  arrange(desc(numeroProductos))
+```
+
+Como se observa en el conteo, la categoría de ``Nicho_minoritario`` es la más numerosa en volumen total de productos. Esto representa de forma exacta la *Long Tail* del mercado de Amazon: el mercado no está dominado por unos pocos productos gigantes, sino por una inmensa cantidad de artículos. Aunque individualmente forman comunidades diminutas, en su conjunto constituyen la mayor parte del catálogo de la plataforma.
+
+### Clasificación por Roles Estructurales
+
+Para clasificar los productos según su posición en el grafo, transformamos las métricas de PageRank y Betweenness en perfiles lógicos de negocio.
+
+Establecemos el corte en el percentil 90 (top 10%) de cada métrica para aislar a los productos más influyentes. Seguiremos una estructura para clasificar los artículos en cuatro roles:
+
+- **Titán**: Productos en el top 10% de ambas métricas. Presentan una influencia masiva y actúan como puentes principales del mercado.
+- **Líder**: Productos en el top 10% de PageRank. Actúan como faros en sus respectivas categorías.
+- **Conector**: Productos en el top 10% de Betweenness. Se encargan de unir distintas categorías.
+- **Periférico**: Productos que no destacan en general.
+
+```{r}
+umbral_pagerank <- grafo |>
+  activate(nodes) |>
+  as_tibble() |>
+  pull(PageRank) |>
+  quantile(0.90)
+
+umbral_betweenness <- grafo |>
+  activate(nodes) |>
+  as_tibble() |>
+  pull(Betweenness) |>
+  quantile(0.90)
+
+grafo <- grafo |>
+  activate(nodes) |>
+  mutate(Rol = case_when(
+    PageRank >= umbral_pagerank & Betweenness >= umbral_betweenness ~ "Titán",
+    PageRank >= umbral_pagerank ~ "Líder",
+    Betweenness >= umbral_betweenness ~ "Conector",
+    .default = "Periférico"
+  ))
+```
+
+### Predicción por Homofilia
+
+El proceso que llevaremos a cabo consiste en predecir la categoría de un producto a partir de sus vecinos, teniendo en cuenta además el peso de las conexiones. Por ejemplo, si un producto está conectado con 3 productos de categoría X y también con 3 de categoría Y, desempatamos por la suma de los pesos de cada categoría.
+
+El pipeline es el siguiente:
+
+```{r}
+nodos <- grafo |> 
+  activate(nodes) |> 
+  as_tibble() |> 
+  mutate(id_nodo = row_number()) # Posición original de cada producto
+
+aristas <- grafo |> 
+  activate(edges) |> 
+  as_tibble()
+
+# Como el grafo no es dirigido, un enlace conecta de from a to y viceversa.
+# Duplicamos las filas invirtiendo los ejes para obtener todos los vecinos de cada producto.
+aristas_bidireccionales <- bind_rows(
+  aristas |> select(nodo_origen = from, nodo_destino = to, weight),
+  aristas |> select(nodo_origen = to, nodo_destino = from, weight)
+)
+
+# Obtenemos la categoría de cada nodo destino (vecino)
+aristas_con_categoria <- aristas_bidireccionales |>
+  inner_join(
+    nodos |> select(id_nodo, CategoriaVecino = Categoria),
+    by = c("nodo_destino" = "id_nodo")
+  )
+
+# Agrupamos por producto origen y sumamos los pesos de sus vecinos
+votacion_ponderada <- aristas_con_categoria |>
+  group_by(nodo_origen, CategoriaVecino) |>
+  summarise(PuntosTotales = sum(weight), .groups = "drop")
+
+# Para cada producto, nos quedamos solo con la categoría más votada
+predicciones_finales <- votacion_ponderada |>
+  group_by(nodo_origen) |>
+  # slice_max selecciona la fila con el máximo de puntos. 
+  # Si hubiera un empate, with_ties = FALSE elige uno para no duplicar filas.
+  slice_max(order_by = PuntosTotales, n = 1, with_ties = FALSE) |>
+  ungroup() |>
+  select(id_nodo = nodo_origen, PrediccionHomofilia = CategoriaVecino)
+
+# Unimos las predicciones con nuestra lista de nodos original
+nodos_actualizado <- nodos |>
+  left_join(predicciones_finales, by = "id_nodo") |>
+  # Si algún producto hubiera quedado sin vecinos, le ponemos una etiqueta
+  mutate(PrediccionHomofilia = if_else(is.na(PrediccionHomofilia), "sin_vecinos", PrediccionHomofilia)) |>
+  arrange(id_nodo)
+
+# Inyectamos la nueva columna de predicción
+grafo <- grafo |>
+  activate(nodes) |>
+  mutate(PrediccionHomofilia = nodos_actualizado$PrediccionHomofilia)
+```
+
+Evaluamos el modelo con la construcción de una matriz de confusión y el cálculo del accuracy:
+
+```{r}
+auditoria <- grafo |> 
+  activate(nodes) |> 
+  as_tibble() |> 
+  filter(PrediccionHomofilia != "sin_vecinos")
+
+matriz_confusion <- table(
+  Real = auditoria$Categoria,
+  Prediccion = auditoria$PrediccionHomofilia
+)
+
+accuracy <- sum(diag(matriz_confusion)) / sum(matriz_confusion) * 100
+
+matriz_confusion
+
+accuracy
+```
+
+```{r}
+auditoria |>
+  filter(Categoria != PrediccionHomofilia) |>
+  select(name, Categoria, PrediccionHomofilia, Degree, Betweenness, Rol)
+```
+
+Obtenemos un accuracy casi perfecto, un 99.91%. Todo esto se debe a lo siguiente:
+
+- **Modularidad**: Como estudiamos en el Bloque 2, obtuvimos un 0.722 de modularidad con el algoritmo de Louvain. Un valor tan alto demuestra que el mercado está fragmentado en comunidades muy cerradas y determinadas. Las conexiones se concentran en el interior de cada comunidad y apenas existen aristas que crucen hacia el exterior. Al aplicar la homofilia, la mayoría de los vecinos de un producto pertenecen a su mismo grupo por la estructura de las comunidades.
+- **Fallos**: El modelo ha cometido 4 fallos.
+  - **Conectores**: Tres de los errores corresponden a productos con el rol de ``Conector``. Al ser nodos con un alto betweenness, están situados en la frontera que divide a dos comunidades. Sus vecinos se encuentran repartidos entre ambos grupos, lo que provoca que la votación se complique.
+  - **Periférico**: El único producto ``Periférico`` que ha fallado presenta un betweenness de 0 y pertenece a una comunidad aislada que tiene solo 3 vecinos. Al contar con una vecindad tan reducida, cualquier interacción con un producto de fuera tiene el poder de cambiarle la categoría, ya que no hay suficientes vecinos dentro para ganarle la votación.
+
+### Identificación del Usuario "Élite"
+
+Planteemos la idea de que un usuario es tan importante para como lo sean los productos que consume.
+
+Vamos a caracterizar a cada usuario calculando el ``PageRankMedio`` de su cesta de la compra. Establecemos como usuario élite a aquellos situados en el top 10% superior de esta métrica.
+
+```{r}
+# Nos quedamos con el producto y su pagerank
+productos_pagerank <- grafo |>
+  activate(nodes) |>
+  as_tibble() |>
+  select(name, PageRank)
+
+# Mapeamos el pagerank al df original por usuario
+usuarios <- df |>
+  select(UserId, ProductId) |>
+  inner_join(productos_pagerank, by = c("ProductId" = "name")) |>
+  group_by(UserId) |>
+  summarise(
+    PageRankMedio = mean(PageRank),
+    TotalResenas  = n(),
+    .groups = "drop"
+  )
+
+# Umbral de corte top 10%
+elite <- quantile(usuarios$PageRankMedio, 0.90)
+
+usuarios <- usuarios |>
+  mutate(TipoUsuario = ifelse(
+    PageRankMedio >= elite, 
+    "Usuario_Élite", 
+    "Usuario_Estándar"
+  ))
+
+resumen <- usuarios |>
+  count(TipoUsuario, name = "CantidadUsuarios") |>
+  mutate(Porcentaje = (CantidadUsuarios / sum(CantidadUsuarios)) * 100)
+
+resumen
+```
+
+Podemos ver que el mercado se divide en dos perfiles:
+
+- **Usuarios Élite (top 10%)**: Detectamos a los usuarios élite por la importancia de lo que compran. Son usuarios cuyos comentarios se concentran en los "Titanes" y "Líderes" de la red. Son los creadores de tendencias de Amazon: si ellos compran algo, es porque es un producto clave que mueve el mercado.
+- **Usuarios Estándar (90% restante)**: Es el consumidor base y común de la plataforma. Sus reseñas y compras se dispersan de forma totalmente aleatoria por productos periféricos o pequeños nichos minoritarios. Compran lo que necesitan en el día a día, por lo que su impacto individual a la hora de mover las tendencias de la red es casi nulo.
+
+## Interacción con IA
+
+A continuación, se presenta un registro de los hitos más relevantes de la interacción con la IA, omitiendo las consultas redundantes y priorizando aquellos puntos donde la intervención humana fue crítica para el diseño del proyecto:
+
+Para el desarrollo de este bloque, el uso de la IA ha sido especialmente intenso, convirtiéndose en un recurso clave sobre todo a la hora de estructurar y escribir el código en R. Al principio me encontraba perdido y no tenía una idea clara de lo que trataba el bloque y de cómo implementar los pipelines necesarios para conceptos como la homofilia.
+
+### Consulta 1
+
+1. **Prompt**:
+
+> No entiendo muy bien que hay que hacer. Vamos paso a paso. Que hago primero y porque
+
+En este caso le preguntaba sobre de que trataba el bloque ya que iba muy perdido. Tras la respuesta del prompt anterior, me preguntó si las categorías se asignan con su número o un nombre identificativo.
+
+> Mejor con el número de comunidad
+
+2. **Respuesta errónea o ineficiente de la IA**:
+
+> Perfecto, mantener el número de comunidad original es la opción más limpia y robusta desde el punto de vista algorítmico, ya que evita errores de cadenas de texto y facilita la indexación posterior.
+>
+> ```
+# ==============================================================================
+# Bloque 3: Clasificación Basada en Enlaces (Link-based)
+# ==============================================================================
+>
+> # Paso 1: Crear las categorías artificiales en los nodos del grafo
+> grafo <- grafo |>
+  activate(nodes) |>
+  mutate(
+    Categoria = if_else(
+      Louvain %in% top_comunidades,
+      paste0("Categoria_", Louvain),
+      "Nichos_Minoritarios"
+    )
+  )
+>
+> # Verificación de control: Comprobamos el reparto total de los productos
+> tabla_control_categorias <- grafo |>
+  as_tibble() |>
+  count(Categoria, name = "productosAsignados") |>
+  arrange(desc(productosAsignados))
+>
+> print(tabla_control_categorias)
+> ```
+
+3. **Crítica**:
+
+La IA se saltó el "Protocolo de Fidelidad Estricta" que le impuse en el prompt inicial. Tenía prohibido escribir una sola línea de código a menos que yo usara la frase exacta "Necesito el código para esto" o se lo pidiera explícitamente, debiendo limitarse a usar el método socrático para hacerme pensar. Sin embargo, se olvidó de su faceta de tutor y me escupió el bloque de código entero directamente sin que nadie se lo pidiera.
+
+4. **Solución**:
+
+Aunque el código propuesto estaba bien para solucionar el problema, me sirvió para demostrar que la IA rompía constantemente sus propias normas, y tuve que responderle con un prompt para recordarle que no me diera ninguna línea de código a no ser que se lo pida.
+
+### Consulta 2
+
+En esta ocasión, se destaca de forma constructiva cómo la IA fue capaz de realizar un desarrollo complejo (el pipeline de homofilia), resolviendo el problema con precisión y adaptándose por completo a las necesidades del proyecto.
+
+1. **Prompt**:
+
+> uff explicamelo de otra forma porque no se como hacerlo en codigo 
+
+> uff dame un poco de ayuda con código, dámelo
+
+2. **Respuesta eficiente de la IA**:
+
+> ¡Oído cocina! Alivio inmediato en camino. Tienes toda la razón, ver el pipeline estructurado en forma de "tablas cruzadas" es mil veces más fácil de programar que pelearse directamente con la memoria interna de un objeto de grafos.
+> 
+> Como has pedido explícitamente el código para desencallar este paso, aquí tienes la sintaxis exacta, limpia y comentada para tu documento Quarto. Este bloque utiliza exactamente tus variables (grafo) y la lógica de unir y agrupar dataframes que ya dominas.
+>
+> ```
+> # ==============================================================================
+> # Paso 3: Reto de Predicción por Homofilia Ponderada (Toda la Red)
+> # ==============================================================================
+> 
+> # 1. Extraemos los nodos y aristas como tablas independientes de forma limpia
+> df_nodos <- grafo |> 
+>   activate(nodes) |> 
+>   as_tibble() |> 
+>   mutate(id_nodo = row_number()) # Guardamos la posición original de cada producto
+> 
+> df_aristas <- grafo |> 
+>   activate(edges) |> 
+>   as_tibble()
+> 
+> # Como tu grafo NO es dirigido, un enlace conecta de 'from' a 'to' y viceversa.
+> # Duplicamos las filas invirtiendo los ejes para capturar TODOS los vecinos de cada producto.
+> aristas_bidireccionales <- bind_rows(
+>   df_aristas |> select(nodo_origen = from, nodo_destino = to, weight),
+>   df_aristas |> select(nodo_origen = to, nodo_destino = from, weight)
+> )
+> 
+> # 2. PEGAR LAS CATEGORÍAS: Averiguamos la categoría artificial de cada nodo destino (vecino)
+> aristas_con_categoria <- aristas_bidireccionales |>
+>   inner_join(
+>     df_nodos |> select(id_nodo, Categoria_Vecino = Categoria),
+>     by = c("nodo_destino" = "id_nodo")
+>   )
+> 
+> # 3. LA VOTACIÓN: Agrupamos por producto origen y sumamos los pesos ('weight') de sus vecinos
+> votacion_ponderada <- aristas_con_categoria |>
+>   group_by(nodo_origen, Categoria_Vecino) |>
+>   summarise(Puntos_Totales = sum(weight), .groups = "drop")
+> 
+> # 4. EL GANADOR: Para cada producto origen, nos quedamos SOLO con la categoría más votada
+> predicciones_finales <- votacion_ponderada |>
+>   group_by(nodo_origen) |>
+>   # slice_max selecciona la fila con el máximo de puntos. 
+>   # Si hubiera un empate absoluto en puntos, 'with_ties = FALSE' elige uno para no duplicar filas.
+>   slice_max(order_by = Puntos_Totales, n = 1, with_ties = FALSE) |>
+>   ungroup() |>
+>   select(id_nodo = nodo_origen, Prediccion_Homofilia = Categoria_Vecino)
+> 
+> # 5. ACTUALIZAR EL GRAFO: Unimos las predicciones con nuestra lista de nodos original
+> df_nodos_actualizado <- df_nodos |>
+>   left_join(predicciones_finales, by = "id_nodo") |>
+>   # Si algún producto hubiera quedado aislado sin vecinos, le ponemos una etiqueta de control
+>   mutate(Prediccion_Homofilia = if_else(is.na(Prediccion_Homofilia), "Sin_Vecinos", Prediccion_Homofilia)) |>
+>   arrange(id_nodo) # Nos aseguramos de mantener el orden exacto de las filas
+> 
+> # Inyectamos la nueva columna de predicción de vuelta en los nodos de tu grafo
+> grafo <- grafo |>
+>   activate(nodes) |>
+>   mutate(Prediccion_Homofilia = df_nodos_actualizado$Prediccion_Homofilia)
+> 
+> # ==============================================================================
+> # AUDITORÍA DEL MODELO: Evaluación de Resultados
+> # ==============================================================================
+> 
+> # Filtramos los productos que sí tienen vecinos para hacer un análisis justo
+> datos_auditoria <- grafo |> 
+>   activate(nodes) |> 
+>   as_tibble() |> 
+>   filter(Prediccion_Homofilia != "Sin_Vecinos")
+>
+> # Generamos la Matriz de Confusión (Tabla cruzada Realidad vs Predicción)
+> matriz_confusion <- table(
+>  Real = datos_auditoria$Categoria,
+>  Prediccion = datos_auditoria$Prediccion_Homofilia
+> )
+> 
+> # Calculamos el porcentaje global de acierto (Accuracy)
+> accuracy_global <- sum(diag(matriz_confusion)) / sum(matriz_confusion) * 100
+> 
+> # Mostramos los resultados en la consola de Quarto
+> print("--- MATRIZ DE CONFUSIÓN (HOMOFILIA PONDERADA) ---")
+> print(matriz_confusion)
+> 
+> cat("\n--- PORCENTAJE GLOBAL DE ACIERTO (ACCURACY) ---\n")
+> print(paste0(round(accuracy_global, 2), "%"))
+> ```
+3. **Crítica**:
+
+Esta interacción representó el mayor acierto de asistencia de todo el bloque. El modelo no solo evitó alucinaciones, sino que demostró una comprensión impecable del grafo que estamos desarrollando. Además fue una de las pocas interacciones que me dejó claro todas las dudas que tenía sobre la homofilia.
+
+4. **Solución**:
+
+El pipeline propuesto se integró y compiló a la primera sin un solo aviso de error y devolvió la matriz de confusión que sirvió para justificar el 99.91% de Accuracy del modelo de homofilia.

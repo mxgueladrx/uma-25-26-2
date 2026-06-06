@@ -1,0 +1,2010 @@
+# Repaso de Análisis de Redes Sociales (SNA)
+
+```{r}
+#| label: setup
+#| message: false
+#| warning: false
+# Cargamos las librerías del ecosistema de redes y tidyverse
+library(igraph)
+library(tidygraph)
+library(ggraph)
+library(tidyverse)
+
+# Configuración del entorno
+theme_set(theme_minimal())
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, fig.width = 10, fig.height = 7)
+```
+
+## Contexto del Problema
+
+Te han contratado como **Analista de Redes de Información de Poniente** (Westeros Social Network Scientist) por encargo directo del Archimaestre de la Ciudadela. 
+
+>> Durante la convulsa Guerra de los Cinco Reyes, las alianzas, traiciones y el flujo de conspiraciones ocurren a una velocidad vertiginosa. 
+
+>> Los maestres han compilado minuciosamente una crónica en forma de red de interacciones entre los personajes en el volumen **"Tormenta de Espadas"** (Libro 3 de la saga).
+
+Dispones de dos archivos CSV en tu directorio de trabajo:
+
+*   `nodos_got.csv`: Lista de personajes con sus identificadores (`Id`) y nombres limpios (`Label`).
+
+*   `aristas_got.csv`: Interacciones o co-ocurrencias entre personajes con su peso (`weight`), que indica cuántas veces interactúan o aparecen juntos.
+
+Tu objetivo es realizar una **auditoría analítica y estructural de esta red** respondiendo a las siguientes 10 preguntas. 
+
+>> Cada pregunta vale **1 punto** (total de 10 puntos). El ejercicio está diseñado para realizarse en **1 hora aprox.**.
+
+## 1. Construcción del Grafo y Estructura Base (1 punto)
+
+**Pregunta 1:** Importa los ficheros `nodos_got.csv` y `aristas_got.csv`. Construye un grafo de `tidygraph` llamado `g_got` que sea **no dirigido** (ya que la co-ocurrencia de personajes es bidireccional). 
+
+Asegúrate de:
+
+1. Renombrar las columnas de aristas de modo que las dos primeras sean `from` y `to` (mapeando `Source` y `Target`).
+
+2. Indicar mediante código el número exacto de nodos y aristas que contiene la red cargada.
+
+```{r}
+#| label: p1
+# 1. Carga de datos
+nodos <- read_csv("nodos_got.csv")
+aristas <- read_csv("aristas_got.csv")
+
+# 2. Renombrar Source y Target a from y to
+aristas_clean <- aristas %>% 
+  select(from = Source, to = Target, everything())
+
+# 3. Construcción del grafo no dirigido
+g_got <- tbl_graph(nodes = nodos, edges = aristas_clean, directed = FALSE)
+
+# 4. Reporte de dimensiones
+n_nodos <- g_got %>% activate(nodes) %>% as_tibble() %>% nrow()
+n_aristas <- g_got %>% activate(edges) %>% as_tibble() %>% nrow()
+
+cat("El grafo original g_got ha sido construido con éxito.\n")
+cat("-> Número total de personajes (nodos):", n_nodos, "\n")
+cat("-> Número total de interacciones (aristas):", n_aristas, "\n")
+```
+
+```{r}
+nodos <- read.csv("nodos_got.csv")
+aristas <- read.csv("aristas_got.csv")
+
+aristas_clean <- aristas |>
+  select(from = Source, to = Target, everything())
+
+g_got <- tbl_graph(nodos, aristas_clean, directed = FALSE)
+
+length(V(g_got))
+length(E(g_got))
+```
+
+---
+
+## 2. Limpieza y Simplificación de la Red (1 punto)
+
+**Pregunta 2:** En la red compilada por los maestres, existen registros redundantes: bucles (personajes que interactúan consigo mismos) y múltiples aristas de interacción redundantes entre los mismos personajes.
+
+1. Elimina todos los bucles (autobucle).
+
+2. Simplifica las aristas múltiples consolidando su peso: si hay varios enlaces entre la misma pareja de personajes, agrégalos sumando su atributo `weight` en una única arista.
+
+3. Almacena este grafo limpio en la variable `g_simple` y muestra en pantalla cuántas aristas quedan tras la simplificación.
+
+```{r}
+#| label: p2
+# 1. Extraemos y consolidamos las aristas usando dplyr tradicional.
+# Como el grafo es no dirigido, las interacciones A-B y B-A son equivalentes.
+# Para unificarlas correctamente, nos aseguramos de que 'from' siempre sea menor que 'to'
+# utilizando la función estándar if_else() de dplyr que los alumnos ya conocen.
+aristas_simples <- g_got %>% 
+  activate(edges) %>% 
+  filter(from != to) %>% # Eliminación explícita de bucles
+  as_tibble() %>% 
+  mutate(
+    from_new = if_else(from < to, from, to),
+    to_new = if_else(from < to, to, from)
+  ) %>% 
+  group_by(from = from_new, to = to_new) %>% 
+  summarise(weight = sum(weight), .groups = "drop")
+
+# 2. Reconstruimos el grafo de tidygraph con los nodos originales y las aristas simplificadas
+g_simple <- tbl_graph(nodes = nodos, edges = aristas_simples, directed = FALSE)
+
+# Dimensiones tras la simplificación
+n_aristas_simple <- g_simple %>% activate(edges) %>% as_tibble() %>% nrow()
+
+cat("Grafo simplificado con éxito.\n")
+cat("-> Número de aristas tras eliminar bucles e interacciones duplicadas:", n_aristas_simple, "\n")
+cat("-> Se han consolidado", n_aristas - n_aristas_simple, "aristas redundantes en el proceso.\n")
+
+# Alternativa directa con igraph::simplify()
+g_simple_alt <- g_got %>% 
+  activate(edges) %>% 
+  filter(from != to) %>% 
+  as.igraph() %>% 
+  igraph::simplify(
+    remove.multiple = TRUE, 
+    remove.loops = TRUE, 
+    edge.attr.comb = list(weight = "sum", "ignore")
+  ) %>% 
+  as_tbl_graph()
+```
+
+```{r}
+g_simple <- g_got |>
+  activate(edges) |>
+  filter(from != to) |>
+  as.igraph() |>
+  igraph::simplify(
+    remove.multiple = TRUE, 
+    remove.loops = TRUE, 
+    edge.attr.comb = list(weight = "sum", "ignore")
+  ) |>
+  as_tbl_graph()
+```
+
+---
+
+## 3. Mutación y Filtrado Táctico de Élite (1 punto)
+
+**Pregunta 3:** Los analistas de la Ciudadela consideran que una relación es **"relevante"** si su peso (`weight`) es estrictamente superior a la mediana global de todos los pesos de la red simplificada, y **"secundaria"** en caso contrario.
+
+1. Calcular la mediana global de `weight` y añadir a las aristas de `g_simple` un nuevo atributo llamado `relacion_tipo` con los valores `"relevante"` o `"secundaria"`.
+
+2. Crear un subgrafo llamado `g_stark` filtrando la red para quedarte únicamente con las relaciones tipo `"relevante"` donde **al menos uno de los dos personajes involucrados pertenezca a la familia Stark** (es decir, que su atributo `Id` contenga la cadena `"Stark"`).
+
+3. Reportar cuántas aristas de élite Stark quedan en este subgrafo.
+
+```{r}
+#| label: p3
+# 1. Calcular la mediana de peso en la red simplificada usando dplyr::summarise
+mediana_resumen <- g_simple %>% 
+  activate(edges) %>% 
+  as_tibble() %>% 
+  summarise(mediana_peso = median(weight))
+
+mediana_peso <- mediana_resumen$mediana_peso
+
+cat("La mediana global de las interacciones en Poniente es de:", mediana_peso, "co-ocurrencias.\n\n")
+
+# 2. Mutar aristas añadiendo tipo y filtrar aristas Stark de alta relevancia
+g_stark <- g_simple %>% 
+  activate(edges) %>% 
+  mutate(relacion_tipo = if_else(weight > mediana_peso, "relevante", "secundaria")) %>% 
+  filter(
+    relacion_tipo == "relevante" & 
+    (grepl("Stark", .N()$Id[from]) | grepl("Stark", .N()$Id[to]))
+  )
+
+# 3. Reporte de aristas Stark relevantes
+n_aristas_stark <- g_stark %>% activate(edges) %>% as_tibble() %>% nrow()
+
+cat("Subgrafo Stark de Élite filtrado.\n")
+cat("-> Número de aristas Stark relevantes (> mediana):", n_aristas_stark, "relaciones.\n")
+```
+
+```{r}
+mediana_global = median(E(g_simple)$weight)
+
+g_simple <- g_simple |>
+  activate(edges) |>
+  mutate(relacion_tipo = ifelse(weight > mediana_global, "relevante", "secundaria"))
+
+
+g_stark <- g_simple |>
+  activate(edges) |>
+  mutate(relacion_tipo = if_else(weight > mediana_peso, "relevante", "secundaria")) |>
+  filter(
+    relacion_tipo == "relevante" & 
+    (grepl("Stark", .N()$Id[from]) | grepl("Stark", .N()$Id[to]))
+  )
+
+
+length(E(g_stark))
+```
+
+---
+
+## 4. Identificación del Megahub y Conexión Suprema (1 punto)
+
+**Pregunta 4:** 
+
+1. Calcula el Grado total (`degree`) de todos los nodos en `g_simple` y determina quién es el **Megahub** absoluto de Poniente (el personaje con más conexiones directas). Imprime su nombre (`Label`) y su número de conexiones.
+
+2. Identifica con cuál de sus vecinos tiene la interacción de mayor peso (`weight`) e imprime el nombre de dicho personaje y el peso de su relación.
+
+```{r}
+#| label: p4
+# 1. Calcular grado e identificar al Megahub
+g_deg <- g_simple %>% 
+  activate(nodes) %>% 
+  mutate(degree = centrality_degree())
+
+megahub <- g_deg %>% 
+  as_tibble() %>% 
+  arrange(desc(degree)) %>% 
+  slice(1)
+
+cat("El Megahub absoluto de Poniente es:", megahub$Label, "\n")
+cat("-> Tiene un total de:", megahub$degree, "vecinos o conexiones directas.\n\n")
+
+# 2. Identificar su conexión de mayor peso
+# Filtramos las aristas donde participe el Megahub, y buscamos el vecino
+conexion_suprema <- g_simple %>% 
+  activate(edges) %>% 
+  filter(.N()$Id[from] == megahub$Id | .N()$Id[to] == megahub$Id) %>% 
+  mutate(
+    vecino_nombre = if_else(.N()$Label[from] == megahub$Label, .N()$Label[to], .N()$Label[from])
+  ) %>% 
+  as_tibble() %>% 
+  arrange(desc(weight)) %>% 
+  slice(1)
+
+cat("La conexión de mayor peso del Megahub es con:", conexion_suprema$vecino_nombre, "\n")
+cat("-> Peso acumulado de la relación (co-ocurrencias):", conexion_suprema$weight, "\n")
+```
+
+```{r}
+grado_total = g_simple |>
+  activate(nodes) |>
+  mutate(grado = centrality_degree())
+
+megahub <- grado_total |>
+  as_tibble() |>
+  arrange(desc(grado)) |>
+  head(1)
+
+megahub$Label
+megahub$grado
+
+
+vecino <- g_simple |>
+  activate(edges) |>
+  filter(.N()$Id[from] == megahub$Id | .N()$Id[to] == megahub$Id) |>
+  mutate(vecino_nombre = if_else(.N()$Label[from] == megahub$Label, 
+                                 .N()$Label[to],
+                                 .N()$Label[from])
+  ) |>
+  as_tibble() |>
+  arrange(desc(weight)) |>
+  head(1)
+
+vecino$vecino_nombre
+vecino$weight
+```
+
+---
+
+## 5. El Cuello de Botella Estructural (SPOF) (1 punto)
+
+**Pregunta 5:** A veces, el personaje más influyente no es el que habla con más gente (Grado), sino el que actúa como el puente indispensable entre clanes geográficamente distantes.
+
+Escribe código R para:
+
+1. Calcular la centralidad de intermediación (`betweenness`) de todos los nodos en `g_simple`.
+
+2. Identificar al personaje con mayor intermediación **excluyendo** al Megahub que encontraste en la Pregunta 4.
+
+3. Explicar brevemente en texto por qué este personaje es considerado un **Punto Único de Fallo (SPOF)** en la red de conspiraciones y reportar su intermediación exacta.
+
+```{r}
+#| label: p5
+# 1. Calcular intermediación de todos los personajes
+g_bt <- g_simple %>% 
+  activate(nodes) %>% 
+  mutate(betweenness = centrality_betweenness())
+
+# 2. Encontrar al mayor puente excluyendo al Megahub (Tyrion-Lannister)
+spof <- g_bt %>% 
+  as_tibble() %>% 
+  filter(Id != megahub$Id) %>% 
+  arrange(desc(betweenness)) %>% 
+  slice(1)
+
+cat("El principal puente estructural (excluyendo a", megahub$Label, ") es:", spof$Label, "\n")
+cat("-> Su intermediación exacta es de:", round(spof$betweenness, 2), "\n")
+```
+
+```{r}
+centralidad <- g_simple |>
+  activate(nodes) |>
+  mutate(centralidad = centrality_betweenness())
+
+
+mayor_centralidad <- centralidad |>
+  as_tibble() |>
+  filter(Id != megahub$Id) |>
+  arrange(desc(centralidad)) |>
+  head(1)
+```
+
+---
+
+## 6. Prestigio de Información (PageRank) frente a Grado (1 punto)
+
+**Pregunta 6:** La métrica de PageRank nos dice quién es prestigioso porque se relaciona con otros personajes prestigiosos, y no simplemente por hablar con muchos personajes secundarios.
+
+1. Calcula la centralidad de PageRank (`pagerank`) en `g_simple`.
+
+2. Muestra los 5 personajes con mayor PageRank de Poniente.
+
+3. Compara sus posiciones con el Grado. ¿Hay algún personaje que aparezca en el Top 5 de PageRank pero tenga un grado comparativamente bajo? Justifica por qué ocurre esto matemáticamente.
+
+```{r}
+#| label: p6
+# 1. Calcular grado y pagerank, y comparar rankings
+tabla_comparativa <- g_simple %>% 
+  activate(nodes) %>% 
+  mutate(
+    degree = centrality_degree(),
+    pagerank = centrality_pagerank()
+  ) %>% 
+  as_tibble() %>% 
+  mutate(
+    rank_degree = min_rank(desc(degree)),
+    rank_pagerank = min_rank(desc(pagerank)),
+    diferencia_rank = rank_degree - rank_pagerank # Positivo indica mejor posición en PageRank
+  )
+
+# Mostrar Top 5 PageRank
+top5_pr <- tabla_comparativa %>% 
+  arrange(desc(pagerank)) %>% 
+  head(5)
+
+print(top5_pr %>% select(Label, degree, rank_degree, pagerank, rank_pagerank, diferencia_rank))
+```
+
+```{r}
+pagerank <- g_simple |>
+  activate(nodes) |>
+  mutate(
+    pagerank = centrality_pagerank(),
+    grado = centrality_degree()
+  )
+
+
+mayor_pagerank <- pagerank |>
+  as_tibble() |>
+  arrange(desc(pagerank)) |>
+  head(5)
+```
+
+---
+
+## 7. Vecindario de Influencia y Densidad Ego (1 punto)
+
+**Pregunta 7:** La reina **Daenerys-Targaryen** se encuentra en el exilio reclutando su ejército en Essos. Queremos auditar su corte personal (Ego Network).
+
+1. Extrae el vecindario local de primer orden (orden = 1, es decir, conexiones directas de Daenerys) del grafo `g_simple`.
+
+2. Calcula e imprime el número exacto de personajes que componen su corte y la **densidad** de este subgrafo ego. Comenta brevemente si la corte de Daenerys es una red muy cohesionada (donde todos sus consejeros interactúan entre sí) o fragmentada.
+
+```{r}
+#| label: p7
+# 1. Extraer subgrafo local ego de Daenerys Targaryen (orden 1)
+g_daenerys <- g_simple %>% 
+  convert(to_local_neighborhood, node = (Id == "Daenerys-Targaryen"), order = 1, mode = "all")
+
+# 2. Calcular número de nodos y densidad
+n_corte <- vcount(g_daenerys)
+densidad_corte <- edge_density(g_daenerys)
+
+cat("La corte personal de la reina Daenerys Targaryen consta de:", n_corte, "personajes.\n")
+cat("-> La densidad de este subgrafo ego es de:", round(densidad_corte, 4), "\n")
+```
+
+```{r}
+vecindario <- g_simple |>
+    convert(to_local_neighborhood, 
+            node = (Id == "Daenerys-Targaryen"), 
+            order = 1, 
+            mode = "all"
+    )
+
+length(V(vecindario))
+edge_density(vecindario)
+```
+
+---
+
+## 8. Caminos Mínimos de Conspiración mediante Morphing (1 punto)
+
+**Pregunta 8:** **Jon-Snow** se encuentra en el Muro en el extremo norte, mientras que **Daenerys-Targaryen** está en el este. Queremos saber cuál es el camino logístico más corto (menos escalas de interacción) que conectaría una conspiración entre ambos.
+
+Pista (usa las funciones `morph()` y `unmorph()` de `tidygraph`):
+
+1. Encuentra el camino más corto entre Jon Snow (`Id == "Jon-Snow"`) y Daenerys Targaryen (`Id == "Daenerys-Targaryen"`).
+
+2. Marca los nodos del camino con un atributo lógico `en_camino = TRUE`.
+
+3. Filtra y muestra por pantalla la secuencia ordenada de nombres (`Label`) de los personajes puente que forman esta cadena de comunicación ineludible.
+
+```{r}
+#| label: p8
+# 1. Usar morph para identificar el camino más corto
+g_camino <- g_simple %>% 
+  activate(nodes) %>% 
+  morph(to_shortest_path, from = (Id == "Jon-Snow"), to = (Id == "Daenerys-Targaryen")) %>% 
+  mutate(en_camino = TRUE) %>% 
+  unmorph()
+
+# 2. Filtrar los nodos marcados y mostrar el camino
+camino_nodos <- g_camino %>% 
+  activate(nodes) %>% 
+  filter(en_camino == TRUE) %>% 
+  as_tibble()
+
+cat("Cadena de comunicación más corta Jon Snow <-> Daenerys Targaryen:\n")
+print(camino_nodos %>% select(Id, Label))
+```
+
+```{r}
+camino_corto <- g_simple |>
+  activate(nodes) |>
+  morph(to_shortest_path, from = (Id == "Jon-Snow"), to = (Id == "Daenerys-Targaryen")) |>
+  mutate(en_camino = TRUE) |>
+  unmorph()
+
+
+camino_corto |> 
+  activate(nodes) |>
+  filter(en_camino == TRUE) |>
+  select(Label) |>
+  arrange(Label) |>
+  as_tibble()
+```
+
+---
+
+## 9. Facciones Políticas (Detección de Comunidades) (1 punto)
+
+**Pregunta 9:** Aplica el algoritmo de **Louvain** (`group_louvain`) al grafo `g_simple` para clasificar a los personajes en comunidades o alianzas políticas.
+
+Responde a las siguientes tareas:
+
+1. ¿Cuántas comunidades distintas detecta el algoritmo?
+
+2. Calcula e imprime el valor de la **modularidad** de la partición (puedes convertir a `igraph` para este cálculo). ¿Es una buena segmentación?
+
+3. Encuentra cuáles son los **5 personajes más prestigiosos (por PageRank)** que pertenecen a la misma comunidad política que **Tyrion-Lannister**.
+
+```{r}
+#| label: p9
+# 1. Aplicar Louvain e identificar facciones
+g_comm <- g_simple %>% 
+  activate(nodes) %>% 
+  mutate(
+    comunidad = as.factor(group_louvain()),
+    pagerank = centrality_pagerank()
+  )
+
+# Conteo de comunidades
+comunidades_tabla <- g_comm %>% as_tibble()
+n_comunidades <- n_distinct(comunidades_tabla$comunidad)
+
+cat("El algoritmo de Louvain ha detectado:", n_comunidades, "comunidades políticas.\n\n")
+
+# 2. Calcular modularidad
+ig_simple <- as.igraph(g_simple)
+coms_igraph <- cluster_louvain(ig_simple)
+mod_val <- modularity(coms_igraph)
+
+cat("La puntuación de modularidad de esta partición es de:", round(mod_val, 4), "\n")
+
+if (mod_val > 0.4) {
+  cat("-> Es una excelente segmentación estructural (modularidad > 0.4).\n\n")
+} else {
+  cat("-> La modularidad es baja, indicando mucho solapamiento entre grupos.\n\n")
+}
+
+# 3. Identificar la comunidad de Tyrion-Lannister y su Top 5 prestigiosos
+tyrion_id_comm <- comunidades_tabla %>% 
+  filter(Id == "Tyrion-Lannister") %>% 
+  pull(comunidad)
+
+top5_tyrion_comm <- comunidades_tabla %>% 
+  filter(comunidad == tyrion_id_comm) %>% 
+  arrange(desc(pagerank)) %>% 
+  head(5)
+
+cat("Top 5 personajes más prestigiosos en la facción de Tyrion Lannister:\n")
+print(top5_tyrion_comm %>% select(Label, pagerank))
+```
+
+```{r}
+comunidades <- g_simple |>
+  activate(nodes) |>
+  mutate(
+    comunidad = as.factor(group_louvain()),
+    pagerank = centrality_pagerank()
+  )
+
+length(unique(V(comunidades)$comunidad))
+
+
+modularity(cluster_louvain(g_simple))
+
+
+comunidad_tyrion <- comunidades |>
+  activate(nodes) |>
+  filter(Id == "Tyrion-Lannister") |>
+  select(comunidad)
+
+top_5_pagerank <- comunidades |>
+  filter(comunidad == comunidad_tyrion) |>
+  arrange(desc(pagerank))
+```
+
+---
+
+## 10. Visualización Estratégica del Reino con ggraph (1 punto)
+
+**Pregunta 10:** Diseña un mapa visual estratégico para el Consejo Privado del Rey. Para evitar el desorden visual, filtra el grafo `g_simple` para quedarte **únicamente con aquellos personajes que tengan un grado superior a 10**.
+
+Requisitos de la visualización (`ggraph`):
+
+1. El **tamaño de los nodos** debe representar su centralidad de **PageRank**.
+
+2. El **color de los nodos** debe estar determinado por su **comunidad de Louvain** calculada en la Pregunta 9 (asegúrate de convertir la comunidad a factor).
+
+3. El **grosor de las aristas** debe ser proporcional al peso (`weight`) de la interacción.
+
+4. El layout debe ser de fuerzas Kamada-Kawai o stress.
+
+5. Incluye las **etiquetas de texto de los personajes** (`Label`) de forma legible y repulsiva (`repel = TRUE`).
+
+6. Añade un título descriptivo y elegante, subtítulo explicativo, y configura escalas limpias para que no haya superposición.
+
+```{r}
+#| label: p10
+# Preparamos el grafo añadiendo métricas y filtrando por grado
+g_visual <- g_simple %>% 
+  activate(nodes) %>% 
+  mutate(
+    degree = centrality_degree(),
+    pagerank = centrality_pagerank(),
+    comunidad = as.factor(group_louvain())
+  ) %>% 
+  filter(degree > 10) # Filtro táctico para evitar saturar el gráfico
+
+# Graficación declarativa en ggraph
+set.seed(42) # Fijamos semilla para que el layout stress sea reproducible
+ggraph(g_visual, layout = "stress") +
+  # Pintamos aristas con transparencia según el peso
+  geom_edge_link(aes(width = weight), alpha = 0.2, color = "grey60") +
+  # Nodos coloreados por comunidad política y tamaño por PageRank
+  geom_node_point(aes(color = comunidad, size = pagerank)) +
+  # Etiquetas de texto repelentes
+  geom_node_text(aes(label = Label), repel = TRUE, size = 3.2, fontface = "bold") +
+  # Escalas y leyendas
+  scale_size_continuous(range = c(2, 9), name = "Prestigio (PageRank)") +
+  scale_edge_width_continuous(range = c(0.4, 2.5), name = "Peso de Relación") +
+  scale_color_viridis_d(option = "turbo", name = "Alianza Política (Louvain)") +
+  # Etiquetas informativas
+  labs(
+    title = "Mapa de Élite de Poniente: Red de Co-ocurrencias",
+    subtitle = "Auditoría de personajes altamente conectados (Grado > 10) en Tormenta de Espadas",
+    caption = "Análisis realizado por la Ciudadela de Poniente en R con tidygraph & ggraph"
+  ) +
+  theme_graph() +
+  theme(
+    plot.title = element_text(size = 16, face = "bold"),
+    plot.subtitle = element_text(size = 11, face = "italic")
+  )
+```
+
+```{r}
+grado_mayor_10 <- g_simple |>
+  activate(nodes) |>
+  mutate(
+    degree = centrality_degree(),
+    pagerank = centrality_pagerank(),
+    comunidad = as.factor(group_louvain())
+  ) |>
+  filter(degree > 10)
+
+ggraph(grado_mayor_10, layout = "kk") +
+  geom_edge_link(aes(width = weight)) +
+  geom_node_point(aes(size = pagerank, color = comunidad)) +
+  geom_node_text(aes(label = Label), repel = TRUE) +
+  labs(
+    title = "Mapa de Élite de Poniente: Red de Co-ocurrencias",
+    subtitle = "Auditoría de personajes altamente conectados (Grado > 10) en Tormenta de Espadas",
+    caption = "Análisis realizado por la Ciudadela de Poniente en R con tidygraph & ggraph"
+  ) +
+  theme_graph()
+```
+
+---
+
+# Control Práctico 2: SNA y Análisis de Sentimiento en Poniente Tecnológico
+
+## Introducción y Contexto del Examen
+
+>> Simulación del **Control Práctico 2**. En este ejercicio, actuaremos como analistas de datos de opinión pública para auditar el debate en redes sociales sobre un tema de máxima actualidad: **el impacto de la Inteligencia Artificial (IA) en el empleo y la educación**.
+
+La comunidad se encuentra fuertemente polarizada en dos sectores declarados:
+
+1. **`Tecno-Optimistas`**: Ven la IA como una herramienta de progreso, innovación y eficiencia.
+
+2. **`Tecno-Críticos`**: Expresan preocupación por el desempleo masivo, el plagio y la deshumanización.
+
+Disponemos de dos datasets generados por la Ciudadela:
+
+* `nodos_ia.csv`: Contiene el identificador del usuario (`Id`), su nombre público (`Label`), su `sector`, su puntuación declarada sobre felicidad con la IA (`puntuacion_usuario` de 1 a 5) y el `texto` de su última publicación.
+* `aristas_ia.csv`: Registra interacciones en forma de menciones en redes sociales (`Source` y `Target`) y la frecuencia de mención (`weight`).
+
+---
+
+### Instrucciones:
+* El control tiene una duración de **1 hora y 15 minutos (75 minutos)**.
+* Consiste en **10 preguntas**, cada una valorada en **1 punto**.
+* Puedes utilizar el material de clase y apuntes personales.
+* **Justifica tus respuestas en texto** cuando se te solicite; el análisis conceptual es tan importante como el código R.
+
+---
+
+## 0. Configuración del Entorno y Carga del Dataset
+
+Cargamos las librerías necesarias del ecosistema de R para redes y minería de texto.
+
+```{r}
+#| label: setup
+#| message: false
+#| warning: false
+
+# Cargamos las librerías necesarias
+library(igraph)
+library(tidygraph)
+library(ggraph)
+library(tidytext)
+library(quanteda)
+library(stm)
+library(tidyverse)
+```
+
+---
+
+## 1. Carga de la Red y Estructura Inicial (1 punto)
+
+**Pregunta 1:** Carga los ficheros `nodos_ia.csv` y `aristas_ia.csv` en tu entorno de R. Construye un grafo de `tidygraph` llamado `g_ia` que sea **dirigido** (las menciones tienen un emisor y un receptor). 
+
+Asegúrate de:
+
+1. Renombrar las columnas de aristas de modo que las dos primeras sean `from` y `to` (mapeando `Source` y `Target`).
+
+2. Indicar el número de nodos y de aristas original de la red cargada.
+
+```{r}
+# Escribe aquí tu código para la Pregunta 1
+# 1. Carga de datos
+nodos <- read_csv("nodos_ia.csv")
+aristas <- read_csv("aristas_ia.csv")
+
+# 2. Renombrar y crear grafo dirigido
+aristas_clean <- aristas %>% 
+  rename(from = Source, to = Target)
+
+g_ia <- tbl_graph(nodes = nodos, edges = aristas_clean, directed = TRUE)
+
+# 3. Reporte de dimensiones
+n_nodos <- g_ia %>% activate(nodes) %>% as_tibble() %>% nrow()
+n_aristas <- g_ia %>% activate(edges) %>% as_tibble() %>% nrow()
+
+cat("=== Estructura Inicial de la Red ===\n")
+cat("Nodos (Usuarios):", n_nodos, "\n")
+cat("Aristas (Menciones iniciales):", n_aristas, "\n")
+```
+
+```{r}
+nodos <- read.csv("nodos_ia.csv")
+aristas <- read.csv("aristas_ia.csv")
+
+aristas_clean <- aristas |>
+  select(from = Source, to = Target, everything())
+
+g_ia <- tbl_graph(nodos, aristas_clean, directed = TRUE)
+
+vcount(g_ia)
+ecount(g_ia)
+```
+
+**[Escribe tu interpretación analítica aquí]**
+El grafo dirigido se ha construido correctamente. Contiene exactamente 120 nodos (que representan a los usuarios participantes) y 528 aristas (que representan menciones individuales antes del proceso de limpieza y consolidación).
+
+---
+
+## 2. Limpieza y Consolidación de Menciones (1 punto)
+
+**Pregunta 2:** En la red de menciones existen redundancias y bucles (usuarios que se mencionan a sí mismos). 
+
+Escribe una secuencia de comandos utilizando `dplyr`/`tidyverse` (no uses la función `igraph::simplify()`) que limpie el grafo de la siguiente manera:
+
+1. **Elimine todos los bucles** (aristas donde `from == to`).
+
+2. **Consolide las aristas paralelas (duplicadas)**: si un usuario ha mencionado varias veces a otro, agrupa esa pareja y suma sus pesos (`weight`) en una única arista consolidada.
+
+3. Guarda el grafo limpio en la variable `g_limpio` y reporta cuántas aristas se consolidaron o eliminaron en total.
+
+*Pista: Puedes convertir las aristas temporalmente a un tibble y agruparlas de forma muy sencilla.*
+
+```{r}
+# Escribe aquí tu código para la Pregunta 2
+# 1. Extraemos, filtramos y agrupamos las aristas con dplyr
+aristas_simples <- g_ia %>% 
+  activate(edges) %>% 
+  as_tibble() %>% 
+  filter(from != to) %>% # 1. Eliminar bucles
+  group_by(from, to) %>% # 2. Agrupar duplicados en el mismo sentido
+  summarise(weight = sum(weight), .groups = "drop") # Consolidar peso
+
+# 2. Reconstruir el grafo con los nodos originales y aristas limpias
+g_limpio <- tbl_graph(nodes = nodos, edges = aristas_simples, directed = TRUE)
+
+n_aristas_limpio <- g_limpio %>% activate(edges) %>% as_tibble() %>% nrow()
+
+cat("=== Proceso de Limpieza y Consolidación ===\n")
+cat("-> Aristas antes del filtrado:", n_aristas, "\n")
+cat("-> Aristas tras la limpieza:", n_aristas_limpio, "\n")
+cat("-> Aristas eliminadas/consolidadas:", n_aristas - n_aristas_limpio, "\n")
+```
+
+```{r}
+g_limpio <- g_ia |>
+  activate(edges) |>
+  filter(from != to) |>
+  as.igraph() |>
+  igraph::simplify(
+    remove.multiple = TRUE, 
+    remove.loops = TRUE, 
+    edge.attr.comb = list(weight = "sum", "ignore")
+  ) |>
+  as_tbl_graph()
+```
+
+**[Escribe tu interpretación analítica aquí]**
+Al filtrar los datos con dplyr:
+
+1. Se han eliminado los bucles (usuarios que se mencionaban a sí mismos como User_1, User_5 y User_12).
+
+2. Se han consolidado los registros duplicados dirigidos (como las menciones repetidas de User_1 a User_2), sumando correctamente su peso de interacción en una sola arista.
+
+3. Queda un total de 519 aristas limpias en la red, habiendo depurado un total de 9 aristas redundantes en el proceso.
+
+---
+
+## 3. NLP: Tokenización y Cálculo del Clima de Sentimiento (1 punto)
+
+**Pregunta 3:** Vamos a medir la carga emocional del debate utilizando un diccionario de sentimientos.
+
+1. Diseña un diccionario manual llamado `lexicon_ia` en formato `tibble` con al menos las siguientes palabras clave y sus valores emocionales asociados:
+
+   * **Positivas (+):** "oportunidad" (+3), "innovación" (+3), "eficiencia" (+2), "crecimiento" (+2), "progreso" (+2), "solución" (+2), "creatividad" (+2), "esperanza" (+3).
+   
+   * **Negativas (-):** "amenaza" (-3), "desempleo" (-4), "reemplazo" (-3), "crisis" (-3), "riesgo" (-3), "desigualdad" (-3), "plagio" (-2), "descontrol" (-3), "fracaso" (-3), "deshumaniza" (-3).
+
+2. Tokeniza los textos de los usuarios en `nodos_ia.csv` usando la función `unnest_tokens()` de `tidytext`.
+
+3. Calcula el **sentimiento neto calculado** para cada usuario (la suma de los valores de las palabras coincidentes). Si un usuario no usa ninguna palabra del diccionario, su sentimiento debe ser `0` (usa `replace_na()`).
+
+4. Añade este sentimiento calculado al grafo `g_limpio` como un atributo de nodo llamado `sentimiento`.
+
+```{r}
+# Escribe aquí tu código para la Pregunta 3
+# 1. Definición del diccionario de sentimientos de IA
+lexicon_ia <- tibble(
+  word = c("oportunidad", "innovación", "eficiencia", "crecimiento", "progreso", "solución", "creatividad", "esperanza",
+           "amenaza", "desempleo", "reemplazo", "crisis", "riesgo", "desigualdad", "plagio", "descontrol", "fracaso", "deshumaniza"),
+  valor = c(3, 3, 2, 2, 2, 2, 2, 3,
+            -3, -4, -3, -3, -3, -3, -2, -3, -3, -3)
+)
+
+# 2. Tokenización del corpus de usuarios
+nodos_tokens <- nodos %>% 
+  unnest_tokens(word, texto)
+
+# 3. Intersección con el léxico y cálculo del sentimiento
+sentimiento_calculado <- nodos_tokens %>% 
+  inner_join(lexicon_ia, by = "word") %>% 
+  group_by(Id) %>% 
+  summarise(sentimiento_neto = sum(valor), .groups = "drop")
+
+# 4. Acoplar a los nodos originales y tratar los NAs con 0
+nodos_limpios_sentimiento <- nodos %>% 
+  left_join(sentimiento_calculado, by = "Id") %>% 
+  mutate(sentimiento = replace_na(sentimiento_neto, 0)) %>% 
+  select(-sentimiento_neto)
+
+# 5. Inyectar como atributos del grafo
+g_limpio <- tbl_graph(nodes = nodos_limpios_sentimiento, edges = aristas_simples, directed = TRUE)
+
+# Vista previa de algunos usuarios con su puntuación
+g_limpio %>% 
+  activate(nodes) %>% 
+  as_tibble() %>% 
+  select(Label, sector, puntuacion_usuario, sentimiento) %>% 
+  head(10) %>% 
+  knitr::kable()
+```
+
+```{r}
+lexicon_ia <- tibble(
+  word = c("oportunidad", "innovación", "eficiencia", "crecimiento", "progreso", 
+           "solución", "creatividad", "esperanza", "amenaza", "desempleo",
+           "reemplazo", "crisis", "riesgo", "desigualdad", "plagio", "descontrol",
+           "fracaso", "deshumaniza"),
+  valor = c(3, 3, 2, 2, 2, 2, 2, 3, -1, -4, -3, -3, -3, -3, -2, -3, -3, -3)
+)
+
+
+tokens <- g_limpio |>
+  activate(nodes) |>
+  as_tibble() |>
+  unnest_tokens(word, texto)
+
+
+sentimiento <- tokens |>
+  inner_join(lexicon_ia) |>
+  group_by(Id) |>
+  summarise(Sentimiento = sum(valor))
+
+
+g_limpio <- g_limpio |>
+  left_join(sentimiento, by = "Id") |>
+  mutate(Sentimiento = replace_na(Sentimiento, 0))
+```
+
+**[Escribe tu interpretación analítica aquí]**
+El análisis de sentimiento mediante lexicón se ha completado. Se observa cómo los usuarios pertenecientes al sector Tecno-Optimista obtienen puntuaciones netas de sentimiento positivas (por ejemplo, 5 o 6) debido al uso de términos como “oportunidad” e “innovación”. En contraste, los del sector Tecno-Crítico obtienen valores negativos (por ejemplo, -7 o -9) por el uso de palabras con gran carga emocional adversa como “desempleo”, “descontrol” o “amenaza”.
+
+---
+
+## 4. Validación del Modelo NLP de Sentimiento (1 punto)
+
+**Pregunta 4:** ¿Es fiable nuestro diccionario manual? 
+
+1. Calcula la **Correlación de Pearson** entre la columna `sentimiento` (calculada automáticamente) y `puntuacion_usuario` (la calificación que el usuario dio manualmente).
+
+2. Interpreta el valor numérico obtenido y justifica matemáticamente qué significa que esta correlación sea positiva/negativa y su intensidad.
+
+```{r}
+# Escribe aquí tu código para la Pregunta 4
+# 1. Extraemos los vectores de los nodos
+tabla_nodos <- g_limpio %>% activate(nodes) %>% as_tibble()
+
+# 2. Calculamos el test de correlación de Pearson
+correlacion_test <- cor.test(tabla_nodos$sentimiento, tabla_nodos$puntuacion_usuario, method = "pearson")
+print(correlacion_test)
+```
+
+```{r}
+pearson <- cor(g_limpio$Sentimiento, g_limpio$puntuacion_usuario)
+
+# Al ser positiva cercana a 1, estan fuertemente correlacionados
+```
+
+**[Escribe tu interpretación analítica aquí]**
+El coeficiente de correlación de Pearson obtenido es alto y estadísticamente significativo (0.77 con un p-valor prácticamente de 0).
+
+- Signo Positivo: Significa que ambas variables se mueven en la misma dirección. A medida que el sentimiento calculado de su publicación es más alto (más positivo), su calificación declarada (estrellas de 1 a 5) también es más alta.
+
+- Intensidad (> 0.7): Muestra una correlación lineal fuerte. Esto valida científicamente que el diccionario de sentimientos manual diseñado captura con gran exactitud la polaridad y la carga emocional del discurso real de los usuarios, sin apenas ruido o distorsión.
+
+---
+
+## 5. Detección de Facciones Político-Discursivas (Louvain) (1 punto)
+
+**Pregunta 5:** Queremos ver si la red de menciones se divide en burbujas o comunidades discursivas.
+
+1. Aplica el algoritmo de **Louvain** (`group_louvain`) sobre el grafo `g_limpio` (trata el grafo como no dirigido para la detección de comunidades) y guarda el resultado como un factor en los nodos bajo el nombre `comunidad`.
+
+2. ¿Cuántas comunidades distintas detecta el algoritmo?
+
+3. Convierte el grafo temporalmente a `igraph` y calcula el valor exacto de la **modularidad**. ¿Es una buena segmentación? Justifica tu respuesta en base a la teoría vista en clase.
+
+```{r}
+# Escribe aquí tu código para la Pregunta 5
+# 1. Aplicación de Louvain en tidygraph (convertimos temporalmente a no dirigido)
+coms_louvain <- g_limpio %>% 
+  to_undirected() %>% 
+  activate(nodes) %>% 
+  mutate(com = group_louvain()) %>% 
+  as_tibble() %>% 
+  pull(com)
+
+g_limpio <- g_limpio %>% 
+  activate(nodes) %>% 
+  mutate(comunidad = as.factor(coms_louvain))
+
+# Conteo de comunidades
+n_coms <- g_limpio %>% as_tibble() %>% pull(comunidad) %>% n_distinct()
+
+# 2. Cálculo de la modularidad con igraph (colapsamos aristas redundantes sumando sus pesos)
+ig_undir <- as.igraph(g_limpio) %>% 
+  as.undirected(mode = "collapse", edge.attr.comb = list(weight = "sum", "ignore"))
+
+coms_igraph <- cluster_louvain(ig_undir)
+mod_val <- modularity(coms_igraph)
+
+cat("-> Número de comunidades políticas detectadas:", n_coms, "\n")
+cat("-> Valor exacto de la Modularidad (Q):", round(mod_val, 4), "\n")
+```
+
+```{r}
+louvain <- g_limpio |>
+  to_undirected() |>
+  activate(nodes) |>
+  mutate(Comunidad = as.factor(group_louvain()))
+
+
+n_distinct(as_tibble(louvain)$Comunidad)
+
+
+louvain_ig <- cluster_louvain(as.igraph(g_limpio) |> as_undirected())
+modularity(louvain_ig)
+```
+
+**[Escribe tu interpretación analítica aquí]**
+El algoritmo de Louvain detecta 2 comunidades principales. El valor de la modularidad obtenido es de Q = 0.48. En la teoría de análisis de redes, cualquier modularidad superior a 0.3 o 0.4 indica una estructura de comunidades fuerte y excelentemente definida.
+
+Por tanto, sí, es una segmentación magnífica. Indica que los usuarios se mencionan intensamente entre ellos dentro de su propio subgrupo, habiendo muy pocas menciones transversales que crucen de una comunidad a la otra.
+
+---
+
+## 6. El Cruce NLP-SNA: El Clima Emocional de las Comunidades (1 punto)
+
+**Pregunta 6:** Crucemos la estructura social de la red con el contenido de sus mensajes.
+
+1. Agrupa los nodos del grafo por su atributo `comunidad` y calcula:
+   * El número total de usuarios en cada comunidad.
+   * El **sentimiento promedio** de cada comunidad.
+
+2. Identifica cuál es la comunidad más **Tecno-Optimista** y cuál la más **Tecno-Crítica** de la red. ¿Coinciden estas comunidades con los bandos reales (`sector`) de los usuarios?
+
+```{r}
+# Escribe aquí tu código para la Pregunta 6
+# Agrupamos y calculamos promedios
+resumen_comunidades <- g_limpio %>% 
+  activate(nodes) %>% 
+  as_tibble() %>% 
+  group_by(comunidad) %>% 
+  summarise(
+    n_usuarios = n(),
+    sentimiento_promedio = mean(sentimiento),
+    prop_optimistas = sum(sector == "Tecno-Optimista") / n(),
+    prop_criticos   = sum(sector == "Tecno-Crítico") / n(),
+    .groups = "drop"
+  )
+
+knitr::kable(resumen_comunidades, digits = 3, caption = "Perfil discursivo y demográfico de las Comunidades")
+```
+
+```{r}
+agrupados <- louvain |>
+  activate(nodes) |>
+  as_tibble() |>
+  group_by(Comunidad) |>
+  summarise(
+    total = n(),
+    sentimiento_promedio = mean(Sentimiento)
+  )
+
+
+# L mas tecno-optimista es la comunidad 1 ya que tiene un sentimiento promedio de 3.75
+# mientras que la 2 es la crítica, con un -5.27
+```
+
+**[Escribe tu interpretación analítica aquí]**
+- Comunidad 1: Presenta un sentimiento promedio fuertemente positivo y está compuesta por usuarios del sector Tecno-Optimista. Por tanto, es la Facción Tecno-Optimista.
+
+- Comunidad 2: Tiene un sentimiento promedio marcadamente negativo y está integrada por usuarios del sector Tecno-Crítico. Por tanto, es la Facción Tecno-Crítica.
+
+- Conclusión: Las fronteras de la red social de menciones coinciden a la perfección con la afinidad ideológica real de las personas. La polarización ideológica del discurso ha creado comunidades estructurales cerradas en la red social de interacción.
+
+---
+
+## 7. El Broker del Debate y su Rol Emocional (1 punto)
+
+**Pregunta 7:** A veces, el nodo clave no es el que habla con más gente (Grado), sino el que controla el flujo de comunicación entre comunidades distantes.
+
+1. Calcula la centralidad de intermediación (`betweenness`) para cada nodo de la red.
+
+2. Identifica al **máximo Broker** de la red (excluyendo a usuarios aislados). Imprime su nombre, su valor de intermediación y su puntuación individual de sentimiento.
+
+3. Analiza cualitativamente: ¿este broker pertenece a una de las facciones extremas, o tiene un discurso neutral/moderado? Explica por qué esto es estratégicamente relevante en una red de polarización.
+
+```{r}
+# Escribe aquí tu código para la Pregunta 7
+# 1. Calcular intermediación en el grafo
+g_limpio <- g_limpio %>% 
+  activate(nodes) %>% 
+  mutate(
+    betweenness = centrality_betweenness(),
+    degree = centrality_degree()
+  )
+
+# 2. Extraer el mayor broker (excluyendo nodos aislados con degree = 0)
+broker_supremo <- g_limpio %>% 
+  activate(nodes) %>% 
+  as_tibble() %>% 
+  filter(degree > 0) %>% 
+  arrange(desc(betweenness)) %>% 
+  slice(1)
+
+print(broker_supremo %>% select(Label, sector, betweenness, sentimiento, puntuacion_usuario))
+```
+
+```{r}
+centralidad <- g_limpio |>
+  activate(nodes) |>
+  mutate(centralidad = centrality_betweenness())
+
+
+maximo_broker <- centralidad |>
+  activate(nodes) |>
+  as_tibble() |>
+  arrange(desc(centralidad)) |>
+  head(1)
+```
+
+**[Escribe tu interpretación analítica aquí]**
+El personaje identificado como el máximo Broker de la red es el Usuario_1 (User_1). Presenta un betweenness de 3061, el más elevado de toda la red.
+
+- Análisis cualitativo: Al ser el líder indiscutible y megahub de la facción Tecno-Optimista, es quien centraliza la comunicación de su comunidad. Además, el puente directo hacia la comunidad crítica (User_1 -> User_61) hace que concentre una cantidad masiva de caminos mínimos transversales, adquiriendo este papel de intermediación masiva en la comunicación inter-grupal. Su discurso individual es positivo moderado (sentimiento +2 y puntuación declarada de 4).
+
+- Importancia estratégica: En redes altamente polarizadas, los líderes de opinión que también son hubs actúan como las aduanas de la comunicación. Si el máximo broker se radicalizara o desapareciera de la conversación, los caminos más cortos entre bandos se alargarían sustancialmente, aislando todavía más a ambas comunidades en cámaras de eco impenetrables.
+
+## 8. Caminos de Influencia y Conexión en el Debate (1 punto)
+
+**Pregunta 8:** En debates polarizados, es vital encontrar la cadena de comunicación más corta que conecta a dos personas de bandos opuestos. 
+
+Utilizando las funciones `morph()` y `unmorph()` de `tidygraph`:
+1. Encuentra el camino más corto (*shortest path*) en el grafo `g_limpio` que conecta al usuario **`User_10`** (del bando Tecno-Optimista) con el usuario **`User_90`** (del bando Tecno-Crítico).
+
+2. Marca los nodos del camino creando un atributo lógico llamado `en_camino = TRUE`.
+
+3. Filtra y muestra la lista ordenada de usuarios que forman esta cadena de comunicación, incluyendo sus atributos de `sector` y `sentimiento` (calculado en la Pregunta 3). ¿La comunicación debe pasar por algún "broker" moderado?
+
+```{r}
+# Escribe aquí tu código para la Pregunta 8
+# 1. Aplicamos morph para encontrar el camino más corto entre User_10 y User_90
+g_camino <- g_limpio %>% 
+  activate(nodes) %>% 
+  morph(to_shortest_path, from = (Id == "User_10"), to = (Id == "User_90")) %>% 
+  mutate(en_camino = TRUE) %>% 
+  unmorph()
+
+# 2. Reemplazamos los NAs que quedan en los nodos fuera del camino por FALSE
+g_camino <- g_camino %>% 
+  activate(nodes) %>% 
+  mutate(en_camino = replace_na(en_camino, FALSE))
+
+# 3. Extraemos e imprimimos la secuencia de nodos en el camino
+camino_filtrado <- g_camino %>% 
+  activate(nodes) %>% 
+  filter(en_camino == TRUE) %>% 
+  as_tibble()
+
+print(camino_filtrado %>% select(Id, Label, sector, sentimiento, betweenness))
+```
+
+```{r}
+camino_corto <- g_limpio |>
+  activate(nodes) |>
+  morph(to_shortest_path, from = (Id == "User_10"), to = (Id == "User_90")) |>
+  mutate(en_camino = TRUE) |>
+  unmorph()
+
+
+camino_corto |>
+  activate(nodes) |>
+  as_tibble() |>
+  filter(en_camino == TRUE) |>
+  select(Id, sector, Sentimiento)
+```
+
+**[Escribe tu interpretación analítica aquí]**
+El camino más corto se ha calculado y etiquetado perfectamente utilizando las funciones de morphing de tidygraph.
+
+- Secuencia de comunicación: Se observa el flujo ordenado de menciones desde User_10 (optimista) hasta User_90 (crítico).
+
+- Análisis de intermediarios: La ruta de menor escala pasa ineludiblemente por intermediarios de la red. De forma recurrente en redes con esta topología polarizada, la comunicación cruza a través del máximo Broker (identificado en la Pregunta 7 con betweenness alto), quien actúa como el puente estructural que posibilita que el mensaje viaje de un bando al otro de forma física.
+
+---
+
+## 9. Structural Topic Modeling (STM): Descubriendo Frames Latentes (1 punto)
+
+**Pregunta 9:** Si tuviéramos miles de mensajes, no podríamos leerlos uno a uno. Utilizaremos el modelo **STM** para clasificar los discursos ocultos.
+
+1. Utiliza el paquete `quanteda` para crear un corpus con los textos de los usuarios, limpia los signos de puntuación, números y elimina las *stopwords* en español.
+
+2. Convierte el resultado al formato de `stm` y entrena un modelo buscando **$K = 2$ tópicos** condicionado al metadato `sector` (`prevalence =~ sector`).
+
+3. Estima el efecto del `sector` sobre los tópicos (`estimateEffect`) y representa gráficamente el contraste discursivo de los dos bandos. Explica brevemente qué "frames" o preocupaciones dominan en cada sector según las palabras clave de cada tópico.
+
+```{r}
+# Escribe aquí tu código para la Pregunta 9
+# 1. Procesamiento con quanteda
+corpus_ia <- corpus(nodos, text_field = "texto")
+toks_ia <- tokens(corpus_ia, remove_punct = TRUE, remove_numbers = TRUE) %>% 
+  tokens_remove(stopwords("spanish"))
+
+dfm_ia <- dfm(toks_ia)
+
+# Convertir al formato de stm
+out_stm <- convert(dfm_ia, to = "stm")
+
+# 2. Entrenamos el modelo STM con K=2 tópicos
+modelo_stm_ia <- stm(
+  documents = out_stm$documents, 
+  vocab = out_stm$vocab, 
+  K = 2, 
+  prevalence =~ sector, 
+  data = nodos, 
+  max.em.its = 20, 
+  verbose = FALSE
+)
+
+# 3. Estimación del efecto y graficación
+efectos_ia <- estimateEffect(1:2 ~ sector, modelo_stm_ia, meta = nodos)
+
+plot(efectos_ia, covariate = "sector", topics = c(1, 2),
+     model = modelo_stm_ia, method = "difference",
+     cov.value1 = "Tecno-Optimista", cov.value2 = "Tecno-Crítico",
+     xlab = "Más usado por Tecno-Críticos <------------> Más usado por Tecno-Optimistas",
+     main = "Burbujas Temáticas: El Debate de la IA en Poniente")
+```
+
+```{r}
+corp <- quanteda::corpus(g_limpio |> activate(nodes) |> as_tibble(), text_field = "texto")
+toks <- tokens(corp, remove_punct = TRUE, remove_number = TRUE) |>
+  tokens_remove(stopwords("spanish"))
+
+dfm_g <- dfm(toks)
+
+
+out <- quanteda::convert(dfm_g, to = "stm")
+
+modelo <- stm(documents = out$documents, 
+                       vocab = out$vocab, 
+                       K = 2, 
+                       prevalence =~ sector, 
+                       data = g_limpio |> activate(nodes) |> as_tibble(), 
+                       max.em.its = 30, 
+                       verbose = FALSE) 
+
+
+efecto <- estimateEffect(1:2 ~ sector, modelo, meta = g_limpio |> activate(nodes) |> as_tibble())
+
+plot(efecto, covariate = "sector", topics = c(1, 2),
+     model = modelo, method = "difference",
+     cov.value1 = "Tecno-Optimista", cov.value2 = "Tecno-Crítico",
+     xlab = "Tecno-Optimista <------------> Tecno-Crítico")
+```
+
+**[Escribe tu interpretación analítica aquí]**
+El gráfico de diferencia de prevalencia muestra una separación de discursos sumamente nítida y estadísticamente significativa (los intervalos de confianza del 95% no cruzan la línea del cero):
+
+- Tópico 1 (Tecno-Optimistas): El discurso está fuertemente enfocado en los marcos de “oportunidad”, “innovación”, “eficiencia” y “crecimiento empresarial”. Su narrativa se centra en la mejora educativa y la productividad del futuro.
+
+- Tópico 2 (Tecno-Críticos): La narrativa se desplaza al terreno del “desempleo”, la “amenaza”, el “plagio de propiedad intelectual” y el “descontrol algorítmico corporativo”. Su preocupación central es la crisis humana, la desigualdad y el riesgo ético.
+
+---
+
+## 10. Visualización Estratégica del Mapa del Debate (1 punto)
+
+**Pregunta 10:** Diseña un mapa visual estratégico de la red de debate utilizando `ggraph` para presentárselo a los decanos de la Ciudadela. 
+
+El gráfico debe cumplir con las siguientes especificaciones:
+
+1. El **tamaño de los nodos** debe ser proporcional a su centralidad de **PageRank** (prestigio).
+
+2. El **color de los nodos** debe representar su **comunidad de Louvain** calculada en la Pregunta 5.
+
+3. El **grosor de las aristas** debe ser proporcional al peso (`weight`) consolidado de la relación.
+
+4. El **layout** debe ser de fuerzas estéticas (ej: "stress" o "nicely").
+
+5. Incluye etiquetas repelentes legibles (`repel = TRUE`) solo para aquellos nodos que tengan un PageRank superior a la media global de la red, para evitar saturar el gráfico.
+
+6. Añade título descriptivo, subtítulo explicativo y una paleta de colores coherente y premium.
+
+```{r}
+# Escribe aquí tu código para la Pregunta 10
+# 1. Calcular PageRank y la media para el umbral de etiquetado
+g_final <- g_limpio %>% 
+  activate(nodes) %>% 
+  mutate(pagerank = centrality_pagerank())
+
+umbral_pagerank <- mean(g_final %>% activate(nodes) %>% pull(pagerank))
+
+# 2. Renderizado estratégico con ggraph
+set.seed(42)
+ggraph(g_final, layout = "stress") +
+  # Conexiones con transparencia y grosor según peso de menciones
+  geom_edge_link(aes(width = weight), alpha = 0.2, color = "grey60") +
+  # Nodos coloreados por su facción y tamaño por su prestigio
+  geom_node_point(aes(color = comunidad, size = pagerank)) +
+  # Etiquetas restrictivas legibles para evitar ruido visual
+  geom_node_text(aes(label = if_else(pagerank > umbral_pagerank, Label, NA_character_)), 
+                 repel = TRUE, size = 3, fontface = "bold") +
+  # Escalas personalizadas
+  scale_size_continuous(range = c(2, 9), name = "Prestigio (PageRank)") +
+  scale_edge_width_continuous(range = c(0.4, 2.5), name = "Menciones Totales") +
+  scale_color_viridis_d(option = "plasma", name = "Alianza Discursiva") +
+  # Títulos y metadatos
+  labs(
+    title = "Estructura del Debate Social sobre la Inteligencia Artificial",
+    subtitle = "Visualización de Cámaras de Eco ideológicas y Líderes de Opinión (PageRank > Media)",
+    caption = "Maestría en Modelización y Análisis de Redes - Universidad de Poniente"
+  ) +
+  theme_graph() +
+  theme(
+    plot.title = element_text(size = 15, face = "bold", color = "#111111"),
+    plot.subtitle = element_text(size = 10, face = "italic", color = "#444444")
+  )
+```
+
+```{r}
+g_plot <- louvain |>
+  activate(nodes) |>
+  mutate(pagerank = centrality_pagerank())
+
+ggraph(g_plot, layout = "stress") +
+  # Pintamos aristas con transparencia según el peso
+  geom_edge_link(aes(width = weight), alpha = 0.2, color = "grey60") +
+  # Nodos coloreados por comunidad política y tamaño por PageRank
+  geom_node_point(aes(color = Comunidad, size = pagerank)) +
+  # Etiquetas de texto repelentes
+  geom_node_text(aes(label = Id), repel = TRUE, size = 3.2, fontface = "bold") +
+  # Escalas y leyendas
+  scale_size_continuous(range = c(2, 9), name = "Prestigio (PageRank)") +
+  scale_edge_width_continuous(range = c(0.4, 2.5), name = "Peso de Relación") +
+  scale_color_viridis_d(option = "turbo", name = "Alianza Política (Louvain)") +
+  # Etiquetas informativas
+  labs(
+    title = "Mapa de Élite de Poniente: Red de Co-ocurrencias",
+    subtitle = "Auditoría de personajes altamente conectados (Grado > 10) en Tormenta de Espadas",
+    caption = "Análisis realizado por la Ciudadela de Poniente en R con tidygraph & ggraph"
+  ) +
+  theme_graph() +
+  theme(
+    plot.title = element_text(size = 16, face = "bold"),
+    plot.subtitle = element_text(size = 11, face = "italic")
+  )
+```
+
+**[Escribe tu interpretación analítica aquí]**
+El mapa de la red muestra visualmente la división bipolar de la red:
+
+- Dos clústeres densos y de colores diferenciados dominan los extremos de la visualización, reflejando las comunidades de Louvain (Facciones Tecno-Optimista y Tecno-Crítica).
+
+- Los nodos más grandes representan a los líderes de opinión con mayor PageRank (como Usuario_1 o Usuario_2 en el centro del debate).
+
+- La visualización confirma que, gracias a la combinación de NLP y SNA, es posible radiografiar de forma inmediata la opinión pública de una sociedad a partir de la topología de sus interacciones y el sentimiento de sus palabras.
+
+---
+
+# Recomendadores y series temporales
+
+## Introducción  
+
+Simulación del **Control Práctico 2**. En este ejercicio técnico, actuarás como analista de datos de la Ciudadela y del Banco de Hierro para resolver dos desafíos fundamentales en el modelado de datos de la sociedad de Poniente:
+
+1. **Parte 1: Sistemas Recomendadores (6 Puntos):** Implementarás un motor de recomendaciones para los grimorios de la Gran Biblioteca basándote en la teoría de *Long Tail*, el *Filtrado Colaborativo*, *SVD (Factorización)* y el enfoque alternativo de los *Grafos Bipartitos*.
+
+2. **Parte 2: Series Temporales (4 Puntos):** Analizarás e imputarás el tráfico mensual de barcos en el Puerto de Braavos durante los últimos 10 años, modelando sus componentes y pronosticando el comercio futuro.
+
+***
+
+### Instrucciones del Examen:
+* El control tiene una duración de **1 hora y 15 minutos (75 minutos)**.
+* Consta de **10 preguntas** de desarrollo práctico (R + Interpretación), cada una valorada en **1 punto**.
+* Puedes consultar tu material de clase y apuntes personales.
+* **Justifica conceptual y analíticamente tus respuestas** en las secciones reservadas para texto. El análisis e interpretación son tan importantes como el código de R.
+
+***
+
+## 0. Configuración del Entorno y Carga de Datos
+
+Cargamos las librerías oficiales del ecosistema de R.
+
+```{r}
+#| label: setup
+#| message: false
+#| warning: false
+
+# Cargamos las librerías necesarias
+library(tidyverse)
+library(igraph)
+library(tidygraph)
+library(ggraph)
+library(forecast)
+library(tseries)
+library(zoo)
+library(knitr)
+```
+
+***
+
+# Sistemas Recomendadores (6 Puntos)
+
+## 1. El Concepto del Long Tail (1 punto)
+
+**Pregunta 1:** Carga el fichero `recomendaciones_libros.csv` en tu entorno de R. 
+
+* Calcula la popularidad (número total de valoraciones recibidas) de cada libro del catálogo.
+
+* Calcula la popularidad media de cada libro del catálogo.
+
+* Genera un gráfico de barras ordenado de mayor a menor y analiza: ¿existen libros de cabecera (*Head*) y libros de nicho (*Long Tail*)? Justifícalo cuantitativamente analizando la distribución de las lecturas.
+
+```{r}
+# 1. Carga de datos
+recom <- read_csv("recomendaciones_libros.csv")
+
+# 2. Cálculo de popularidad
+popularidad <- recom %>%
+  group_by(Libro) %>%
+  summarise(n_ratings = n(), rating_medio = round(mean(Rating), 2)) %>%
+  arrange(desc(n_ratings))
+
+print(popularidad)
+
+# 3. Gráfico de barras ordenado
+ggplot(popularidad, aes(x = reorder(Libro, -n_ratings), y = n_ratings)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  theme_minimal() +
+  labs(
+    title = "Popularidad de Libros en la Gran Biblioteca",
+    subtitle = "La curva de Long Tail en los Grimorios",
+    x = "Libro",
+    y = "Número de Valoraciones"
+  ) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r}
+# Escribe aquí tu código para la Pregunta 1
+df <- read_csv("recomendaciones_libros.csv")
+
+
+popularidad <- df |>
+  group_by(Libro) |>
+  summarise(
+    valoraciones_totales = n(),
+    media_rating = mean(Rating)
+  )
+
+
+ggplot(popularidad) +
+  geom_col(aes(x = reorder(Libro, -valoraciones_totales), y = valoraciones_totales))
+```
+
+**[Escribe tu interpretación analítica aquí]**
+El análisis muestra una curva de Long Tail perfecta en nuestro catálogo: * The Head (Superventas): Tres libros dominan las lecturas. L3_Fuego_Sangre (9 valoraciones), L1_Historia_Poniente (8) y L2_Alquimia_Elemental (7) concentran la inmensa mayoría de las interacciones. Son libros comerciales de gran popularidad. * The Long Tail (Nichos): A medida que avanzamos, los libros de nicho como L7_Grimorio_Necromantico (2), L6_Astrologia_Avanzada (1) y L8_Cantos_Asshai (1) tienen poquísimas lecturas. El Long Tail representa una inmensa variedad de conocimientos específicos a los que solo los recomendadores inteligentes pueden guiar a los usuarios.
+
+***
+
+## 2. Matriz de Valoraciones y Similitud entre Usuarios (1 punto)
+
+**Pregunta 2:** Transforma la tabla de valoraciones en formato largo a una matriz ancha $U \times I$ llamada `M` donde las filas representen a los usuarios (maestres) y las columnas representen los grimorios. Calcula la **Matriz de Similitud de Pearson** entre los usuarios de la biblioteca. Identifica de forma exacta qué dos maestres tienen la mayor afinidad o similitud de lectura en el catálogo (excluyendo el 1 de la diagonal).
+
+> **Tip (Pistas de Pivotaje):** Para transformar una tabla en formato largo a una matriz ancha, se utiliza la función `pivot_wider()` de `tidyverse`. Sus argumentos principales son `names_from` (columna origen de los nombres de columnas) y `values_from` (columna origen de los valores). Luego, puedes usar `column_to_rownames("NombreDeColumna")` para convertir una columna en los identificadores de fila, y finalmente envolver todo en `as.matrix()`.
+>
+> Ejemplo de uso:
+> ```r
+> M <- mi_tabla %>%
+>   pivot_wider(names_from = ColumnaNombre, values_from = ColumnaValor) %>%
+>   column_to_rownames("ColumnaID") %>%
+>   as.matrix()
+> ```
+
+```{r}
+# 1. Pivotar a matriz ancha U x I
+M <- recom %>%
+  pivot_wider(names_from = Libro, values_from = Rating) %>%
+  column_to_rownames("Usuario") %>%
+  as.matrix()
+
+print(M)
+
+# 2. Matriz de Similitud de Pearson entre filas (usuarios)
+S_user <- cor(t(M), use = "pairwise.complete.obs", method = "pearson")
+print(round(S_user, 3))
+
+# 3. Encontrar el par con máxima similitud excluyendo la diagonal
+S_diag <- S_user
+diag(S_diag) <- -Inf
+max_sim <- max(S_diag, na.rm = TRUE)
+pareja_max <- which(S_diag == max_sim, arr.ind = TRUE)
+
+cat("\n-> Máxima Similitud de Pearson encontrada:", round(max_sim, 3), "\n")
+print(pareja_max)
+```
+
+```{r}
+# Escribe aquí tu código para la Pregunta 2
+M <- df |>
+  pivot_wider(names_from = Libro, values_from = Rating) |>
+  column_to_rownames("Usuario") |>
+  as.matrix()
+
+
+similitud_usuarios <- function(M) {
+  sim <- cor(t(M), use = "pairwise.complete.obs")
+  sim[is.na(sim)] <- 0
+  return(sim)
+}
+
+M_sim <- similitud_usuarios(M)
+
+
+M_diag <- M_sim
+diag(M_diag) <- -Inf
+max_sim <- max(M_diag, na.rm = TRUE)
+pareja_max <- which(M_diag == max_sim, arr.ind = TRUE)
+```
+
+**[Escribe tu interpretación analítica aquí]**
+La matriz de correlación se ha calculado con éxito usando pairwise.complete.obs para ignorar los valores vacíos (NA). * Los maestres con mayor afinidad de lectura son Jon y Bran (similitud = 1). Esto se debe a que comparten el amor por los grimorios de magia y sus valoraciones en los libros comunes son proporcionales. * La pareja de Tyrion y Catelyn o Tyrion y Hodor también muestra una correlación perfecta de 1 en su historial común debido a que han dado la misma puntuación a los mismos libros, aunque su coincidencia es más estrecha en variedad de títulos.
+
+***
+
+## 3. Predicción con Filtrado Colaborativo Basado en Usuarios (1 punto)
+
+**Pregunta 3:** El maestre **Tyrion** no ha valorado el grimorio prohibido **`L7_Grimorio_Necromantico`**. Calcula la predicción matemática exacta del rating que daría Tyrion a este libro utilizando un **Filtrado Colaborativo basado en Usuarios** con un vecindario de los **$k=2$ vecinos más similares** que sí hayan valorado el libro.
+
+*Pista: Puedes calcular las medias de lectura de cada usuario y centrar las puntuaciones de los dos vecinos sobre sus respectivas medias personales antes de multiplicarlas por su similitud.*
+
+```{r}
+# 1. Medias de todos los usuarios
+medias_usuarios <- rowMeans(M, na.rm = TRUE)
+media_tyrion <- medias_usuarios["Tyrion"]
+
+# 2. Identificar quiénes sí han leído el libro L7
+# El libro L7 ha sido leído y valorado por: Ana (Rating = 1) y Bran (Rating = 2)
+voto_ana <- M["Ana", "L7_Grimorio_Necromantico"]
+voto_bran <- M["Bran", "L7_Grimorio_Necromantico"]
+
+# 3. Obtener similitudes de Tyrion con los lectores
+sim_tyrion_ana <- S_user["Tyrion", "Ana"]
+sim_tyrion_bran <- S_user["Tyrion", "Bran"]
+
+cat("Similitud Tyrion - Ana:", round(sim_tyrion_ana, 4), "\n")
+cat("Similitud Tyrion - Bran:", round(sim_tyrion_bran, 4), "\n")
+
+# 4. Centrar los votos de los vecinos respecto a sus medias
+voto_ana_centrado <- voto_ana - medias_usuarios["Ana"]
+voto_bran_centrado <- voto_bran - medias_usuarios["Bran"]
+
+# 5. Aplicar fórmula del filtrado colaborativo
+numerador <- (sim_tyrion_ana * voto_ana_centrado) + (sim_tyrion_bran * voto_bran_centrado)
+denominador <- abs(sim_tyrion_ana) + abs(sim_tyrion_bran)
+
+prediccion_tyrion <- media_tyrion + (numerador / denominador)
+
+cat("-> Media de Tyrion:", media_tyrion, "\n")
+cat("-> Predicción del voto de Tyrion para L7:", round(prediccion_tyrion, 3), "\n")
+```
+
+```{r}
+# Escribe aquí tu código para la Pregunta 3
+media_usuarios <- rowMeans(M, na.rm = TRUE)
+
+M[, "L7_Grimorio_Necromantico"]
+voto_ana <- M["Ana", "L7_Grimorio_Necromantico"]
+voto_bran <- M["Bran", "L7_Grimorio_Necromantico"]
+
+sim_tyrion_ana <- M_sim["Tyrion", "Ana"]
+sim_tyrion_bran <- M_sim["Tyrion", "Bran"]
+
+numerador <- (sim_tyrion_ana * (voto_ana - media_usuarios["Ana"])) + (sim_tyrion_bran * (voto_bran - media_usuarios["Bran"]))
+denominador <- abs(sim_tyrion_ana) + abs(sim_tyrion_bran)
+
+pred <- media_usuarios["Tyrion"] + (numerador / denominador)
+
+#------------------------------------------------------------------------------
+
+predecir_voto <- function(M, S, usuario, item) {
+  idx_u <- which(rownames(M) == usuario)
+  idx_i <- which(colnames(M) == item)
+  
+  if (!is.na(M[idx_u, idx_i])) return(M[idx_u, idx_i])
+  
+  # Medias de votación de cada usuario (ignorando NAs)
+  medias   <- rowMeans(M, na.rm = TRUE)
+  media_u  <- medias[idx_u]
+  
+  otros_votos  <- M[, idx_i]
+  similitudes  <- S[idx_u, ]
+  validos      <- !is.na(otros_votos) & (rownames(M) != usuario)
+  
+  if (sum(validos) == 0) return(NA)
+  
+  # Centramos los votos de los vecinos respecto a sus propias medias
+  votos_centrados <- otros_votos[validos] - medias[validos]
+  
+  numerador   <- sum(similitudes[validos] * votos_centrados)
+  denominador <- sum(abs(similitudes[validos]))
+  
+  if (denominador == 0) return(media_u)
+  
+  # Predicción final centrada en la media del usuario objetivo
+  prediccion <- media_u + (numerador / denominador)
+  
+  # Acotamos los resultados al rango real de valoraciones [1, 5]
+  return(max(1, min(5, prediccion)))
+}
+
+pred <- predecir_voto(M, M_sim, "Tyrion", "L7_Grimorio_Necromantico");
+```
+
+**[Escribe tu interpretación analítica aquí]**
+La predicción obtenida mediante filtrado colaborativo es de 1.45. * El maestre Tyrion tiene una media general de lectura alta (4.25 estrellas), pero su vecino más cercano e influyente, Ana (similitud de 0.577), valoró L7 con un desastroso 1 (muy por debajo de su propia media de 3.8). Su otro vecino, Bran, tiene similitud de 0, por lo que no influye. * Esta influencia arrastra con fuerza la predicción final de Tyrion hacia abajo, estimando que detestará el libro prohibido y dándole una predicción final muy baja de 1.45 estrellas.
+
+***
+
+## 4. Factorización de Matrices: Descomposición SVD (1 punto)
+
+**Pregunta 4:** Los modelos basados en factores latentes comprimen la información de interacciones en características ocultas.
+1. Imputa los valores vacíos (`NA`) de tu matriz `M` utilizando la media de su columna respectiva. Guarda el resultado en la variable `M_filled`.
+2. Realiza la descomposición en valores singulares **SVD** nativa de R (`svd()`) sobre la matriz imputada.
+3. Extrae las componentes correspondientes para truncar la descomposición a **$k = 2$ factores latentes** y reconstruye la matriz aproximada en la variable `M_pred` ($R \approx U_k \Sigma_k V_k^T$).
+
+> **Tip (Concepto de Reconstrucción y Predicción SVD):** En la descomposición SVD nativa de R (`svd(M_filled)`), la matriz se descompone en $M = U \cdot D \cdot V^T$.
+>
+> * **$U$ (Usuarios - Factores):** Relación de cada maestre con los factores latentes.
+> * **$d$ (Valores Singulares):** Vector con la fuerza de cada factor. Se convierte a matriz diagonal usando `diag(svd_result$d[1:k])`.
+> * **$V$ (Ítems - Factores):** Relación de cada grimorio con los factores latentes.
+>
+> Al truncar la descomposición a $k=2$ factores latentes, filtramos el ruido y proyectamos usuarios y libros en un espacio conceptual de dos dimensiones (ej. "Interés Histórico" y "Poder Mágico"). La multiplicación matricial truncada se calcula como `M_pred <- U_k %*% D_k %*% t(V_k)`.
+>
+> **¿Cómo predice SVD?** Cada celda `M_pred[u, i]` de la matriz reconstruida es, por definición, la predicción del rating del usuario `u` para el ítem `i`. Para estimar la nota que daría cualquier usuario a cualquier libro no leído, **basta con consultar la coordenada correspondiente en `M_pred`**. ¡La matriz reconstruida ya tiene precalculados todos los ratings del catálogo!
+
+```{r}
+# 1. Imputación con la media de la columna
+M_filled <- M
+for(i in 1:ncol(M)) {
+  M_filled[is.na(M_filled[,i]), i] <- mean(M_filled[,i], na.rm = TRUE)
+}
+
+print(round(M_filled, 3))
+
+# 2. Descomposición SVD
+svd_result <- svd(M_filled)
+
+# 3. Truncar a k = 2 factores latentes
+k <- 2
+U_k  <- svd_result$u[, 1:k]
+D_k  <- diag(svd_result$d[1:k])
+V_k  <- svd_result$v[, 1:k]
+
+# 4. Reconstrucción aproximada de la matriz
+M_pred <- U_k %*% D_k %*% t(V_k)
+rownames(M_pred) <- rownames(M)
+colnames(M_pred) <- colnames(M)
+
+cat("\nMatriz Reconstruida (SVD k=2):\n")
+print(round(M_pred, 2))
+```
+
+```{r}
+# Escribe aquí tu código para la Pregunta 4
+M_filled <- M
+for(i in 1:ncol(M)) {
+  M_filled[is.na(M_filled[,i]), i] <- mean(M_filled[,i], na.rm = TRUE)
+}
+
+
+svd <- svd(M_filled)
+
+
+k <- 2
+M_pred <- svd$u[, 1:k] %*% diag(svd$d[1:k]) %*% t(svd$v[, 1:k])
+rownames(M_pred) <- rownames(M)
+colnames(M_pred) <- colnames(M)
+```
+
+**[Escribe tu interpretación analítica aquí]**
+La matriz se ha imputado y reconstruido con éxito mediante SVD. Al truncar a k=2 dimensiones, hemos comprimido toda la complejidad de valoraciones a dos factores latentes fundamentales (por ejemplo, el “Interés Histórico” y el “Poder Mágico” de las lecturas), capturando la esencia estructural del catálogo.
+
+***
+
+## 5. Predicción SVD y Contraste Metodológico (1 punto)
+
+**Pregunta 5:** 
+1. Extrae de tu matriz reconstruida `M_pred` la predicción de rating obtenida para **Tyrion** y el libro **`L7_Grimorio_Necromantico`**. Compárala con el resultado del filtrado colaborativo de la Pregunta 3. Argumenta teóricamente: ¿cuáles son las diferencias conceptuales, ventajas y desventajas de un enfoque basado en memoria (CF) frente a uno basado en modelo (SVD)?
+2. Si llega un nuevo maestre a la Ciudadela (por ejemplo, **Samwell**) y para conocer sus gustos le pedimos que valore 3 libros populares, obteniendo: `L1_Historia_Poniente` = 5, `L2_Alquimia_Elemental` = 4, y `L3_Fuego_Sangre` = 3. Escribe un script en R que agregue a Samwell como una nueva fila a tu matriz `M` (llamada `M_extended`), calcula su **similitud de Pearson** con los demás maestres de la biblioteca, e identifica a su **vecino más afín** (con mayor similitud, excluyendo a Samwell). ¿Quién es y qué similitud comparte?
+
+```{r}
+# 1. Extraemos el valor predicho para Tyrion en L7
+pred_svd_tyrion <- M_pred["Tyrion", "L7_Grimorio_Necromantico"]
+cat("Predicción SVD para Tyrion -> L7:", round(pred_svd_tyrion, 3), "\n")
+cat("Predicción CF anterior:", round(prediccion_tyrion, 3), "\n\n")
+
+# 2. Onboarding del nuevo usuario Samwell
+samwell_ratings <- c(5, 4, 3, NA, NA, NA, NA, NA)
+names(samwell_ratings) <- colnames(M)
+
+# Agregamos a Samwell como una nueva fila en la matriz M
+M_extended <- rbind(M, Samwell = samwell_ratings)
+
+# Calculamos la matriz de similitud de Pearson extendida
+S_extended <- cor(t(M_extended), use = "pairwise.complete.obs", method = "pearson")
+# Extraemos las similitudes de Samwell y nos excluimos a nosotros mismos
+sim_samwell <- S_extended["Samwell", ]
+sim_samwell["Samwell"] <- -Inf
+
+# Encontramos el vecino más afín
+vecino_max <- names(which.max(sim_samwell))
+sim_max <- max(sim_samwell, na.rm = TRUE)
+
+cat("=== Recomendación para Usuario Nuevo (Onboarding) ===\n")
+cat("-> El vecino más afín a Samwell es:", vecino_max, "\n")
+cat("-> Su similitud de Pearson es de:", round(sim_max, 4), "\n")
+```
+
+```{r}
+# 1. Definimos las valoraciones del nuevo usuario
+r_new <- rep(NA, n_series)
+names(r_new) <- series_names
+r_new["Stranger Things"] <- 5
+r_new["Black Mirror"]    <- 5
+r_new["Dark"]            <- 4
+r_new["Friends"]         <- 1
+
+# 2. Calculamos las medias de columna de entrenamiento (matriz M antes de imputar)
+col_medias <- colMeans(M, na.rm = TRUE)
+
+# 3. Imputamos los NAs del nuevo usuario con las medias de entrenamiento
+r_new_filled <- r_new
+for (j in 1:n_series) {
+  if (is.na(r_new_filled[j])) {
+    r_new_filled[j] <- col_medias[j]
+  }
+}
+
+# 4. Proyección instantánea (Folding-In) usando la matriz V_k obtenida en SVD
+# r_new_filled es un vector fila (1 x 20), V_k es 20 x 2, t(V_k) es 2 x 20
+r_pred_new <- r_new_filled %*% V_k %*% t(V_k)
+colnames(r_pred_new) <- series_names
+
+# 5. Mostramos las predicciones para el nuevo usuario ordenadas
+df_nuevas_predicciones <- data.frame(
+  Serie = colnames(r_pred_new),
+  Prediccion_SVD = as.vector(r_pred_new)
+) |> 
+  arrange(desc(Prediccion_SVD))
+
+kable(df_nuevas_predicciones, digits = 2, caption = "Predicciones de SVD en tiempo real para el Nuevo Usuario")
+```
+
+```{r}
+# Escribe aquí tu código para la Pregunta 5
+rating_tyrion <- M_pred["Tyrion", "L7_Grimorio_Necromantico"]
+
+
+samwell_ratings <- c(5, 4, 3, NA, NA, NA, NA, NA)
+names(samwell_ratings) <- colnames(M)
+
+M_extended <- rbind(M, Samwell = samwell_ratings)
+M_sim_ext <- similitud_usuarios(M_extended)
+
+sim_samwell <- M_sim_ext["Samwell", ]
+sim_samwell["Samwell"] <- -Inf
+
+vecino_max <- names(which.max(sim_samwell))
+sim_max <- max(sim_samwell, na.rm = TRUE)
+```
+
+```{r}
+V_df <- data.frame(
+  Serie = colnames(M),
+  Factor1 = svdt$v[, 1],
+  Factor2 = svd$v[, 2]
+)
+
+# 2. Diseñar el gráfico de dispersión bidimensional interactivo
+ggplot(V_df, aes(x = Factor1, y = Factor2, label = Serie)) +
+  geom_point(color = "#E63946", size = 3) +
+  geom_text_repel(size = 3.5, max.overlaps = Inf, box.padding = 0.5) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey60") +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "grey60") +
+  theme_minimal() +
+  labs(
+    title = "Espacio Latente de SVD (k = 2) - Catálogo de Series de Streamly",
+    subtitle = "Representación de ítems en base a las dimensiones latentes extraídas",
+    x = "Factor 1 (Popularidad General y Escala de Notas)",
+    y = "Factor 2 (Alineación Temática de Géneros)"
+  )
+```
+
+**[Escribe tu interpretación analítica aquí]**
+1. Contraste de Predicciones SVD vs CF:
+- La predicción obtenida mediante SVD es de 1.38, sumamente cercana y consistente con el resultado de 1.45 del filtrado colaborativo.
+- Filtrado Colaborativo (Basado en Memoria): Utiliza los datos crutos del catálogo en tiempo real. Busca vecinos y calcula la predicción mediante una fórmula directa. Es fácil de interpretar, pero es muy costoso a gran escala (requiere tener toda la matriz cargada en memoria siempre) y sufre del problema de matriz dispersa (sparsity).
+- SVD (Basado en Modelo): Comprime las valoraciones en dimensiones abstractas (factores latentes). La predicción no proviene de mirar a usuarios específicos directos, sino de la posición del usuario y el ítem en el espacio latente. Es sumamente escalable y robusto a la dispersión, y generaliza mejor los gustos ocultos de los usuarios en catálogos inmensos.
+2. Gestión de Usuario Nuevo (Arranque en Frío y Onboarding):
+- Cuando llega un nuevo maestre como Samwell sin historial previo de lectura, nos enfrentamos al Problema de Arranque en Frío (Cold Start). La forma más interactiva y práctica de solucionarlo es pedirle que valore 3 libros de cabecera.
+- Resultados de la similitud: Tras incorporar sus valoraciones (5, 4, 3) y calcular la correlación de Pearson, identificamos que su vecino más afín es Gendry con una similitud perfecta de 1 (debido a que Gendry ha dado exactamente las mismas puntuaciones relativas 4 y 3 a los mismos libros L2 y L3).
+- Otras afinidades sumamente sólidas y con mayor amplitud de historial compartido son Catelyn y Tyrion (ambos con una similitud de 0.866). A partir de la opinión de estos vecinos afines, el motor de recomendaciones puede ahora predecir y sugerir grimorios no leídos por Samwell de forma sumamente precisa.
+
+***
+
+## 6. La Perspectiva de Grafos: Grafo Bipartito (1 punto)
+
+**Pregunta 6:** Construye un grafo de recomendación llamado `g_bip` utilizando los enlaces altamente valorados (donde la valoración sea $\ge 4$). 
+1. Demuestra programáticamente en R que el grafo resultante es efectivamente **bipartito**.
+2. Grafica este mapa de recomendación usando `ggraph`, distinguiendo los nodos de usuarios (maestres) de los grimorios mediante formas y colores diferenciados.
+3. Explica conceptualmente por qué modelar la recomendación con grafos bipartitos representa un cambio de paradigma y cómo los algoritmos de **Paseos Aleatorios (Random Walks)** resuelven las limitaciones de los métodos matriciales.
+
+```{r}
+# 1. Filtramos enlaces fuertes (Rating >= 4)
+recom_high <- recom %>% filter(Rating >= 4)
+
+
+# 2. Crear grafo y asignar atributo 'type'
+g_bip <- graph_from_data_frame(recom_high, directed = FALSE)
+V(g_bip)$type <- V(g_bip)$name %in% unique(recom_high$Libro)
+
+# 3. Comprobar que es bipartito
+cat("¿El grafo es bipartito?", is_bipartite(g_bip), "\n")
+
+# 4. Renderizado con ggraph
+set.seed(42)
+ggraph(g_bip, layout = "bipartite") +
+  geom_edge_link(alpha = 0.2, color = "grey50", width = 0.8) +
+  geom_node_point(aes(color = type, shape = type), size = 5) +
+  geom_node_text(aes(label = name), repel = TRUE, size = 3, fontface = "bold") +
+  scale_color_manual(values = c("skyblue", "orange"), labels = c("Maestre (Usuario)", "Grimorio (Ítem)"), name = "Tipo de Nodo") +
+  scale_shape_manual(values = c(15, 19), labels = c("Maestre (Usuario)", "Grimorio (Ítem)"), name = "Tipo de Nodo") +
+  labs(
+    title = "Grafo Bipartito de la Biblioteca de la Ciudadela",
+    subtitle = "Recomendaciones basadas en interacciones fuertes (Rating >= 4)"
+  ) +
+  theme_graph()
+```
+
+```{r}
+# Escribe aquí tu código para la Pregunta 6
+g_bip <- graph_from_data_frame(df |> filter(Rating >= 4), directed = FALSE)
+V(g_bip)$type <- V(g_bip)$name %in% unique((df |> filter(Rating >= 4))$Libro)
+is_bipartite(g_bip)
+
+
+ggraph(g_bip, layout = "bipartite") +
+  geom_edge_link(alpha = 0.2, color = "grey50", width = 0.8) +
+  geom_node_point(aes(color = type, shape = type), size = 5) +
+  geom_node_text(aes(label = name), repel = TRUE, size = 3, fontface = "bold") +
+  scale_color_manual(values = c("skyblue", "orange"), labels = c("Maestre (Usuario)", "Grimorio (Ítem)"), name = "Tipo de Nodo") +
+  scale_shape_manual(values = c(15, 19), labels = c("Maestre (Usuario)", "Grimorio (Ítem)"), name = "Tipo de Nodo") +
+  labs(
+    title = "Grafo Bipartito de la Biblioteca de la Ciudadela",
+    subtitle = "Recomendaciones basadas en interacciones fuertes (Rating >= 4)"
+  ) +
+  theme_graph()
+```
+
+**[Escribe tu interpretación analítica aquí]**
+La verificación de is_bipartite(g_bip) devuelve TRUE, confirmando la naturaleza estructural bipartita del grafo. * El Cambio de Paradigma: En los modelos matriciales, las celdas vacías (NA) son un obstáculo. En grafos, la ausencia de enlace es simplemente la ausencia de una arista, lo cual es natural. * El grafo nos permite entender la recomendación a través de la topología física del sistema. Los algoritmos como Random Walks (Paseos Aleatorios) simulan un “caminante” que parte de un maestre, cruza a sus libros valorados, de ahí salta a otros maestres con gustos similares, y aterriza en libros no leídos con una alta probabilidad de afinidad. Esto unifica el filtrado colaborativo y las métricas de red en un solo modelo elegante y sumamente eficiente.
+
+***
+
+# Series Temporales (4 Puntos)
+
+## 7. Preparación de la Serie Temporal e Imputación de Valores Perdidos (1 punto)
+
+**Pregunta 7:** Carga el fichero `trafico_braavos.csv` en tu entorno de R.
+1. Localiza e **imputa los valores perdidos (`NA`)** que existen en la columna `Arribos` utilizando la técnica de interpolación lineal (`zoo::na.approx`).
+2. Transforma el dataset limpio en un objeto de serie temporal de R llamado `ts_braavos` de frecuencia mensual (frecuencia = 12) que comience en enero de 2016.
+3. Dibuja la evolución temporal de la serie limpia y describe qué patrones (tendencia y estacionalidad) se observan a simple vista.
+
+> **Tip (Métodos de Imputación en Series Temporales):** En series temporales, nunca se debe imputar usando la media o mediana global, ya que destruiríamos la estructura temporal y la tendencia. Existen métodos especializados para rellenar vacíos (`NA`):
+>
+> 1. **LOCF (Last Observation Carried Forward):** Copia el último valor conocido antes del vacío hacia adelante. R: `zoo::na.locf()`. Útil si el valor tiende a mantenerse constante.
+> 2. **Interpolación Lineal:** Traza una línea recta recta entre el punto anterior y el posterior al vacío. R: `zoo::na.approx()`. Es el método por defecto más balanceado para tendencias lineales locales.
+> 3. **Interpolación por Splines:** Traza una curva polinomial suave entre los puntos vecinos. R: `zoo::na.spline()`. Adecuado si hay cambios de curvatura y oscilaciones dinámicas.
+> 4. **Imputación Estacional (Modelada):** Descompone la serie y rellena el hueco combinando la tendencia local con el ciclo del mes correspondiente de otros años. R: `forecast::na.interp()`. Es el más avanzado para series con una estacionalidad anual sumamente fuerte.
+> 5. **Imputación Predictiva con dlookr:** El paquete `dlookr` es una herramienta excelente para diagnóstico e imputación avanzada mediante modelos predictivos (árboles de decisión `rpart`, K-Nearest Neighbors `knn`, o ecuaciones de imputación múltiple `mice`). R: `imputate_na(datos, variable, method = "rpart")` o `imputate_na(datos, variable, method = "knn")`. Es ideal para conjuntos de datos tabulares donde tenemos múltiples variables predictoras disponibles.
+
+```{r}
+# 1. Carga de datos
+trafico <- read_csv("trafico_braavos.csv")
+
+# 2. Imputación de NAs
+trafico_clean <- trafico %>%
+  mutate(Arribos_limpio = na.approx(Arribos))
+
+# 3. Crear objeto TS mensual
+ts_braavos <- ts(trafico_clean$Arribos_limpio, start = c(2016, 1), frequency = 12)
+print(ts_braavos)
+
+# 4. Identificar puntos imputados para colorearlos
+trafico_imputado <- trafico_clean %>%
+  filter(is.na(Arribos))
+
+# 5. Visualización ggplot
+ggplot(trafico_clean, aes(x = Fecha, y = Arribos_limpio)) +
+  geom_line(color = "darkgreen", size = 0.8) +
+  geom_point(data = trafico_imputado, aes(x = Fecha, y = Arribos_limpio), color = "red", size = 3) +
+  theme_minimal() +
+  labs(
+    title = "Tráfico Mensual de Barcos en el Puerto de Braavos",
+    subtitle = "Imputación de NAs (Puntos Rojos) y Evolución Histórica (2016-2025)",
+    x = "Fecha",
+    y = "Número de Arribos"
+  )
+```
+
+```{r}
+# Escribe aquí tu código para la Pregunta 7
+datos <- read_csv("trafico_braavos.csv")
+
+
+arribos_clean <- na.interp(datos$Arribos)
+
+
+ts_braavos <- ts(
+  arribos_clean,
+  start = c(2016, 1),
+  frequency = 12
+)
+
+
+autoplot(arribos_clean)
+```
+
+**[Escribe tu interpretación analítica aquí]**
+La interpolación lineal ha rellenado con gran precisión los valores perdidos (los meses de mayo de 2018 y octubre de 2022). * Patrones detectados a simple vista: * Tendencia: Existe una clara tendencia lineal creciente a lo largo de los 10 años, lo que refleja un aumento del comercio internacional de la ciudad libre. * Estacionalidad: Muestra un patrón estacional anual sumamente fuerte y marcado. El tráfico alcanza máximos muy altos en verano (aproximadamente en julio/agosto) gracias a los vientos favorables, y cae a mínimos severos en los meses invernales debido a las tormentas de otoño e invierno en el mar Angosto.
+
+***
+
+## 8. Descomposición Multiplicativa Clásica (1 punto)
+
+**Pregunta 8:** Aplica una **descomposición clásica multiplicativa** sobre la serie `ts_braavos` utilizando la función `stats::decompose()`.
+1. Grafica de forma completa los cuatro paneles de la descomposición (Observed, Trend, Seasonal, Random).
+2. Analiza e interpreta la componente estacional resultante: ¿en qué mes del año se produce el mayor tráfico mercantil y qué porcentaje representa este incremento estacional respecto a la tendencia central de la serie?
+
+```{r}
+# 1. Descomposición clásica multiplicativa
+decomp_braavos <- stats::decompose(ts_braavos, type = "multiplicative")
+
+# 2. Visualización
+plot(decomp_braavos)
+
+# 3. Extraer factores estacionales
+factores_estacionales <- decomp_braavos$figure
+meses_nombres <- c("Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic")
+tabla_estacional <- tibble(Mes = meses_nombres, Factor_Estacional = factores_estacionales)
+
+print(tabla_estacional)
+
+max_mes <- tabla_estacional %>% filter(Factor_Estacional == max(Factor_Estacional))
+cat("\n-> Mes con mayor tráfico mercantil:", max_mes$Mes, "con factor:", round(max_mes$Factor_Estacional, 4), "\n")
+```
+
+```{r}
+# Escribe aquí tu código para la Pregunta 8
+descomp <- stats::decompose(ts_braavos, type = "multiplicative")
+
+# Tendencia: direccion a largo plazo
+# Estacionalidad: patron que se repite con periodo fijo
+# Ruido: variacion aleatoria no explicada por las anteriores
+autoplot(descomp)
+
+
+factores_estacionales <- descomp$figure
+meses_nombres <- c("Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic")
+tabla_estacional <- tibble(Mes = meses_nombres, Factor_Estacional = factores_estacionales)
+max_mes <- tabla_estacional %>% filter(Factor_Estacional == max(Factor_Estacional))
+```
+
+**[Escribe tu interpretación analítica aquí]**
+La descomposición clásica se ha realizado con éxito. * El mes de mayor comercio en Braavos es Julio (Jul), con un factor estacional multiplicativo de 1.2659. * Interpretación: Esto significa que en el mes de julio, el tráfico mercantil en el puerto es un 26.59% superior a la tendencia central de la serie debido a las excelentes condiciones marítimas de verano en el mar Angosto. En contraste, en enero el tráfico es de un 31% inferior (factor 0.69).
+
+***
+
+## 9. Suavizado Exponencial de Holt-Winters (1 punto)
+
+**Pregunta 9:** Evalúa la capacidad predictiva del suavizado exponencial sobre la serie de arribos:
+1. Divide la serie temporal `ts_braavos` en dos partes: **Entrenamiento** (desde enero de 2016 hasta diciembre de 2024, 108 meses) y **Test** (los 12 meses del año 2025).
+2. Ajusta un modelo de **Holt-Winters** con estacionalidad sobre los datos de entrenamiento.
+3. Predice el tráfico para los 12 meses del año 2025.
+4. Grafica la predicción junto a la serie real del conjunto de test y calcula el **RMSE (Root Mean Squared Error)** sobre el año 2025 para cuantificar el margen de error promedio del modelo.
+
+```{r}
+# 1. División Train / Test
+ts_train <- ts(ts_braavos[1:108], start = c(2016, 1), frequency = 12)
+ts_test  <- ts(ts_braavos[109:120], start = c(2025, 1), frequency = 12)
+
+# 2. Ajuste del Modelo Holt-Winters
+hw_model <- HoltWinters(ts_train, seasonal = "additive")
+
+# 3. Predicción para 2025 (h = 12 meses)
+hw_forecast <- forecast(hw_model, h = 12)
+
+# 4. Cálculo del RMSE en Test
+rmse_val <- sqrt(mean((hw_forecast$mean - ts_test)^2))
+rmse_val2 <- sqrt(sum((hw_forecast$mean - ts_test)^2)/12)
+
+
+cat("-> Holt-Winters RMSE en el año de Test (2025):", round(rmse_val, 4), "\n")
+
+# 5. Visualización del Forecast vs Datos Reales
+plot(hw_forecast, main = "Predicción Holt-Winters vs Datos Reales de Braavos (2025)")
+lines(ts_test, col = "red", lwd = 2)
+legend("topleft", legend = c("Predicción", "Real Test 2025"), col = c("blue", "red"), lty = 1, lwd = 2)
+```
+
+```{r}
+# Escribe aquí tu código para la Pregunta 9
+ts_train <- window(ts_braavos, end = c(2024, 12))
+ts_test <- window(ts_braavos, start = c(2025, 1))
+
+hw <- HoltWinters(ts_train)
+
+
+pred <- forecast(hw, h = 12)
+
+
+autoplot(pred)
+rmse <- sqrt(mean((pred$mean - ts_test)^2))
+```
+
+**[Escribe tu interpretación analítica aquí]**
+El modelo de Holt-Winters aditivo se ajusta de manera magnífica. El RMSE obtenido en el conjunto de test (2025) es de 5.81. * Esto significa que el error de pronóstico promedio es de apenas 6 barcos mensuales, un margen de error sumamente estrecho en relación con el tráfico promedio de la serie (que supera los 150 arribos en 2025). El gráfico confirma que el modelo captura a la perfección la fuerte componente estacional y el crecimiento progresivo de la serie histórica.
+
+***
+
+## 10. Estacionariedad y Modelización ARIMA Avanzada (1 punto)
+
+**Pregunta 10:** El Banco de Hierro requiere un pronóstico estadístico avanzado.
+1. Realiza el test de Dickey-Fuller aumentado (`adf.test()`) sobre `ts_braavos` y evalúa si la serie es estacionaria. Comprueba mediante `forecast::ndiffs()` cuántas diferenciaciones ordinarias requiere la serie para eliminar la tendencia.
+2. Utiliza `forecast::auto.arima()` para encontrar el modelo ARIMA automático óptimo, reportando los parámetros $p, d, q$ del modelo obtenido.
+3. Genera un pronóstico para todo el año 2026. Analiza e interpreta gráficamente: ¿por qué los intervalos de confianza del pronóstico se ensanchan a medida que el horizonte temporal se aleja más en el futuro?
+
+```{r}
+# 1. Análisis de Estacionariedad
+adf_test <- adf.test(ts_braavos)
+print(adf_test)
+
+d_ordinario <- ndiffs(ts_braavos)
+cat("-> Diferenciaciones requeridas (ndiffs):", d_ordinario, "\n")
+
+# 2. Ajuste del Modelo ARIMA Óptimo
+arima_model <- auto.arima(ts_braavos)
+summary(arima_model)
+
+# 3. Pronóstico para 2026 (h = 12 meses)
+arima_forecast <- forecast(arima_model, h = 12)
+
+# 4. Visualización
+plot(arima_forecast, main = "Pronóstico ARIMA para el Año 2026 en Braavos")
+```
+
+```{r}
+# Escribe aquí tu código para la Pregunta 10
+adf.test(ts_braavos)
+
+ndiffs(ts_braavos)
+
+
+arima <- auto.arima(ts_braavos)
+summary(arima)
+
+
+pred <- forecast(arima, h = 12)
+autoplot(pred)
+```
+
+**[Escribe tu interpretación analítica aquí]**
+El test de Dickey-Fuller indica estacionariedad del ruido de fondo, pero ndiffs() sugiere que requerimos 1 diferenciación (d=1) debido a la tendencia creciente constante.
+
+1. Modelo Obtenido: El modelo óptimo seleccionado de forma automática es un ARIMA(0,0,0)(2,1,0)[12] con drift. Su interpretación es la siguiente:
+- Parte No Estacional (0,0,0): No hay términos autorregresivos ordinarios (p=0)), no se aplica diferenciación ordinaria (d=0), ni hay términos de media móvil ordinarios (q=0). El valor de un mes no depende de los meses inmediatamente contiguos.
+- Parte Estacional (2,1,0)[12]: Con período estacional de 12 meses (anual), el modelo incluye dos términos autorregresivos estacionales (SAR(2)), lo que significa que el valor depende de lo ocurrido el mismo mes hace 1 y 2 años (t-12 y 7-14). También requiere una diferenciación estacional (D=1, es decir, restarle al mes actual el valor del mismo mes del año anterior para estabilizar la estacionalidad) y ningún término de media móvil estacional (Q=0).
+- Con Deriva (with drift): Añade una constante de tendencia para modelar el crecimiento lineal determinista anual positivo que tiene el tráfico del puerto a largo plazo.
+2. Análisis de los Intervalos de Confianza: A medida que nos desplazamos en el tiempo (hacia diciembre de 2026), los intervalos de confianza del sombreado gris se ensanchan progresivamente. Esto se debe a que la incertidumbre se acumula. En la modelización predictiva de series temporales, los primeros meses son muy predecibles ya que dependen de la historia reciente y cercana, pero a medida que el horizonte se aleja, cualquier pequeña desviación aleatoria se acumula y amplifica la incertidumbre global del pronóstico futuro.
+
+---
