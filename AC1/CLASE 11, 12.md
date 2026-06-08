@@ -20,8 +20,8 @@ Divide el conjunto de datos en clusters con características similares.
 **Grupos no suelen ser separables**: si no hay separación clara entre los datos, K-means no es el mejor algoritmo. Alternativas como DBSCAN o modelos de mezcla.
 **Clusters vacíos**: no tiene puntos asignados. Solución: reducir $K$, reubicar centroides, colocar centroide en el punto más lejano (mayor error) $\arg\min_i||x_i-\mu_{c_i}||^2$.
 **Elección de $K$**:
-- **Método del codo**: realizar K.means para diferentes $K$, calcular $J$ y buscar un codo donde la mejora deja de ser significativa.
-- **Método Silhouette**: mide cómo de bien encaja cada dato en su grupo en comparación con los demás grupos. Para cada ejemplo $i$, $s(i)=\frac{b(i)-a(i)}{\max (a(i),b(i))}$ donde $a(i)$ es la distancia media del punto $i$ a los puntos de su cluster y $b(i)$ la menos distancia media del punto $i$ a los puntos del otro cluster. 
+- **Método del codo**: realizar K-means para diferentes $K$, calcular $J$ y buscar un codo donde la mejora deja de ser significativa.
+- **Método Silhouette**: mide cómo de bien encaja cada dato en su grupo en comparación con los demás grupos, la separación del cluster vecino. Para cada ejemplo $i$, $s(i)=\frac{b(i)-a(i)}{\max (a(i),b(i))}$ donde $a(i)$ es la distancia media del punto $i$ a los puntos de su cluster y $b(i)$ la menor distancia media del punto $i$ a los puntos del otro cluster. 
 	- Si $s(i) \approx 1$: es un punto bien asignado.
 	- Si $s(i)\approx 0$: es un punto cerca de la frontera.
 	- Si $s(i) \lt 0$: es una posible mala asignación.
