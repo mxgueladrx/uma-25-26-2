@@ -66,7 +66,7 @@ Reduce dimensionalidad, más simple de visualizar datos, extracción de rasgos a
 
 ![[Pasted image 20260519170010.png]]
 
-Busca una dirección unitaria $u$ tal que las proyecciones de los puntos sobre esa dirección tengan máxima varianza. $\max_{||u|=1}\sum_i (x_i * u)^2$ donde la longitud de la proyección $y_i=x_i*u$.
+Busca una dirección unitaria $u$ tal que las proyecciones de los puntos sobre esa dirección tengan máxima varianza. $\max_{|u|=1}\sum_i (x_i * u)^2$ donde la longitud de la proyección $y_i=x_i*u$.
 
 No es regresión lineal, ésta predice y minimiza errores en el eje $y$. PCA busca una dirección que resuma los datos maximizando la varianza proyectada y minimizando distancias ortogonales.
 
