@@ -82,71 +82,136 @@ Porque no hace falta calcular las coordenadas de cada punto nuevo, se aplica una
 Porque se aplica una función que lleva los puntos a una dimensión más alta donde la SVM traza un hiperplano recto y lineal. Al aplicar la inversa para volver al espacio original, esa frontera recta se deforma, convirtiéndose en una frontera curva y no lineal
 
 ## Ejercicio 17
+![[Pasted image 20260610111955.png]]
 
+El lineal hace fronteras rectas. El polinómico hace fronteras dobladas y curvas. El RBF o gaussiano hace fronteras super complejas, capaz de formar islas independientes a ciertos datos
 
 ## Ejercicio 18
+![[Pasted image 20260610112255.png]]
 
+Como ese kernel crea fronteras super complejas y se adapta mucho a los datos de entrenamiento, falla ante nuevos datos
 
 ## Ejercicio 19
+![[Pasted image 20260610112409.png]]
 
+Porque puede provocar overfitting al al crear fronteras para todos los datos y no de forma general
 
 ## Ejercicio 20
+![[Pasted image 20260610112440.png]]
 
+Los vectores de soporte definen la posición de la frontera y la distancia entre ellos y la frontera es el margen. Maximizar este margen aleja la frontera lo máximo posible de ambas clases, lo que reduce el riesgo de cometer errores con datos nuevos y una mejor generalización
 
 ## Ejercicio 21
+![[Pasted image 20260610112557.png]]
 
+El que tiene mayor separación ya que el objetivo de SVM es maximizar el margen. Ante nuevos datos podemos dejar más margen en la frontera y evitar fallos
 
 ## Ejercicio 22
+![[Pasted image 20260610112903.png]]
 
+Porque la de margen duro prohíbe errores de clasificación, por lo que deformaría la frontera al haber esos errores. El margen suave permite ciertos errores, por lo que la frontera no se deformaría y seguiría igual para una mejor generalización
 
 ## Ejercicio 23
+![[Pasted image 20260610113131.png]]
 
+Hay muchos puntos en el margen. Esto ocurre porque las clases están mezcladas, o porque el modelo ha sido definido con un margen muy ancho
 
 ## Ejercicio 24
+![[Pasted image 20260610113633.png]]
 
+No. Los vectores de soporte son todos los puntos que cruzan el margen. Incluye tanto a puntos bien clasificados como a los puntos mal clasificados
 
 ## Ejercicio 25
+![[Pasted image 20260610114007.png]]
 
+Al ser un algoritmo basado en distancias, la nueva variable de gran escala domina la distancia, obligando a la SVM a crear una frontera que solo hace caso a esa variable grande. La solucion es escalar la variable 
 
 ## Ejercicio 26
+![[Pasted image 20260610114402.png]]
 
+Al ser un circulo, una SVM lineal no puede hacer curvas. La solución es usar un kernel gaussiano ya que puede hacer fronteras muy complejas
 
 ## Ejercicio 27
+![[Pasted image 20260610114551.png]]
 
+Mide cuánto se parece el nuevo punto a los vectores de soporte en el espacio transformado para decidir su clase
 
 ## Ejercicio 28
+![[Pasted image 20260610114919.png]]
 
+El modelo está sufriendo overfitting. Un C alto penaliza mucho cada error, forzando a la frontera a ajustarse a los datos de entrenamiento, provocando que el modelo falle al generalizar con los datos nuevos de validación
 
 ## Ejercicio 29
+![[Pasted image 20260610115345.png]]
 
+La frontera depende de los vectores de soporte (pocos puntos), sin importar cuántas variables tengan los datos. Depende del kernel y el peso que le demos al error (C), podemos estar haciendo overfitting
 
 ## Ejercicio 30
+![[Pasted image 20260610115552.png]]
 
+Lineal: a lo mejor el problema no es linealmente separable, por eso los bajos resultados
+Polinómico: con curvas suaves es capaz de dividir la frontera y además con un margen suave, mejorando ambos resultados
+Gaussiano: se ha ajustado demasiado a los datos de entrenamiento ya que hace fronteras muy complejas y muy ajustadas a los datos, por lo que ante nuevos datos falla.
 
 ## Ejercicio 31
+![[Pasted image 20260610115825.png]]
 
+A: al ser mayor que 0, está en la clase positiva
+B: al ser mayor que 0 y cercano a 0 (menor que 1), está en la clase positiva y además cerca de la frontera (dentro del margen)
+C: al ser menor que 0, está en la clase negativa
 
 ## Ejercicio 32
+![[Pasted image 20260610120341.png]]
 
+A: $\max(0, 1-1.8) = 0$, como es 0, está en su clase correcta ya demás lejos de la frontera
+B: $\max(0, 1-0.6) = 0.4$, como $0 \lt 0.4 \lt 1$, está en su clase correcta pero dentro del margen
+C: $\max(0, 1-(-0.4)) = 1.4$, como $1.4 \gt 1$, está en la otra clase, ha pasado la frontera
 
 ## Ejercicio 33
+![[Pasted image 20260610120839.png]]
 
+Según el valor de C, penaliza más o menos la pérdida de hinge. Si C = 100, penaliza más, haciendo que la frontera se ajuste más a ese dato que falló. Si C = 0.1, penaliza mucho menos y se ajusta muy poco la frontera. Al final con un C grande obtenemos overfitting, y con un C menor mayor generalización
 
 ## Ejercicio 34
+![[Pasted image 20260610121115.png]]
 
+Si se elimina un punto con $\alpha_i = 0$, no ocurriría nada. La frontera y el margen se mantendrían iguales, ya que estos puntos no participan en la definición del hiperplano (están lejos del margen o bien clasificados). Si se elimina P5 (con $\alpha_5 > 0$), al ser un vector de soporte, la frontera cambiará. Al quitar uno de esos, el margen se reajustará buscando nuevos puntos
 
 ## Ejercicio 35
+![[Pasted image 20260610121526.png]]
 
+Se espera un signo positivo para f(x) y se predecirá la clase positiva. Como lo que se hace es el producto escalar (distancia entre los puntos) en una nueva dimensión, y se dice que son similares (y = 1), la suma daría positiva, por lo que la clase es positiva.
 
 ## Ejercicio 36
+![[Pasted image 20260610123043.png]]
 
+Al no escalar los datos, la variable de ingresos domina el cálculo de distancias y productos escalares. Como la SVM utiliza estas magnitudes para construir la frontera de decisión, el modelo dará mucho más peso a esa variable y apenas considerará la otra
 
 ## Ejercicio 37
+![[Pasted image 20260610124659.png]]
 
+Al introducir una nueva dimensión con polinomios, ya estamos quitando linealidad e incluyendo curvas, por lo que podría ayudar a separar las clases que con una recta no se podía separar
 
 ## Ejercicio 38
+![[Pasted image 20260610124839.png]]
 
+El lineal por ser más simple, más interpretable y menos propenso al sobreajuste. Cambiaría de decisión si los datos no fueran linealmente separables o si con el kernel mostrara una mejor mejora
 
 ## Ejercicio 39
+![[Pasted image 20260610125030.png]]
+![[Pasted image 20260610125037.png]]
 
+a) El punto P2 y N3 ya que son los puntos de cada clase que están mas cerca
 
+b) $(\frac{8+5}{2},\frac{6+3}{2})=(6.5, 4.5)$
+
+c) $\frac{x-x_1}{x_2-x_1}=\frac{y-y_1}{y_2-y_1}$, $\frac{x-5}{8-5}=\frac{y-3}{6-3}$, $3(x-5)=3(y-3)$, $y=x-2$
+
+d) $y-4.5=-(x-6.5)$, $y=-x+11$
+
+e) $-x-y+11=0$
+
+f) $-5-3+11=3$, $f(x,y)=\frac{1}{3}(-x-y+11)$
+
+g) $w=\frac{1}{9}*(8,6)+\frac{1}{9}*(-1)*(5,3)=(\frac{1}{3}, \frac{1}{3})$
+Usamos el vector de soporte $1/3*5+1/3*3+b=-1$, $b=-3.67$, $f(x,y)=\frac{1}{3}x+\frac{1}{3}y-3.67$
