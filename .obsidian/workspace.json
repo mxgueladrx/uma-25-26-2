@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "AC1/EJERCICIOS AD.md",
+                "file": "AC1/CLASE 7, 8, 9, 10.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "EJERCICIOS AD"
+              "title": "CLASE 7, 8, 9, 10"
             }
           },
           {
@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "AC1/CLASE 7, 8, 9, 10.md",
+                "file": "AC1/CLASE 11, 12.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "CLASE 7, 8, 9, 10"
+              "title": "CLASE 11, 12"
             }
           }
         ]
@@ -200,24 +200,24 @@
   "active": "0d0de263b1aa225e",
   "lastOpenFiles": [
     "AC1/EJERCICIOS SVM.md",
-    "AC1/EJERCICIOS CLUSTERING.md",
-    "AC1/EJERCICIOS AD.md",
-    "Imagenes/Pasted image 20260610185302.png",
-    "AC1/CLASE 7, 8, 9, 10.md",
-    "Imagenes/Pasted image 20260610184949.png",
-    "Imagenes/Pasted image 20260610184729.png",
-    "Imagenes/Pasted image 20260610184304.png",
-    "Imagenes/Pasted image 20260610184142.png",
-    "Imagenes/Pasted image 20260610183739.png",
-    "Imagenes/Pasted image 20260610183535.png",
-    "Imagenes/Pasted image 20260610183415.png",
-    "Imagenes/Pasted image 20260610182837.png",
-    "Imagenes/Pasted image 20260610182636.png",
-    "AC1/CLASE 11, 12.md",
-    "AC1/CLASE 3, 4, 5, 6.md",
     "AC1/EJERCICIOS PREPROCESAMIENTO.md",
     "AC1/EJERCICIOS PCA.md",
     "AC1/EJERCICIOS K-VECINOS.md",
+    "AC1/EJERCICIOS CLUSTERING.md",
+    "AC1/EJERCICIOS AD.md",
+    "AC1/CLASE 11, 12.md",
+    "AC1/CLASE 7, 8, 9, 10.md",
+    "Imagenes/Pasted image 20260611141454.png",
+    "Imagenes/Pasted image 20260611141116.png",
+    "Imagenes/Pasted image 20260611135433.png",
+    "Imagenes/Pasted image 20260611135140.png",
+    "Imagenes/Pasted image 20260611133907.png",
+    "Imagenes/Pasted image 20260611133532.png",
+    "Imagenes/Pasted image 20260611133339.png",
+    "Imagenes/Pasted image 20260611132402.png",
+    "Imagenes/Pasted image 20260611132106.png",
+    "Imagenes/Pasted image 20260611122907.png",
+    "AC1/CLASE 3, 4, 5, 6.md",
     "DAW/TEMA 3.2.md",
     "DAW/TEMA 3.1.md",
     "DAW/TEMA DOCKER.md",
