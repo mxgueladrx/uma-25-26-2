@@ -4,21 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "4a367d6beab9abbd",
+        "id": "c27c257e633480e5",
         "type": "tabs",
         "children": [
           {
-            "id": "95ee39ae6c0afc87",
+            "id": "2aa99ea36035309a",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "BD2/4. NIVEL FÍSICO.md",
+                "file": "RC1/Teoria.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "4. NIVEL FÍSICO"
+              "title": "Teoria"
             }
           }
         ]
@@ -78,8 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200,
-    "collapsed": true
+    "width": 200
   },
   "right": {
     "id": "0434abd432272fe4",
@@ -184,9 +183,24 @@
       "bases:Crear nueva base": false
     }
   },
-  "active": "95ee39ae6c0afc87",
+  "active": "2aa99ea36035309a",
   "lastOpenFiles": [
+    "RC1/EJERCICIOS LP.xopp~",
+    "BD2/Examen2.md",
+    "RC1/Teoria.md",
     "BD2/4. NIVEL FÍSICO.md",
+    "BD2/5. SEGURIDAD.md",
+    "BD2/Practica5/practica5.sql",
+    "BD2/Practica5/Sin confirmar 124515.crdownload",
+    "BD2/Practica5",
+    "BD2/Nueva carpeta",
+    "BD2/Practica4/BD.pdf",
+    "BD2/Practica4/practica4.sql",
+    "BD2/Practica4/practica4.zip",
+    "BD2/Practica4/Sin confirmar 219607.crdownload",
+    "BD2/Practica4",
+    "BD2/7. RECUPERABILIDAD.md",
+    "BD2/6. CONCURRENCIA.md",
     "BD2/3. DISPARADORES Y TRABAJOS.md",
     "BD2/2. PL-SQL.md",
     "BD2/1. INTRODUCCIÓN.md",
@@ -216,7 +230,6 @@
     "DAW/TEMA 4.md",
     "DAW/TEMA 2.md",
     "DAW/TEMA 1.md",
-    "DAW/KAHOOT BLOQUE 2.pdf",
-    "DAW/KAHOOT BLOQUE 1.pdf"
+    "DAW/KAHOOT BLOQUE 2.pdf"
   ]
 }
